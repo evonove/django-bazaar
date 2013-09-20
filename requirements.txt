@@ -1,0 +1,4 @@
+django>=1.5.4
+
+# Additional requirements go here
+Pillow==2.1.0
