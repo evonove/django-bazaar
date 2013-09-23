@@ -26,9 +26,21 @@ Install Django Bazaar::
 
     pip install django-bazaar
 
-Then use it in a project::
+To use it in a project add to `INSTALLED_APPS` the following:
 
-	import bazaar
+.. code-block:: python
+
+    INSTALLED_APPS = (
+        # ...
+        'crispy_forms',
+        'bazaar',
+        'bazaar.goods',
+        'bazaar.listings',
+        'bazaar.warehouse',
+        'bazaar.orders',
+    )
+
+More documentation coming soon!
 
 Features
 --------
