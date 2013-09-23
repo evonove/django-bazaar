@@ -1,17 +1,16 @@
 from django.contrib import admin
-from .models import Good, Product, PriceList
+from .models import Product, PriceList, ProductElement
 
 
-class ProductGoodInline(admin.TabularInline):
-    model = Product.goods.through
+class ProductElementInline(admin.TabularInline):
+    model = ProductElement
 
 
 class ProductAdmin(admin.ModelAdmin):
     inlines = [
-        ProductGoodInline,
+        ProductElementInline,
     ]
 
 
-admin.site.register(Good)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(PriceList)
