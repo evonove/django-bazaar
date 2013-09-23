@@ -1,0 +1,16 @@
+{% extends "bazaar/goods/base.html" %}
+
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8">
+            <h1>{% trans "Create a product" %}</h1>
+
+            <form method="post">
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
+{% endblock content %}

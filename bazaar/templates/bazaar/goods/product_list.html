@@ -1,0 +1,35 @@
+{% extends "bazaar/goods/base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8">
+            <h1>{% trans "Products" %}</h1>
+
+            {% for product in product_list %}
+                <div class="panel panel-default">
+                    <!-- Default panel contents -->
+                    <div class="panel-heading">{{ product.name }}</div>
+                    {% if product.description %}
+                        <div class="panel-body">
+                            <p>{{ product.description }}</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- List group -->
+                    <ul class="list-group">
+                        {% for element in product.elements %}
+                            <li class="list-group-item">
+                                {{ element.good }} - {{ element.quantity }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="col-md-4">
+            <h3>Filters</h3>
+        </div>
+    </div>
+{% endblock content %}
