@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, PriceList, ProductElement
+from .models import Product, PriceList, ProductElement, ProductPrice
 
 
 class ProductElementInline(admin.TabularInline):
@@ -12,5 +12,15 @@ class ProductAdmin(admin.ModelAdmin):
     ]
 
 
+class ProductInline(admin.TabularInline):
+    model = ProductPrice
+
+
+class PriceListAdmin(admin.ModelAdmin):
+    inlines = [
+        ProductInline,
+    ]
+
+
 admin.site.register(Product, ProductAdmin)
-admin.site.register(PriceList)
+admin.site.register(PriceList, PriceListAdmin)
