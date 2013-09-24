@@ -19,10 +19,30 @@ class AbstractGood(models.Model):
 
 
 @python_2_unicode_compatible
+class PriceList(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    default = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+
+@python_2_unicode_compatible
 class Product(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(max_length=500, blank=True)
     price_lists = models.ManyToManyField("PriceList", through="ProductPrice", related_name="products")
+
+    @property
+    def price(self):
+        """
+        Return the price for the product on the default price list
+        """
+        try:
+            pl = self.price_lists.get(default=True)
+            return pl.price
+        except PriceList.DoesNotExist:
+            return None
 
     def __str__(self):
         return self.name
@@ -39,15 +59,6 @@ class ProductElement(models.Model):
 
     def __str__(self):
         return ""
-
-
-@python_2_unicode_compatible
-class PriceList(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    default = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.name
 
 
 @python_2_unicode_compatible
