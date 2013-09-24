@@ -44,6 +44,10 @@ class Movement(models.Model):
     object_id = models.PositiveIntegerField()
     good = generic.GenericForeignKey('content_type', 'object_id')
 
+    class Meta:
+        get_latest_by = "date"
+        ordering = ["-date"]
+
     def __str__(self):
         return _("Movement for %s in warehouse %s: in %d - out %d") % (
             self.good, self.warehouse, self.stock_in, self.stock_out)
