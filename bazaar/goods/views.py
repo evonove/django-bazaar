@@ -1,13 +1,12 @@
 from django.views import generic
 
+from ..mixins import BazaarPrefixMixin
 from .models import Product
 
 
-class ProductListView(generic.ListView):
+class ProductListView(BazaarPrefixMixin, generic.ListView):
     model = Product
-    template_name = "bazaar/goods/product_list.html"
 
 
-class ProductCreateView(generic.CreateView):
+class ProductCreateView(BazaarPrefixMixin, generic.CreateView):
     model = Product
-    template_name = "bazaar/goods/product_form.html"
