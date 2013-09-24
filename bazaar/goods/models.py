@@ -23,6 +23,10 @@ class AbstractGood(models.Model):
         abstract = True
 
     @property
+    def stock(self):
+        return sum(s.quantity for s in self.stocks.all())
+
+    @property
     def cost(self):
         """
         Defines the cost of the good
@@ -57,18 +61,14 @@ class Product(models.Model):
             product_price = self.prices.get(price_list__default=True)
             return product_price.price
         except ProductPrice.DoesNotExist:
-            return None
+            return 0
 
     @property
     def cost(self):
         """
         The cost of the product as the sum of the costs of its goods
         """
-        cost = 0.0
-        for element in self.elements:
-            cost += element.good.cost
-
-        return cost
+        return sum(element.good.cost for element in self.elements.all())
 
     def __str__(self):
         return self.name
