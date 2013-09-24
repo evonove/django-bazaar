@@ -27,7 +27,7 @@ class Stock(models.Model):
     good = generic.GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
-        return _("Stock for %s in warehouse %s %s: quantity %d") % (self.good, self.warehouse, self.quantity)
+        return _("Stock for %s in warehouse %s: quantity %d") % (self.good, self.warehouse, self.quantity)
 
 
 @python_2_unicode_compatible
