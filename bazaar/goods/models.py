@@ -70,7 +70,7 @@ class Product(models.Model):
         """
         The cost of the product as the sum of the costs of its goods
         """
-        return sum(element.good.cost for element in self.elements.all())
+        return sum(element.good.cost * element.quantity for element in self.elements.all())
 
     def __str__(self):
         return self.name
