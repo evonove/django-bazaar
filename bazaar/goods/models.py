@@ -57,8 +57,10 @@ class Product(models.Model):
         """
         The price for the product on the default price list
         """
+        from .utils import get_default_price_list
+
         try:
-            product_price = self.prices.get(price_list__default=True)
+            product_price = self.prices.get(price_list=get_default_price_list())
             return product_price.price
         except ProductPrice.DoesNotExist:
             return 0
