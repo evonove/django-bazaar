@@ -1,1 +1,1 @@
-from .goods.utils import get_default_price_list, create_product_for_good
+from .goods.utils import create_product_for_good

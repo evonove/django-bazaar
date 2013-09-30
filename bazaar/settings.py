@@ -29,11 +29,13 @@ DEFAULTS = {
         ("EUR", "EUR - Euro Member Countries"),
         ("USD", "USD - United States Dollar"),
     ),
+    'DEFAULT_PRICE_LIST_ID': 1,
 }
 
 # List of settings that cannot be empty
 MANDATORY = (
     'CURRENCIES',
+    'DEFAULT_PRICE_LIST_ID',
 )
 
 # List of settings that may be in string import notation.

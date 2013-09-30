@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -39,10 +40,24 @@ class AbstractGood(models.Model):
         return self.name
 
 
+class PriceListManager(models.Manager):
+    use_for_related_fields = True
+
+    def get_default(self):
+        """
+        Return the default price list instance
+        """
+        try:
+            return self.get_query_set().get(pk=bazaar_settings.DEFAULT_PRICE_LIST_ID)
+        except PriceList.DoesNotExist:
+            raise ImproperlyConfigured("A default price list must exists. Please create one")
+
+
 @python_2_unicode_compatible
 class PriceList(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    default = models.BooleanField(default=False)
+
+    objects = PriceListManager()
 
     def __str__(self):
         return self.name
@@ -59,10 +74,9 @@ class Product(models.Model):
         """
         The price for the product on the default price list
         """
-        from .utils import get_default_price_list
 
         try:
-            product_price = self.prices.get(price_list=get_default_price_list())
+            product_price = self.prices.get(price_list__pk=bazaar_settings.DEFAULT_PRICE_LIST_ID)
             return product_price.price
         except ProductPrice.DoesNotExist:
             return 0
