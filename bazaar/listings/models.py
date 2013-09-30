@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
 from ..settings import bazaar_settings
-from bazaar .goods.models import Product
+from ..goods.models import Product
 
 
 @python_2_unicode_compatible

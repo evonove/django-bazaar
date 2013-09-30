@@ -6,8 +6,9 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
 from ..settings import bazaar_settings
+
 # TODO: this dependency should be optional, maybe based on INSTALLED APPS
-from bazaar.warehouse.models import Stock, Movement
+from ..warehouse.models import Stock, Movement
 
 
 @python_2_unicode_compatible
