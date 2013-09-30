@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
+from ..settings import bazaar_settings
 # TODO: this dependency should be optional, maybe based on INSTALLED APPS
 from bazaar.warehouse.models import Stock, Movement
 
@@ -90,10 +91,12 @@ class ProductElement(models.Model):
 
 
 @python_2_unicode_compatible
-class ProductPrice(models.Model):
+class ProductPrice(models.Models):
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, choices=bazaar_settings.CURRENCIES)
+
     product = models.ForeignKey(Product, related_name="prices")
     price_list = models.ForeignKey(PriceList)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
         return ""

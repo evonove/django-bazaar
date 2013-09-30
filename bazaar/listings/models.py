@@ -4,7 +4,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
-from bazaar.goods.models import Product
+from ..settings import bazaar_settings
+from bazaar .goods.models import Product
 
 
 @python_2_unicode_compatible
@@ -33,7 +34,10 @@ class Store(models.Model):
 @python_2_unicode_compatible
 class Publishing(models.Model):
     external_id = models.CharField(max_length=128)
+
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, choices=bazaar_settings.CURRENCIES)
+
     available_units = models.IntegerField()
     published = models.BooleanField(default=False)
     last_update = models.DateTimeField(default=timezone.now)

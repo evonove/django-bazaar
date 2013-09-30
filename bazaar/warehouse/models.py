@@ -7,6 +7,8 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from ..settings import bazaar_settings
+
 
 @python_2_unicode_compatible
 class Warehouse(models.Model):
@@ -33,6 +35,8 @@ class Stock(models.Model):
 @python_2_unicode_compatible
 class Movement(models.Model):
     price_in = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, choices=bazaar_settings.CURRENCIES)
+
     stock_in = models.IntegerField()
     stock_out = models.IntegerField()
     date = models.DateTimeField(default=timezone.now)
