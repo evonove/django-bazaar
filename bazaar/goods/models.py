@@ -106,7 +106,7 @@ class ProductElement(models.Model):
 
 
 @python_2_unicode_compatible
-class ProductPrice(models.Models):
+class ProductPrice(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=3, choices=bazaar_settings.CURRENCIES)
 
