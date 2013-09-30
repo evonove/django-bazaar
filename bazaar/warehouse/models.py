@@ -34,7 +34,8 @@ class Stock(models.Model):
 
 @python_2_unicode_compatible
 class Movement(models.Model):
-    price_in = models.DecimalField(max_digits=10, decimal_places=2)
+    price_in = models.DecimalField(max_digits=10, decimal_places=2,
+                                   help_text=_("Price of a single unit of the movement's good"))
     currency = models.CharField(max_length=3, choices=bazaar_settings.CURRENCIES)
 
     stock_in = models.IntegerField()
