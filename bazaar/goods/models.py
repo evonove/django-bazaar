@@ -74,12 +74,12 @@ class Product(models.Model):
         """
         The price for the product on the default price list
         """
+        # Use .all() to allow access to prefetched queryset
+        for product_price in self.prices.all():
+            if product_price.price_list_id == bazaar_settings.DEFAULT_PRICE_LIST_ID:
+                return product_price.price
 
-        try:
-            product_price = self.prices.get(price_list__pk=bazaar_settings.DEFAULT_PRICE_LIST_ID)
-            return product_price.price
-        except ProductPrice.DoesNotExist:
-            return 0
+        return 0
 
     @property
     def cost(self):
