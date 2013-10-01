@@ -101,6 +101,9 @@ class ProductElement(models.Model):
     object_id = models.PositiveIntegerField()
     good = generic.GenericForeignKey('content_type', 'object_id')
 
+    class Meta:
+        unique_together = ('product', 'content_type', 'object_id')
+
     def __str__(self):
         return ""
 
@@ -112,6 +115,9 @@ class ProductPrice(models.Model):
 
     product = models.ForeignKey(Product, related_name="prices")
     price_list = models.ForeignKey(PriceList)
+
+    class Meta:
+        unique_together = ('product', 'price_list')
 
     def __str__(self):
         return ""
