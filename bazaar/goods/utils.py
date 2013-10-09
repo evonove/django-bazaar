@@ -3,13 +3,14 @@ from __future__ import unicode_literals
 from .models import Product, PriceList
 
 
-def create_product_for_good(good, price, quantity=1):
+def create_product_for_good(good, price, quantity=1, name=None):
     """
     Creates a product for the specified `good` with `quantity`. `price` is set to the default price list.
     Returns the new product instance
     """
+    product_name = name or good.name
 
-    product = Product.objects.create(name=good.name, description=good.description)
+    product = Product.objects.create(name=product_name, description=good.description)
     product.save()
 
     # Add good to product elements list
