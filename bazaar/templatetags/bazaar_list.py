@@ -47,3 +47,11 @@ def paginator_slice(page_obj, adjacent_pages=3):
             page_numbers.insert(-1, "...")
 
     return page_numbers
+
+
+@register.inclusion_tag("bazaar/sort_direction.html", takes_context=True)
+def sort_direction(context, sort_field):
+    return {
+        "is_sorted": sort_field["is_current"],
+        "sort_ascending": context["current_sort_direction"] != "-",
+    }
