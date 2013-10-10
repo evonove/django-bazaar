@@ -6,6 +6,7 @@ from .models import Product
 
 class ProductListView(BazaarPrefixMixin, generic.ListView):
     model = Product
+    paginate_by = 20
 
 
 class ProductCreateView(BazaarPrefixMixin, generic.CreateView):
