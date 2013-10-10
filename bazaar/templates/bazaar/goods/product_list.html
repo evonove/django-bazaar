@@ -19,7 +19,7 @@
 
                     <!-- List group -->
                     <ul class="list-group">
-                        {% for element in product.elements %}
+                        {% for element in product.elements.all %}
                             <li class="list-group-item">
                                 {{ element.good }} - {{ element.quantity }}
                             </li>
