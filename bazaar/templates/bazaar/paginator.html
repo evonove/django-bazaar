@@ -1,0 +1,30 @@
+{% load magic_tags %}
+
+{% if is_paginated %}
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+            <li><a href="?page={{ page_obj.previous_page_number }}&{{ query_filter.urlencode }}{% if order_by %}&order_by={{ order_by }}{% endif %}">&laquo;</a></li>
+        {% endif %}
+
+        {% for i in page_obj|paginator_slice:5 %}
+            <li class="
+            {% if i == page_obj.number %}
+                active
+            {% elif i == "..." %}
+                disabled
+            {% endif %}
+            ">
+                {% ifequal i "..." %}
+                    <a>{{ i }}</a>
+                {% else %}
+                    <a href="?page={{ i }}&{{ query_filter.urlencode }}{% if order_by %}&order_by={{ order_by }}{% endif %}">{{ i }}</a>
+                {% endifequal %}
+            </li>
+
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li><a href="?page={{ page_obj.next_page_number }}&{{ query_filter.urlencode }}{% if order_by %}&order_by={{ order_by }}{% endif %}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+{% endif %}
