@@ -5,3 +5,5 @@ Pillow==2.1.0
 django-crispy-forms==1.4.0
 
 django-stored-messages==0.1.2
+
+pytz
