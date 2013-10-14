@@ -38,6 +38,7 @@ setup(
     install_requires=[
         'Pillow',
         'django-crispy-forms>=1.4.0',
+        'django-stored-messages',
     ],
     license="BSD",
     zip_safe=False,
