@@ -37,7 +37,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'Pillow',
-        'django-cripsy-forms>=1.4.0',
+        'django-crispy-forms>=1.4.0',
     ],
     license="BSD",
     zip_safe=False,
