@@ -40,6 +40,15 @@ To use it in a project add to `INSTALLED_APPS` the following:
         'bazaar.orders',
     )
 
+Also add `django.core.context_processors.request` to `TEMPLATE_CONTEXT_PROCESSORS`
+
+.. code-block:: python
+
+    from django.conf import global_settings
+    TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
+        'django.core.context_processors.request',
+    )
+
 More documentation coming soon!
 
 Features
