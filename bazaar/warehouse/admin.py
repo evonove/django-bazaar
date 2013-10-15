@@ -1,16 +1,15 @@
 from django.contrib import admin
-from .models import Warehouse, Stock, Movement
+from .models import Warehouse, Movement
 
 
-class StockInline(admin.TabularInline):
-    model = Stock
+class MovementInline(admin.TabularInline):
+    model = Movement
 
 
 class WarehouseAdmin(admin.ModelAdmin):
     inlines = [
-        StockInline,
+        MovementInline,
     ]
 
 
 admin.site.register(Warehouse, WarehouseAdmin)
-admin.site.register(Movement)
