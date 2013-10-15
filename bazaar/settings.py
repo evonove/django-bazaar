@@ -21,20 +21,24 @@ back to the defaults.
 from django.conf import settings
 from django.utils import importlib, six
 
+import moneyed
+
 
 USER_SETTINGS = getattr(settings, 'DJANGO_BAZAAR', None)
 
 DEFAULTS = {
     'CURRENCIES': (
-        ("EUR", "EUR - Euro Member Countries"),
-        ("USD", "USD - United States Dollar"),
+        (moneyed.EUR.code, moneyed.EUR.name),
+        (moneyed.USD.code, moneyed.USD.name),
     ),
+    'DEFAULT_CURRENCY': moneyed.EUR.code,
     'DEFAULT_PRICE_LIST_ID': 1,
 }
 
 # List of settings that cannot be empty
 MANDATORY = (
     'CURRENCIES',
+    'DEFAULT_CURRENCY',
     'DEFAULT_PRICE_LIST_ID',
 )
 
@@ -106,6 +110,21 @@ class BazaarSettings(object):
     def validate_setting(self, attr, val):
         if not val and attr in self.mandatory:
             raise AttributeError("Bazaar setting: '%s' is mandatory" % attr)
+
+        validator_func = getattr(self, "validate_%s" % attr.lower())
+        if validator_func:
+            validator_func(val)
+
+    def validate_currencies(self, value):
+        for code, name in value:
+            if code not in moneyed.CURRENCIES:
+                raise AttributeError(
+                    "Bazaar setting CURRENCIES: '%s' is not a valid currency code." % value)
+
+    def validate_default_currency(self, value):
+        if value not in self.CURRENCIES:
+            raise AttributeError(
+                "Bazaar setting DEFAULT_CURRENCY: '%s' is not a valid currency code." % value)
 
 
 bazaar_settings = BazaarSettings(USER_SETTINGS, DEFAULTS, IMPORT_STRINGS, MANDATORY)
