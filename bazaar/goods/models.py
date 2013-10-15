@@ -11,6 +11,7 @@ from ..settings import bazaar_settings
 # TODO: this dependency should be optional, maybe based on INSTALLED APPS
 from ..warehouse.models import RealGood
 
+
 @python_2_unicode_compatible
 class AbstractGood(models.Model):
     name = models.CharField(max_length=100)
@@ -96,7 +97,7 @@ class Product(models.Model):
 @python_2_unicode_compatible
 class ProductElement(models.Model):
     product = models.ForeignKey(Product, related_name="elements")
-    quantity = models.IntegerField(default=1)
+    quantity = models.DecimalField(max_digits=30, decimal_places=4)
 
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
