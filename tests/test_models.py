@@ -38,4 +38,4 @@ class TestGoods(unittest.TestCase):
     def tearDown(self):
         self.warehouse.delete()
         RealGood.objects.all().delete()
-        Good.objects.delete()
+        Good.objects.all().delete()
