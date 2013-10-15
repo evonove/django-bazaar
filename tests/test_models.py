@@ -8,20 +8,34 @@ test_django-bazaar
 Tests for `django-bazaar` modules module.
 """
 
-import os
-import shutil
+from __future__ import unicode_literals
+
 import unittest
 
-from bazaar import models
+from bazaar.warehouse.models import RealGood, Warehouse
+
+from .models import Good
 
 
-class TestBazaar(unittest.TestCase):
-
+class TestGoods(unittest.TestCase):
     def setUp(self):
-        pass
+        self.warehouse = Warehouse.objects.create(name="a warehouse")
 
-    def test_something(self):
-        pass
+    def test_goods_stock_property_empty(self):
+        good = Good.objects.create(name="a good")
+        self.assertEqual(good.stock, 0)
+
+    def test_goods_stock_property(self):
+        good = Good.objects.create(name="a good")
+
+        for i in range(10):
+            real_good = RealGood.objects.create(
+                good=good, price=0.0, currency="EUR", warehouse=self.warehouse)
+            real_good.movements.create(quantity=1, agent="test", warehouse=self.warehouse)
+
+        self.assertEqual(good.stock, 10)
 
     def tearDown(self):
-        pass
+        self.warehouse.delete()
+        RealGood.objects.all().delete()
+        Good.objects.delete()

@@ -11,6 +11,24 @@ from ..settings import bazaar_settings
 
 
 @python_2_unicode_compatible
+class RealGood(models.Model):
+    price = models.DecimalField(max_digits=10, decimal_places=2,
+                                help_text=_("Buying unit price for this good"))
+    currency = models.CharField(max_length=3, choices=bazaar_settings.CURRENCIES)
+
+    uid = models.CharField(max_length=500, blank=True)
+
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    good = generic.GenericForeignKey('content_type', 'object_id')
+
+    warehouse = models.ForeignKey("Warehouse")
+
+    def __str__(self):
+        return _("Real good %s - %s in %s") % (self.uid, self.good, self.warehouse)
+
+
+@python_2_unicode_compatible
 class Warehouse(models.Model):
     name = models.CharField(max_length=100)
 
@@ -19,40 +37,19 @@ class Warehouse(models.Model):
 
 
 @python_2_unicode_compatible
-class Stock(models.Model):
-    quantity = models.IntegerField(default=0)
-
-    warehouse = models.ForeignKey(Warehouse, related_name="stocks")
-
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    good = generic.GenericForeignKey('content_type', 'object_id')
-
-    def __str__(self):
-        return _("Stock for %s in warehouse %s: quantity %d") % (self.good, self.warehouse, self.quantity)
-
-
-@python_2_unicode_compatible
 class Movement(models.Model):
-    price_in = models.DecimalField(max_digits=10, decimal_places=2,
-                                   help_text=_("Price of a single unit of the movement's good"))
-    currency = models.CharField(max_length=3, choices=bazaar_settings.CURRENCIES)
-
-    stock_in = models.IntegerField()
-    stock_out = models.IntegerField()
+    quantity = models.DecimalField(max_digits=30, decimal_places=4)
     date = models.DateTimeField(default=timezone.now)
     agent = models.CharField(max_length=100, help_text=_("The batch/user that made the movement"))
 
     warehouse = models.ForeignKey(Warehouse)
 
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    good = generic.GenericForeignKey('content_type', 'object_id')
+    good = models.ForeignKey(RealGood, related_name="movements")
 
     class Meta:
         get_latest_by = "date"
         ordering = ["-date"]
 
     def __str__(self):
-        return _("Movement for %s in warehouse %s: in %d - out %d") % (
-            self.good, self.warehouse, self.stock_in, self.stock_out)
+        return _("Movement from %s in warehouse %s: %d") % (
+            self.agent, self.warehouse, self.quantity)

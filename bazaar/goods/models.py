@@ -9,8 +9,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from ..settings import bazaar_settings
 
 # TODO: this dependency should be optional, maybe based on INSTALLED APPS
-from ..warehouse.models import Stock, Movement
-
+from ..warehouse.models import RealGood
 
 @python_2_unicode_compatible
 class AbstractGood(models.Model):
@@ -18,16 +17,15 @@ class AbstractGood(models.Model):
     description = models.TextField(max_length=500, blank=True)
 
     elements = generic.GenericRelation("ProductElement")
-
-    stocks = generic.GenericRelation(Stock)
-    movements = generic.GenericRelation(Movement)
+    real_goods = generic.GenericRelation(RealGood)
 
     class Meta:
         abstract = True
 
     @property
     def stock(self):
-        return sum(s.quantity for s in self.stocks.all())
+        stock = self.real_goods.all().aggregate(quantity=models.Sum("movements__quantity"))
+        return stock["quantity"] or 0
 
     @property
     def cost(self):
