@@ -24,8 +24,11 @@ class AbstractGood(models.Model):
 
     @property
     def stock(self):
-        stock = self.real_goods.all().aggregate(quantity=models.Sum("movements__quantity"))
-        return stock["quantity"] or 0
+        stock = 0
+        for rg in self.real_goods.all():
+            for movement in rg.movements.all():
+                stock += movement.quantity
+        return stock
 
     @property
     def cost(self):
