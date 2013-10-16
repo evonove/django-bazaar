@@ -30,7 +30,7 @@ class TestGoods(unittest.TestCase):
 
         for i in range(10):
             real_good = RealGood.objects.create(
-                good=good, price=0.0, currency="EUR", warehouse=self.warehouse)
+                good=good, price=0.0, warehouse=self.warehouse)
             real_good.movements.create(quantity=1, agent="test", warehouse=self.warehouse)
 
         self.assertEqual(good.stock, 10)
@@ -39,3 +39,13 @@ class TestGoods(unittest.TestCase):
         self.warehouse.delete()
         RealGood.objects.all().delete()
         Good.objects.all().delete()
+
+
+class TestRealGoods(unittest.TestCase):
+    def test_real_good_defaults_currency(self):
+        warehouse = Warehouse.objects.create(name="a warehouse")
+        good = Good.objects.create(name="a good")
+        real_good = RealGood.objects.create(
+            good=good, price=0.0, warehouse=warehouse)
+
+        self.assertEqual(real_good.price.currency.code, "EUR")

@@ -7,14 +7,13 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
-from ..settings import bazaar_settings
+from ..fields import MoneyField
 
 
 @python_2_unicode_compatible
 class RealGood(models.Model):
-    price = models.DecimalField(max_digits=10, decimal_places=2,
-                                help_text=_("Buying unit price for this good"))
-    currency = models.CharField(max_length=3, choices=bazaar_settings.CURRENCIES)
+    price = MoneyField(help_text=_("Buying unit price for this good in the system currency"))
+    original_price = MoneyField(help_text=_("Buying unit price for this good in the original currency"))
 
     uid = models.CharField(max_length=500, blank=True)
 

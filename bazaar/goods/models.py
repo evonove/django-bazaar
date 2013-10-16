@@ -6,6 +6,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
+from ..fields import MoneyField
 from ..settings import bazaar_settings
 
 # TODO: this dependency should be optional, maybe based on INSTALLED APPS
@@ -112,8 +113,7 @@ class ProductElement(models.Model):
 
 @python_2_unicode_compatible
 class ProductPrice(models.Model):
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    currency = models.CharField(max_length=3, choices=bazaar_settings.CURRENCIES)
+    price = MoneyField()
 
     product = models.ForeignKey(Product, related_name="prices")
     price_list = models.ForeignKey(PriceList)
