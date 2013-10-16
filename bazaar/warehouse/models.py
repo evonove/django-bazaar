@@ -2,11 +2,13 @@ from __future__ import unicode_literals
 
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from ..settings import bazaar_settings
 from ..fields import MoneyField
 
 
@@ -22,6 +24,11 @@ class RealGood(models.Model):
     good = generic.GenericForeignKey('content_type', 'object_id')
 
     warehouse = models.ForeignKey("Warehouse")
+
+    def clean(self):
+        if self.price.currency.code != bazaar_settings.DEFAULT_CURRENCY:
+            raise ValidationError("Price field must contain prices in the system currency."
+                                  "Store the price with in the original currency in original_price field")
 
     def __str__(self):
         return _("Real good %s - %s in %s") % (self.uid, self.good, self.warehouse)
