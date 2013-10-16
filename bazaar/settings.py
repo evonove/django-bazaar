@@ -80,6 +80,10 @@ class BazaarSettings(object):
         self.mandatory = mandatory or ()
 
     def __getattr__(self, attr):
+        # return None when searching for undefined validation methods
+        if attr.startswith("validate_"):
+            return None
+
         if attr not in self.defaults.keys():
             raise AttributeError("Invalid Bazaar setting: '%s'" % attr)
 
