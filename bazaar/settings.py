@@ -7,10 +7,7 @@ Settings for Django Bazaar are all namespaced in the DJANGO_BAZAAR setting.
 For example your project's `settings.py` file might look like this:
 
 DJANGO_BAZAAR = {
-    'CURRENCIES': (
-        ("EUR", "EUR - Euro Member Countries"),
-        ("USD", "USD - United States Dollar"),
-    ),
+    'DEFAULT_CURRENCY': 'EUR',
 }
 
 This module provides the `bazaar_settings` object, that is used to access
@@ -27,17 +24,13 @@ import moneyed
 USER_SETTINGS = getattr(settings, 'DJANGO_BAZAAR', None)
 
 DEFAULTS = {
-    'CURRENCIES': (
-        (moneyed.EUR.code, moneyed.EUR.name),
-        (moneyed.USD.code, moneyed.USD.name),
-    ),
+    'CURRENCIES': None,
     'DEFAULT_CURRENCY': moneyed.EUR.code,
     'DEFAULT_PRICE_LIST_ID': 1,
 }
 
 # List of settings that cannot be empty
 MANDATORY = (
-    'CURRENCIES',
     'DEFAULT_CURRENCY',
     'DEFAULT_PRICE_LIST_ID',
 )
@@ -103,6 +96,13 @@ class BazaarSettings(object):
 
         self.validate_setting(attr, val)
 
+        # CURRENCIES is converted from a tuple to a list of tuples
+        if attr == "CURRENCIES":
+            if val:
+                val = [(code, moneyed.CURRENCIES[code].name) for code in val]
+            else:
+                val = [(currency.code, currency.name) for currency in moneyed.CURRENCIES]
+
         # Cache the result
         setattr(self, attr, val)
         return val
@@ -116,7 +116,7 @@ class BazaarSettings(object):
             validator_func(val)
 
     def validate_currencies(self, value):
-        for code, name in value:
+        for code in value:
             if code not in moneyed.CURRENCIES:
                 raise AttributeError(
                     "Bazaar setting CURRENCIES: '%s' is not a valid currency code." % value)
