@@ -24,7 +24,7 @@ import moneyed
 USER_SETTINGS = getattr(settings, 'DJANGO_BAZAAR', None)
 
 DEFAULTS = {
-    'CURRENCIES': None,
+    'CURRENCIES': (),
     'DEFAULT_CURRENCY': moneyed.EUR.code,
     'DEFAULT_PRICE_LIST_ID': 1,
 }
@@ -101,7 +101,7 @@ class BazaarSettings(object):
             if val:
                 val = [(code, moneyed.CURRENCIES[code].name) for code in val]
             else:
-                val = [(currency.code, currency.name) for currency in moneyed.CURRENCIES]
+                val = [(currency.code, currency.name) for currency in six.itervalues(moneyed.CURRENCIES)]
 
         # Cache the result
         setattr(self, attr, val)
@@ -122,7 +122,7 @@ class BazaarSettings(object):
                     "Bazaar setting CURRENCIES: '%s' is not a valid currency code." % value)
 
     def validate_default_currency(self, value):
-        if value not in self.CURRENCIES:
+        if value not in (code for code, value in self.CURRENCIES):
             raise AttributeError(
                 "Bazaar setting DEFAULT_CURRENCY: '%s' is not a valid currency code." % value)
 
