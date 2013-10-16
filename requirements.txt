@@ -8,4 +8,5 @@ django-stored-messages==0.1.2
 
 pytz
 
-py-moneyed==0.4.1
+# Use django-money master zip because the pypi version do not install
+https://github.com/jakewins/django-money/archive/master.zip
