@@ -58,5 +58,5 @@ class Movement(models.Model):
         ordering = ["-date"]
 
     def __str__(self):
-        return _("Movement from %s in warehouse %s: %d") % (
+        return _("Movement from %s in warehouse %s: %.4f") % (
             self.agent, self.warehouse, self.quantity)
