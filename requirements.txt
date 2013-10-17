@@ -2,9 +2,11 @@ django>=1.5.4
 
 # Additional requirements go here
 Pillow==2.2.1
-django-crispy-forms==1.4.0
 
+# django apps
+django-crispy-forms==1.4.0
 django-stored-messages==0.1.2
+django-money-rates==0.1.0
 
 pytz
 
