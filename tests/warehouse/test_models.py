@@ -14,7 +14,7 @@ import unittest
 
 from bazaar.warehouse.models import RealGood, Warehouse
 
-from .models import Good
+from ..models import Good
 
 
 class TestGoods(unittest.TestCase):
