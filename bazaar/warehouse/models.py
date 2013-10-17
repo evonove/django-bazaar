@@ -47,6 +47,7 @@ class Movement(models.Model):
     quantity = models.DecimalField(max_digits=30, decimal_places=4)
     date = models.DateTimeField(default=timezone.now)
     agent = models.CharField(max_length=100, help_text=_("The batch/user that made the movement"))
+    reason = models.TextField()
 
     warehouse = models.ForeignKey(Warehouse)
 
