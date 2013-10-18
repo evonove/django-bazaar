@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.db import models
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
@@ -34,9 +34,24 @@ class RealGood(models.Model):
         return _("Real good %s - %s in %s") % (self.uid, self.good, self.warehouse)
 
 
+class PriceListManager(models.Manager):
+    use_for_related_fields = True
+
+    def get_default(self):
+        """
+        Return the default warehouse instance
+        """
+        try:
+            return self.get_query_set().get(pk=bazaar_settings.DEFAULT_WAREHOUSE_ID)
+        except Warehouse.DoesNotExist:
+            raise ImproperlyConfigured("A default warehouse must exists. Please create one")
+
+
 @python_2_unicode_compatible
 class Warehouse(models.Model):
     name = models.CharField(max_length=100)
+
+    objects = PriceListManager()
 
     def __str__(self):
         return self.name
