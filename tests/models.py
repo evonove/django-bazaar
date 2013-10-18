@@ -5,4 +5,6 @@ class Good(AbstractGood):
     """
     Test class for goods
     """
-    pass
+    @property
+    def cost(self):
+        return 1
