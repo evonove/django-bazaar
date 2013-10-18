@@ -2,11 +2,14 @@ from __future__ import unicode_literals
 
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError, ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+
+import moneyed
+from djmoney_rates.utils import convert_money
 
 from ..settings import bazaar_settings
 from ..fields import MoneyField
@@ -25,13 +28,20 @@ class RealGood(models.Model):
 
     warehouse = models.ForeignKey("Warehouse")
 
-    def clean(self):
-        if self.price.currency.code != bazaar_settings.DEFAULT_CURRENCY:
-            raise ValidationError("Price field must contain prices in the system currency."
-                                  "Store the original price in original_price field")
+    def save(self, *args, **kwargs):
+        default_currency = moneyed.CURRENCIES[bazaar_settings.DEFAULT_CURRENCY]
+
+        currency = getattr(self.price, "currency", default_currency)
+        if currency != default_currency:
+            self.original_price = self.price
+
+            self.price = convert_money(self.price.amount, currency.code, default_currency.code)
+            self.price.currency = default_currency
+
+        return super(RealGood, self).save(*args, **kwargs)
 
     def __str__(self):
-        return _("Real good %s - %s in %s") % (self.uid, self.good, self.warehouse)
+        return _("Real good %s - '%s' in %s") % (self.uid, self.good, self.warehouse)
 
 
 class PriceListManager(models.Manager):
