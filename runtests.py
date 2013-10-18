@@ -16,6 +16,8 @@ settings.configure(
         "django.contrib.contenttypes",
         "django.contrib.sites",
         "crispy_forms",
+        "djmoney_rates",
+
         "bazaar",
         "bazaar.goods",
         "bazaar.warehouse",
@@ -25,8 +27,9 @@ settings.configure(
     ],
     SITE_ID=1,
     # Custom project settings go here
-
-
+    DJANGO_MONEY_RATES={
+        "DEFAULT_BACKEND": "tests.backends.RateBackend",
+    },
 )
 
 try:

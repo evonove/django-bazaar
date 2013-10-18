@@ -1,27 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-test_django-bazaar
-------------
-
-Tests for `django-bazaar` modules module.
-"""
-
 from __future__ import unicode_literals
 
-import unittest
-import moneyed
+from bazaar.warehouse.models import RealGood, Warehouse
 
-from django.core.exceptions import ValidationError
-
-from bazaar.warehouse.models import RealGood, Warehouse, Movement
-from bazaar.settings import bazaar_settings
-
+from ..base import BaseTestCase
 from ..models import Good
 
 
-class TestModels(unittest.TestCase):
+class TestAbstractGood(BaseTestCase):
     def setUp(self):
         self.warehouse = Warehouse.objects.create(name="a warehouse")
         self.good = Good.objects.create(name="a good")
@@ -43,29 +31,3 @@ class TestModels(unittest.TestCase):
             real_good.movements.create(quantity=1, agent="test", warehouse=self.warehouse)
 
         self.assertEqual(self.good.stock, 10)
-
-    def test_defaults_currency(self):
-        warehouse = Warehouse.objects.create(name="a warehouse")
-        good = Good.objects.create(name="a good")
-        real_good = RealGood.objects.create(
-            good=good, price=0.0, warehouse=warehouse)
-
-        self.assertEqual(real_good.price.currency.code, "EUR")
-
-    def test_realgood_str(self):
-        expected = 'Real good 00000 - a good in a warehouse'
-        self.assertEqual(expected, str(self.real_good))
-
-    def test_movement_str(self):
-        w = Warehouse.objects.create(name="a warehouse")
-        g = Good.objects.create(name="a good")
-        rg = RealGood.objects.create(price=1.0, original_price=1.0, uid='00000', warehouse=w,
-                                     good=g)
-        m = Movement.objects.create(quantity=1, agent='test', reason='testing purposes',
-                                    warehouse=w, good=rg)
-        expected = 'Movement from test in warehouse a warehouse: 1.0000'
-        self.assertEqual(expected, str(m))
-
-    def test_clean_realgood(self):
-        bazaar_settings.DEFAULT_CURRENCY = moneyed.USD.code
-        self.assertRaises(ValidationError, self.real_good.clean)
