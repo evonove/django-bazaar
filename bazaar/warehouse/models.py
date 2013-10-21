@@ -1,8 +1,5 @@
 from __future__ import unicode_literals
 
-from django.contrib.contenttypes import generic
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
@@ -11,22 +8,19 @@ from django.utils.translation import ugettext_lazy as _
 import moneyed
 from djmoney_rates.utils import convert_money
 
-from ..settings import bazaar_settings
 from ..fields import MoneyField
+from ..goods.models import Product
+from ..settings import bazaar_settings
 
 
 @python_2_unicode_compatible
-class RealGood(models.Model):
-    price = MoneyField(help_text=_("Buying unit price for this good in the system currency"))
-    original_price = MoneyField(help_text=_("Buying unit price for this good in the original currency"))
+class Stock(models.Model):
+    price = MoneyField(help_text=_("Buying unit price for this stock in the system currency"))
+    original_price = MoneyField(help_text=_("Buying unit price for this stock in the original "
+                                            "currency"))
 
-    uid = models.CharField(max_length=500, blank=True)
-
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    good = generic.GenericForeignKey('content_type', 'object_id')
-
-    warehouse = models.ForeignKey("Warehouse")
+    code = models.CharField(max_length=100, blank=True)
+    product = models.ForeignKey(Product, related_name="stocks")
 
     def save(self, *args, **kwargs):
         default_currency = moneyed.CURRENCIES[bazaar_settings.DEFAULT_CURRENCY]
@@ -38,33 +32,10 @@ class RealGood(models.Model):
             self.price = convert_money(self.price.amount, currency.code, default_currency.code)
             self.price.currency = default_currency
 
-        return super(RealGood, self).save(*args, **kwargs)
+        return super(Stock, self).save(*args, **kwargs)
 
     def __str__(self):
-        return _("Real good %s - '%s' in %s") % (self.uid, self.good, self.warehouse)
-
-
-class PriceListManager(models.Manager):
-    use_for_related_fields = True
-
-    def get_default(self):
-        """
-        Return the default warehouse instance
-        """
-        try:
-            return self.get_query_set().get(pk=bazaar_settings.DEFAULT_WAREHOUSE_ID)
-        except Warehouse.DoesNotExist:
-            raise ImproperlyConfigured("A default warehouse must exists. Please create one")
-
-
-@python_2_unicode_compatible
-class Warehouse(models.Model):
-    name = models.CharField(max_length=100)
-
-    objects = PriceListManager()
-
-    def __str__(self):
-        return self.name
+        return _("Stock %s - '%s'") % (self.code, self.product)
 
 
 @python_2_unicode_compatible
@@ -74,14 +45,12 @@ class Movement(models.Model):
     agent = models.CharField(max_length=100, help_text=_("The batch/user that made the movement"))
     reason = models.TextField()
 
-    warehouse = models.ForeignKey(Warehouse)
-
-    good = models.ForeignKey(RealGood, related_name="movements")
+    stock = models.ForeignKey(Stock, related_name="movements")
 
     class Meta:
         get_latest_by = "date"
         ordering = ["-date"]
 
     def __str__(self):
-        return _("Movement from %s in warehouse %s: %.4f") % (
-            self.agent, self.warehouse, self.quantity)
+        return _("Movement %s - %s by %s: %.4f") % (
+            self.stock, self.reason, self.agent, self.quantity)

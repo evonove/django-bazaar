@@ -1,66 +1,48 @@
 from __future__ import unicode_literals
 
-from bazaar.warehouse.models import Warehouse, RealGood, Movement
-from bazaar.settings import bazaar_settings
+from bazaar.goods.models import Product
+from bazaar.warehouse.models import Stock, Movement
 
 from moneyed import Money
 
 from ..base import BaseTestCase
-from ..models import Good
-
-
-class TestWarehouse(BaseTestCase):
-    def test_model(self):
-        warehouse = Warehouse(name="a warehouse")
-        self.assertEqual(str(warehouse), "a warehouse")
-
-    def test_get_default_return_default_warehouse(self):
-        warehouse = Warehouse.objects.get_default()
-        self.assertEqual(bazaar_settings.DEFAULT_WAREHOUSE_ID, warehouse.id)
 
 
 class TestRealGood(BaseTestCase):
+    def setUp(self):
+        self.product = Product.objects.create(name="a product")
+        self.stock = Stock.objects.create(code="fake-code", product=self.product)
+
     def tearDown(self):
-        Good.objects.all().delete()
-        RealGood.objects.all().delete()
+        self.stock.delete()
+        self.product.delete()
 
     def test_model(self):
-        good = Good.objects.create(name="a good")
-        real_good = RealGood(uid="fake-uid", good=good, warehouse=Warehouse.objects.get_default())
-        self.assertEqual(str(real_good), "Real good fake-uid - 'a good' in Default")
+        self.assertEqual(str(self.stock), "Stock fake-code - 'a product'")
 
     def test_price_is_converted_to_default_currency(self):
-        # create a good
-        good = Good.objects.create(name="a good")
+        self.stock.price = Money(1.0, "USD")
+        self.stock.save()
 
-        real_good = RealGood(uid="fake-uid", good=good, warehouse=Warehouse.objects.get_default())
-        real_good.price = Money(1.0, "USD")
-        real_good.save()
-
-        self.assertEqual(real_good.price, Money(0.74, "EUR"))
-        self.assertEqual(real_good.original_price, Money(1.0, "USD"))
+        self.assertEqual(self.stock.price, Money(0.74, "EUR"))
+        self.assertEqual(self.stock.original_price, Money(1.0, "USD"))
 
     def test_defaults_currency(self):
-        warehouse = Warehouse.objects.create(name="a warehouse")
-        good = Good.objects.create(name="a good")
-        real_good = RealGood.objects.create(
-            good=good, price=0.0, warehouse=warehouse)
-
-        self.assertEqual(real_good.price.currency.code, "EUR")
+        self.assertEqual(self.stock.price.currency.code, "EUR")
 
 
 class TestMovement(BaseTestCase):
+    def setUp(self):
+        self.product = Product.objects.create(name="a product")
+        self.stock = Stock.objects.create(code="fake-code", product=self.product)
+        self.movement = Movement.objects.create(
+            quantity=1, agent="test", reason="testing purposes", stock=self.stock)
+
     def tearDown(self):
-        Good.objects.all().delete()
-        RealGood.objects.all().delete()
-        Movement.objects.all().delete()
+        self.product.delete()
+        self.stock.delete()
+        self.movement.delete()
 
     def test_movement_str(self):
-        w = Warehouse.objects.create(name="a warehouse")
-        g = Good.objects.create(name="a good")
-        rg = RealGood.objects.create(price=1.0, original_price=1.0, uid='00000', warehouse=w,
-                                     good=g)
-        m = Movement.objects.create(quantity=1, agent='test', reason='testing purposes',
-                                    warehouse=w, good=rg)
-        expected = 'Movement from test in warehouse a warehouse: 1.0000'
-        self.assertEqual(expected, str(m))
+        expected = "Movement Stock fake-code - 'a product' - testing purposes by test: 1.0000"
+        self.assertEqual(expected, str(self.movement))

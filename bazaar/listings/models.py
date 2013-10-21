@@ -16,7 +16,7 @@ class Listing(models.Model):
 
     # TODO: this should become a gallery
     image = models.ImageField(upload_to="listing_images")
-    product = models.ForeignKey(Product, related_name="listings")
+    product = models.ManyToManyField(Product, related_name="listings")
 
     def __str__(self):
         return self.title
