@@ -39,6 +39,7 @@ setup(
         'Pillow',
         'django-crispy-forms>=1.4.0',
         'django-stored-messages',
+        'django-money-rates',
     ],
     license="BSD",
     zip_safe=False,
