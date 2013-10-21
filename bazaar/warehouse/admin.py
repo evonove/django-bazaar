@@ -1,15 +1,15 @@
 from django.contrib import admin
-from .models import Warehouse, Movement
+from .models import Stock, Movement
 
 
 class MovementInline(admin.TabularInline):
     model = Movement
 
 
-class WarehouseAdmin(admin.ModelAdmin):
+class StockAdmin(admin.ModelAdmin):
     inlines = [
         MovementInline,
     ]
 
 
-admin.site.register(Warehouse, WarehouseAdmin)
+admin.site.register(Stock, StockAdmin)
