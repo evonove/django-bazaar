@@ -5,12 +5,9 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
-import moneyed
-from djmoney_rates.utils import convert_money
-
 from ..fields import MoneyField
 from ..goods.models import Product
-from ..settings import bazaar_settings
+from ..utils import convert_money_to_default_currency
 
 
 @python_2_unicode_compatible
@@ -23,14 +20,10 @@ class Stock(models.Model):
     product = models.ForeignKey(Product, related_name="stocks")
 
     def save(self, *args, **kwargs):
-        default_currency = moneyed.CURRENCIES[bazaar_settings.DEFAULT_CURRENCY]
-
-        currency = getattr(self.price, "currency", default_currency)
-        if currency != default_currency:
+        new_price = convert_money_to_default_currency(self.price)
+        if new_price != self.price:
             self.original_price = self.price
-
-            self.price = convert_money(self.price.amount, currency.code, default_currency.code)
-            self.price.currency = default_currency
+            self.price = new_price
 
         return super(Stock, self).save(*args, **kwargs)
 
