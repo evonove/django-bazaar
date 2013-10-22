@@ -64,6 +64,19 @@ class Product(models.Model):
 
         return 0
 
+    def set_price(self, price):
+        """
+        Sets the price for the product on the default price list
+        """
+        if not self.pk:
+            # TODO: raise a specific exception
+            raise
+
+        default_price_list = PriceList.objects.get_default()
+        product_price, created = default_price_list.prices.get_or_create(product__pk=self.pk)
+        product_price.price = price
+        product_price.save()
+
     def __str__(self):
         return self.name
 
@@ -73,7 +86,7 @@ class ProductPrice(models.Model):
     price = MoneyField()
 
     product = models.ForeignKey(Product, related_name="prices")
-    price_list = models.ForeignKey(PriceList)
+    price_list = models.ForeignKey(PriceList, related_name="prices")
 
     class Meta:
         unique_together = ('product', 'price_list')
