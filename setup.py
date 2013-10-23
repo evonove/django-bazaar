@@ -40,6 +40,11 @@ setup(
         'django-crispy-forms>=1.4.0',
         'django-stored-messages',
         'django-money-rates',
+        'django-money',
+    ],
+    # necessary beacuse django-money package on pypi is broken
+    dependency_links=[
+        'https://github.com/jakewins/django-money/archive/master.zip#egg=django-money'
     ],
     license="BSD",
     zip_safe=False,
