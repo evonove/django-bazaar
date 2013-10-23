@@ -27,14 +27,12 @@ DEFAULTS = {
     'CURRENCIES': (),
     'DEFAULT_CURRENCY': moneyed.EUR.code,
     'DEFAULT_PRICE_LIST_ID': 1,
-    'DEFAULT_WAREHOUSE_ID': 1,
 }
 
 # List of settings that cannot be empty
 MANDATORY = (
     'DEFAULT_CURRENCY',
     'DEFAULT_PRICE_LIST_ID',
-    'DEFAULT_WAREHOUSE_ID',
 )
 
 # List of settings that may be in string import notation.
