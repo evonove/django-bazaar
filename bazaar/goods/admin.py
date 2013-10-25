@@ -4,6 +4,7 @@ from .models import Product, PriceList, ProductPrice
 
 class ProductInline(admin.TabularInline):
     model = ProductPrice
+    raw_id_fields = ('product',)
 
 
 class PriceListAdmin(admin.ModelAdmin):
