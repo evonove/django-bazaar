@@ -4,6 +4,7 @@ django>=1.5.4
 Pillow==2.2.1
 
 # django apps
+django-braces==1.2.2
 django-crispy-forms==1.4.0
 django-stored-messages==0.1.2
 django-money-rates==0.2.1

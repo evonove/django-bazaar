@@ -37,6 +37,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'Pillow',
+        'django-braces',
         'django-crispy-forms>=1.4.0',
         'django-stored-messages',
         'django-money-rates',
