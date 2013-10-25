@@ -72,8 +72,8 @@ class Product(models.Model):
             # TODO: raise a specific exception
             raise
 
-        default_price_list = PriceList.objects.get_default()
-        product_price, created = default_price_list.prices.get_or_create(product__pk=self.pk)
+        product_price, created = ProductPrice.objects.get_or_create(
+            product=self, price_list_id=bazaar_settings.DEFAULT_PRICE_LIST_ID)
         product_price.price = price
         product_price.save()
 
