@@ -18,5 +18,12 @@
                 </li>
             {% endblock navbar-elements %}
         </ul>
+        <ul class="nav navbar-nav navbar-right">
+            {% if user.is_authenticated %}
+                <li><a href="{% url "bazaar:login" %}">{% trans "Log in" %}</a></li>
+            {% else %}
+                <li><a href="{% url "bazaar:logout" %}">{% trans "Log out" %}</a></li>
+            {% endif %}
+        </ul>
     </div><!--/.nav-collapse -->
 </div>

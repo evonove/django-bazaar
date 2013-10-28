@@ -49,6 +49,12 @@ Also add `django.core.context_processors.request` to `TEMPLATE_CONTEXT_PROCESSOR
         'django.core.context_processors.request',
     )
 
+A few more settings to go
+
+.. code-block:: python
+
+    LOGIN_REDIRECT_URL = "bazaar:home"
+
 More documentation coming soon!
 
 Features
