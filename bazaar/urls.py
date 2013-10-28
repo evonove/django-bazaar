@@ -6,7 +6,7 @@ from .views import HomeView
 bazaar_patterns = patterns(
     '',
     url(r'^$', HomeView.as_view(), name="home"),
-    url(r'^accounts/login/$', 'django.contrib.auth.views.login', name="login"),
+    url(r'^accounts/login/$', 'bazaar.views.login', name="login"),
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', name="logout"),
 
     url(r'', include("bazaar.goods.urls")),
