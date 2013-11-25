@@ -16,8 +16,21 @@ class Stock(models.Model):
     original_price = MoneyField(help_text=_("Buying unit price for this stock in the original "
                                             "currency"))
 
+    created = models.DateTimeField(auto_now=True)
+
     code = models.CharField(max_length=100, blank=True)
     product = models.ForeignKey(Product, related_name="stocks")
+
+    class Meta:
+        ordering = ['created']
+        get_latest_by = "created"
+
+    @property
+    def quantity(self):
+        quantity = 0
+        for movement in self.movements.all():
+            quantity += movement.quantity
+        return quantity
 
     def save(self, *args, **kwargs):
         new_price = convert_money_to_default_currency(self.price)
@@ -28,7 +41,7 @@ class Stock(models.Model):
         return super(Stock, self).save(*args, **kwargs)
 
     def __str__(self):
-        return _("Stock %s - '%s'") % (self.code, self.product)
+        return _("Stock %s - '%s'") % (self.code or self.price, self.product)
 
 
 @python_2_unicode_compatible
