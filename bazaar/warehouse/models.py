@@ -54,7 +54,7 @@ def update_stock_price(sender, instance, created, **kwargs):
         # compute average price only for incoming movements
         if movement.quantity > 0:
             price = money_to_default(movement.price or 0)
-            avg_price = (stock.quantity * stock.price + movement.quantity * price /
+            avg_price = ((stock.quantity * stock.price + movement.quantity * price) /
                          (stock.quantity + movement.quantity))
             stock.price = avg_price
 

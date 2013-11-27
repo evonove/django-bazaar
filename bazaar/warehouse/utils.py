@@ -6,13 +6,17 @@ from .models import Movement, Stock
 
 
 @atomic
-def in_movement(quantity, agent, reason, price, product):
+def in_movement(quantity, agent, reason, product, price=None):
     """ Create a incoming movement for the `product` """
     if quantity < 0:
         raise MovementException("Quantity must be a positive amount")
 
     # otherwise create a stock
     stock, created = Stock.objects.get_or_create(product=product)
+
+    # when price is None is defaulted to the current stock price, which by default is the average
+    if price is None:
+        price = stock.price
 
     Movement.objects.create(quantity=quantity, agent=agent, reason=reason, stock=stock, price=price)
 
