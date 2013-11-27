@@ -1,47 +1,29 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from ..fields import MoneyField
 from ..goods.models import Product
-from ..utils import convert_money_to_default_currency
+from ..utils import money_to_default
 
 
 @python_2_unicode_compatible
 class Stock(models.Model):
-    price = MoneyField(help_text=_("Buying unit price for this stock in the system currency"))
-    original_price = MoneyField(help_text=_("Buying unit price for this stock in the original "
-                                            "currency"))
-
-    created = models.DateTimeField(auto_now=True)
-
-    code = models.CharField(max_length=100, blank=True)
-    product = models.ForeignKey(Product, related_name="stocks")
-
-    class Meta:
-        ordering = ['created']
-        get_latest_by = "created"
-
-    @property
-    def quantity(self):
-        quantity = 0
-        for movement in self.movements.all():
-            quantity += movement.quantity
-        return quantity
+    price = MoneyField(help_text=_("Average unit price for this stock in the system currency"))
+    product = models.OneToOneField(Product, related_name="stock")
+    quantity = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
-        new_price = convert_money_to_default_currency(self.price)
-        if new_price != self.price:
-            self.original_price = self.price
-            self.price = new_price
-
+        self.price = money_to_default(self.price)
         return super(Stock, self).save(*args, **kwargs)
 
     def __str__(self):
-        return _("Stock %s - '%s'") % (self.code or self.price, self.product)
+        return _("Stock '%s' - %s") % (self.product, self.price)
 
 
 @python_2_unicode_compatible
@@ -50,6 +32,7 @@ class Movement(models.Model):
     date = models.DateTimeField(default=timezone.now)
     agent = models.CharField(max_length=100, help_text=_("The batch/user that made the movement"))
     reason = models.TextField()
+    price = MoneyField(null=True, help_text=_("Unit price for this movement"))
 
     stock = models.ForeignKey(Stock, related_name="movements")
 
@@ -58,5 +41,22 @@ class Movement(models.Model):
         ordering = ["-date"]
 
     def __str__(self):
-        return _("Movement %s - %s by %s: %.4f") % (
-            self.stock, self.reason, self.agent, self.quantity)
+        return _("Movement '%s' - %s by %s: %.4f") % (
+            self.stock.product, self.reason, self.agent, self.quantity)
+
+
+@receiver(post_save, sender=Movement)
+def update_stock_price(sender, instance, created, **kwargs):
+    movement = instance
+    if created:
+        stock = movement.stock
+
+        # compute average price only for incoming movements
+        if movement.quantity > 0:
+            price = money_to_default(movement.price or 0)
+            avg_price = (stock.quantity * stock.price + movement.quantity * price /
+                         (stock.quantity + movement.quantity))
+            stock.price = avg_price
+
+        stock.quantity += movement.quantity
+        stock.save()

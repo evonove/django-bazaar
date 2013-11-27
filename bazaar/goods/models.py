@@ -35,15 +35,11 @@ class PriceList(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=500, blank=True)
-    price_lists = models.ManyToManyField("PriceList", through="ProductPrice", related_name="products")
+    price_lists = models.ManyToManyField("PriceList", through="ProductPrice",
+                                         related_name="products")
 
-    @property
-    def stock(self):
-        quantity = 0
-        for stock in self.stocks.all():
-            for movement in stock.movements.all():
-                quantity += movement.quantity
-        return quantity
+    class UnsavedException(Exception):
+        pass
 
     @property
     def cost(self):
@@ -69,11 +65,11 @@ class Product(models.Model):
         Sets the price for the product on the default price list
         """
         if not self.pk:
-            # TODO: raise a specific exception
-            raise
+            raise self.UnsavedException("Save product before setting its price")
 
+        price_list = PriceList.objects.get(id=bazaar_settings.DEFAULT_PRICE_LIST_ID)
         product_price, created = ProductPrice.objects.get_or_create(
-            product=self, price_list_id=bazaar_settings.DEFAULT_PRICE_LIST_ID)
+            product=self, price_list=price_list)
         product_price.price = price
         product_price.save()
 
@@ -92,4 +88,4 @@ class ProductPrice(models.Model):
         unique_together = ('product', 'price_list')
 
     def __str__(self):
-        return ""
+        return "'%s' %s %s" % (self.product, self.price_list, self.price)

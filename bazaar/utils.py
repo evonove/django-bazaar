@@ -7,7 +7,7 @@ import moneyed
 from .settings import bazaar_settings
 
 
-def convert_money_to_default_currency(money):
+def money_to_default(money):
     """
     Convert money amount to the system default currency. If money has no 'currency' attribute
     does nothing
