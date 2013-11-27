@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.core.urlresolvers import reverse
 from django.contrib.auth.views import login as auth_login
 from django.http.response import HttpResponseRedirect
