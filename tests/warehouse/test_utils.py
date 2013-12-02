@@ -43,10 +43,9 @@ class TestMovementUtils(TestCase):
             out_movement(-1, "test", "test", self.product)
         self.assertEqual("%s" % m.exception, "Quantity must be a positive amount")
 
-    def test_out_movement_raise_error_when_no_stock_exists(self):
-        with self.assertRaises(MovementException) as m:
-            out_movement(1, "test", "test", self.product)
-        self.assertEqual("%s" % m.exception, "No stock found for product 'test product'")
+    def test_out_movement_create_stock(self):
+        out_movement(1, "test", "test", self.product)
+        self.assertTrue(Stock.objects.filter(product=self.product, quantity=-1).exists())
 
     def test_out_movement(self):
         in_movement(10, "test", "test", self.product, 10.0)

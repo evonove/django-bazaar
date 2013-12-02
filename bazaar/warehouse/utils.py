@@ -28,8 +28,5 @@ def out_movement(quantity, agent, reason, product):
     if quantity < 0:
         raise MovementException("Quantity must be a positive amount")
 
-    try:
-        stock = Stock.objects.get(product=product)
-        Movement.objects.create(quantity=quantity * -1, agent=agent, reason=reason, stock=stock)
-    except Stock.DoesNotExist:
-        raise MovementException("No stock found for product '%s'" % product)
+    stock, created = Stock.objects.get_or_create(product=product)
+    Movement.objects.create(quantity=quantity * -1, agent=agent, reason=reason, stock=stock)
