@@ -21,9 +21,12 @@
     {% include "navbar.html" %}
 {% endblock navigation %}
 
-{% block content %}
-    <h1>Bazaar Base</h1>
-{% endblock content %}
+{% block main %}
+    {% block content %}
+        <h1>Bazaar Base</h1>
+    {% endblock content %}
+{% endblock main %}
+
 
 {% block javascript %}
     <script src="//code.jquery.com/jquery.js"></script>
