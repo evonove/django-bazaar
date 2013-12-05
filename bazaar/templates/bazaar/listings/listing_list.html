@@ -1,0 +1,87 @@
+{% extends "bazaar/listings/base.html" %}
+
+{% load i18n %}
+
+{% block stylesheets %}
+    {{ block.super }}
+
+    <style>
+        .listing-striped {
+            margin-left: 15px;
+            margin-right: 15px;
+        }
+        .listing-striped>.listing-item:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+    </style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8">
+            <h2>{% trans "Listings" %}</h2>
+            <div class="listing-striped">
+                {% for listing in listing_list %}
+                    <div class="row listing-item">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <a data-toggle="collapse" href="#listing{{ listing.id }}">
+                                        <h5>{{ listing.title }}</h5>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="listing{{ listing.id }}" class="collapse">
+                            <div class="col-md-3">
+                                <div class="row">
+                                    {% if listing.image %}
+                                        <div class="col-md-4">
+                                            <img src="{{ listing.image.url }}" class="img-thumbnail img-responsive">
+                                        </div>
+                                    {% endif %}
+                                    <div class="col-md-8">
+                                        <p>{{ listing.description }}</p>
+                                        <p><strong>{% trans "Sale Unit:" %}</strong> {{ listing.sales_units }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <!-- product list -->
+                                <h4>{% trans "Products" %}</h4>
+                                {% for product in listing.products.all %}
+                                    <a>{{ product }}</a>{% if not forloop.last %} - {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-3">
+                                <table class="table table-condensed">
+                                    <thead>
+                                    <tr>
+                                        <th>{% trans "Published on" %}</th>
+                                        <th>{% trans "Price" %}</th>
+                                        <th>{% trans "Available units" %}</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for publishing in listing.publishings.all %}
+                                        <tr>
+                                            <td>{{ publishing.store }}</td>
+                                            <td>{{ publishing.price }}</td>
+                                            <td>{{ publishing.available_units }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% include "bazaar/paginator.html" %}
+        </div>
+        <div class="col-md-2">
+            <h4>Filters</h4>
+        </div>
+    </div>
+{% endblock content %}

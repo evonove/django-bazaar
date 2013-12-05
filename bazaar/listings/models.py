@@ -15,8 +15,8 @@ class Listing(models.Model):
     sales_units = models.IntegerField(default=1)
 
     # TODO: this should become a gallery
-    image = models.ImageField(upload_to="listing_images")
-    product = models.ManyToManyField(Product, related_name="listings")
+    image = models.ImageField(upload_to="listing_images", blank=True)
+    products = models.ManyToManyField(Product, related_name="listings")
 
     def __str__(self):
         return self.title

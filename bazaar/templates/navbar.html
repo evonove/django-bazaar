@@ -16,6 +16,11 @@
                 <li class="{% ifequal request.path products %}active{% endifequal %}">
                     <a href="{{ products }}">{% trans "Products" %}</a>
                 </li>
+
+                {% url "bazaar:listing-list" as listings %}
+                <li class="{% ifequal request.path listings %}active{% endifequal %}">
+                    <a href="{{ listings }}">{% trans "Listings" %}</a>
+                </li>
             {% endblock navbar-elements %}
         </ul>
         <ul class="nav navbar-nav navbar-right">

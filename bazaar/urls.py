@@ -10,6 +10,7 @@ bazaar_patterns = patterns(
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', name="logout"),
 
     url(r'', include("bazaar.goods.urls")),
+    url(r'', include("bazaar.listings.urls")),
 )
 
 # uniform namespace for all urls
