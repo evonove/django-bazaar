@@ -16,10 +16,17 @@ class Listing(models.Model):
 
     # TODO: this should become a gallery
     image = models.ImageField(upload_to="listing_images", blank=True)
-    products = models.ManyToManyField(Product, related_name="listings")
+    products = models.ManyToManyField(Product, related_name="listings", through="ListingSet")
 
     def __str__(self):
         return self.title
+
+
+class ListingSet(models.Model):
+    quantity = models.DecimalField(max_digits=30, decimal_places=4, default=1)
+
+    product = models.ForeignKey(Product, related_name="listing_sets")
+    price_list = models.ForeignKey(Listing, related_name="listing_sets")
 
 
 @python_2_unicode_compatible

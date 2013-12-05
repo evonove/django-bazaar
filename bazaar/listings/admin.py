@@ -1,11 +1,18 @@
+from __future__ import unicode_literals
 from django.contrib import admin
 
-from .models import Listing, Publishing, Store
+from .models import Listing, ListingSet, Publishing, Store
+
+
+class ListingSetInline(admin.TabularInline):
+    model = ListingSet
+    extra = 1
+    raw_id_fields = ('product',)
 
 
 class ListingAdmin(admin.ModelAdmin):
+    inlines = [ListingSetInline]
     model = Listing
-    raw_id_fields = ('products',)
 
 
 admin.site.register(Store)
