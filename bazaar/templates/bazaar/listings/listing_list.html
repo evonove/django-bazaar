@@ -6,6 +6,16 @@
     {{ block.super }}
 
     <style>
+        .modal-large {
+            width: 1000px;
+        }
+        .listing-detail {
+            margin-top: 10px;
+        }
+        .listing-item {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
         .listing-striped {
             margin-left: 15px;
             margin-right: 15px;
@@ -23,60 +33,77 @@
             <div class="listing-striped">
                 {% for listing in listing_list %}
                     <div class="row listing-item">
-                        <div class="col-md-12">
+                        <div class="col-md-12 listing-header">
                             <div class="row">
-                                <div class="col-md-3">
+                                {% if listing.picture_url %}
+                                    <div class="col-md-1">
+                                        <img src="{{ listing.picture_url }}" class="img-thumbnail img-responsive">
+                                    </div>
+                                {% endif %}
+                                <div class="col-md-6">
                                     <a data-toggle="collapse" href="#listing{{ listing.id }}">
                                         <h5>{{ listing.title }}</h5>
                                     </a>
+                                    {% if listing.description|length > 30 %}
+                                        <a data-toggle="modal" data-target="#modalListing{{ listing.id }}">
+                                            See full description
+                                        </a>
+
+                                        <div id="modalListing{{ listing.id }}" class="modal fade">
+                                            <div class="modal-dialog modal-large">
+                                                <div class="modal-content">
+                                                    <div class="modal-body">
+                                                        {% autoescape off %}{{ listing.description }}{% endautoescape %}
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div><!-- /.modal-content -->
+                                            </div><!-- /.modal-dialog -->
+                                        </div><!-- /.modal -->
+                                    {% else %}
+                                        <p>{{ listing.description }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-3">
+                                    <table class="table table-condensed">
+                                        <thead>
+                                        <tr>
+                                            <th>{% trans "Published on" %}</th>
+                                            <th>{% trans "Price" %}</th>
+                                            <th>{% trans "Available units" %}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for publishing in listing.publishings.all %}
+                                            <tr>
+                                                <td>{{ publishing.store }}</td>
+                                                <td>{{ publishing.price }}</td>
+                                                <td>{{ publishing.available_units }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                        <div id="listing{{ listing.id }}" class="collapse">
-                            <div class="col-md-3">
-                                <div class="row">
-                                    {% if listing.image %}
-                                        <div class="col-md-4">
-                                            <img src="{{ listing.image.url }}" class="img-thumbnail img-responsive">
-                                        </div>
-                                    {% endif %}
-                                    <div class="col-md-8">
-                                        <p>{{ listing.description }}</p>
-                                        <p><strong>{% trans "Sale Unit:" %}</strong> {{ listing.sales_units }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <!-- product list -->
-                                <h4>{% trans "Products" %}</h4>
-                                {% for product in listing.products.all %}
-                                    <a>{{ product }}</a>{% if not forloop.last %} - {% endif %}
+                        <div id="listing{{ listing.id }}" class="collapse listing-detail">
+                            <div class="col-md-5">
+                                {% trans "Products:" %}
+                                {% for ls in listing.listing_sets.all %}
+                                    <a>
+                                        {{ ls.product }}{% if ls.quantity > 1 %} <small>x{{ ls.quantity|floatformat:0 }}</small>{% endif %}
+                                    </a>
+                                    {% if not forloop.last %} - {% endif %}
                                 {% endfor %}
                             </div>
-                            <div class="col-md-3">
-                                <table class="table table-condensed">
-                                    <thead>
-                                    <tr>
-                                        <th>{% trans "Published on" %}</th>
-                                        <th>{% trans "Price" %}</th>
-                                        <th>{% trans "Available units" %}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for publishing in listing.publishings.all %}
-                                        <tr>
-                                            <td>{{ publishing.store }}</td>
-                                            <td>{{ publishing.price }}</td>
-                                            <td>{{ publishing.available_units }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
+
                         </div>
                     </div>
                 {% endfor %}
             </div>
+
+            <p>{% blocktrans with listings_count=paginator.count %}There are {{ listings_count }} listings{% endblocktrans %}</p>
 
             {% include "bazaar/paginator.html" %}
         </div>
@@ -85,3 +112,13 @@
         </div>
     </div>
 {% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+
+    <script>
+        $(document).ready(function() {
+            $("[data-toggle=popover]").popover();
+        });
+    </script>
+{% endblock %}

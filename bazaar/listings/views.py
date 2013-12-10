@@ -8,4 +8,4 @@ from .models import Listing
 
 class ListingListView(LoginRequiredMixin, BazaarPrefixMixin, generic.ListView):
     model = Listing
-    paginate_by = 20
+    paginate_by = 50
