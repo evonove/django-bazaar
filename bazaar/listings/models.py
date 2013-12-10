@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
 from ..fields import MoneyField
@@ -12,10 +11,8 @@ from ..goods.models import Product
 class Listing(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(max_length=500, blank=True)
-    sales_units = models.IntegerField(default=1)
 
-    # TODO: this should become a gallery
-    image = models.ImageField(upload_to="listing_images", blank=True)
+    picture_url = models.URLField(blank=True)
     products = models.ManyToManyField(Product, related_name="listings", through="ListingSet")
 
     def __str__(self):
@@ -26,7 +23,7 @@ class ListingSet(models.Model):
     quantity = models.DecimalField(max_digits=30, decimal_places=4, default=1)
 
     product = models.ForeignKey(Product, related_name="listing_sets")
-    price_list = models.ForeignKey(Listing, related_name="listing_sets")
+    listing = models.ForeignKey(Listing, related_name="listing_sets")
 
 
 @python_2_unicode_compatible
@@ -44,9 +41,10 @@ class Publishing(models.Model):
 
     price = MoneyField()
 
-    available_units = models.IntegerField()
-    published = models.BooleanField(default=False)
-    last_update = models.DateTimeField(default=timezone.now)
+    available_units = models.IntegerField(default=0)
+
+    pub_date = models.DateTimeField(null=True, blank=True)
+    last_modified = models.DateTimeField(auto_now=True)
 
     listing = models.ForeignKey(Listing, related_name="publishings")
     store = models.ForeignKey(Store, related_name="publishings")
