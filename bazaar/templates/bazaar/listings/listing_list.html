@@ -32,9 +32,7 @@
         <div class="col-md-10">
             <h2>{% trans "Listings" %}</h2>
             <div class="listing-striped">
-                {% for listing in listing_list %}
-                    {% include "bazaar/listings/listing_list_item.html" %}
-                {% endfor %}
+                {% include "bazaar/listings/listing_list_items.html" %}
             </div>
 
             <p>{% blocktrans with listings_count=paginator.count %}There are {{ listings_count }} listings{% endblocktrans %}</p>

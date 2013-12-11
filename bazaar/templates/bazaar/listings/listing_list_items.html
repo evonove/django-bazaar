@@ -1,0 +1,103 @@
+{% load i18n %}
+
+{% for listing in listing_list %}
+
+    {% block listing-item %}
+        <div class="row listing-item">
+
+            {% block listing-header %}
+                <div class="col-md-12 listing-header">
+                    <div class="row">
+
+                        {% block listing-header-elements %}
+                            {% if listing.picture_url %}
+                                <div class="col-md-1">
+
+                                    {% block listing-header-picture %}
+                                        <img src="" data-echo="{{ listing.picture_url }}" class="img-thumbnail img-responsive">
+                                    {% endblock listing-header-picture %}
+                                </div>
+                            {% endif %}
+
+                            <div class="col-md-4">
+
+                                {% block listing-header-info %}
+                                    <a data-toggle="collapse" href="#listing{{ listing.id }}">
+                                        <h5>{{ listing.title }}</h5>
+                                    </a>
+                                    {% if listing.description|length > 30 %}
+                                        <a data-toggle="modal" data-target="#modalListing{{ listing.id }}">
+                                            {% trans "See full description" %}
+                                        </a>
+
+                                        <div id="modalListing{{ listing.id }}" class="modal fade">
+                                            <div class="modal-dialog modal-large">
+                                                <div class="modal-content">
+                                                    <div class="modal-body">
+                                                        {% autoescape off %}{{ listing.description }}{% endautoescape %}
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div><!-- /.modal-content -->
+                                            </div><!-- /.modal-dialog -->
+                                        </div><!-- /.modal -->
+                                    {% else %}
+                                        <p>{{ listing.description }}</p>
+                                    {% endif %}
+                                {% endblock listing-header-info %}
+                            </div>
+
+                            <div class="col-md-4">
+                                {% block listing-header-publishings %}
+                                    <table class="table table-condensed">
+                                        <thead>
+                                        <tr>
+                                            <th>{% trans "Published on" %}</th>
+                                            <th>{% trans "Price" %}</th>
+                                            <th>{% trans "Available units" %}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for publishing in listing.publishings.all %}
+                                            <tr>
+                                                <td>{{ publishing.store }}</td>
+                                                <td>{{ publishing.price }}</td>
+                                                <td>{{ publishing.available_units }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endblock listing-header-publishings %}
+                            </div>
+
+                            {% block listing-header-extras %}{% endblock listing-header-extras %}
+
+                        {% endblock listing-header-elements %}
+                    </div>
+                </div>
+            {% endblock listing-header %}
+
+            {% block listing-detail %}
+                <div id="listing{{ listing.id }}" class="col-md-12 collapse listing-detail">
+                    <div class="row">
+                        {% block listing-detail-elements %}
+                            <div class="col-md-6">
+                                {% block listing-detail-products %}
+                                    {% trans "Products:" %}
+                                    {% for ls in listing.listing_sets.all %}
+                                        {% include "bazaar/listings/listing_list_product.html" %}
+
+                                        {% if not forloop.last %} - {% endif %}
+                                    {% endfor %}
+                                {% endblock listing-detail-products %}
+                            </div>
+                        {% endblock listing-detail-elements %}
+                    </div>
+                </div>
+            {% endblock listing-detail %}
+
+        </div>
+    {% endblock listing-item %}
+
+{% endfor %}
