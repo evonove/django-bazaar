@@ -4,6 +4,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.http import QueryDict
 from django.views import generic
 
+from crispy_forms.helper import FormHelper
+
 
 class TemplateNamePrefixMixin(object):
     """
@@ -92,5 +94,68 @@ class SortableListView(SortableMixin, generic.ListView):
         context["sort_fields"] = self.get_sort_fields_queries()
         context["current_sort_query"] = self.get_current_sort_query()
         context["current_sort_direction"] = self.get_current_sort_direction()
+
+        return context
+
+
+class FilterMixin(object):
+    """
+    This mixin allows the user to specify a FilterSet class that filters the default queryset.
+    Adds the filter form to the response context data with name `<model>_filter`.
+    """
+    filter_class = None
+    filter_name = None
+
+    def get_object_filter(self, queryset):
+        """
+        Return the instance of the filter class for the 'queryset'from ..mixins import FilterMixin
+        """
+        if self.filter_class:
+            return self.filter_class(self.request.GET, queryset)
+        else:
+            raise ImproperlyConfigured("FilterMixin requires 'filter_class' to be defined")
+
+    def get_filter_name(self):
+        """
+        Returns a suitable name for the FilterSet instance to use in context data
+        """
+        if self.filter_name is None:
+            return "%s%s" % (self.model._meta.object_name.lower(), "_filter")
+        else:
+            return self.filter_name
+
+    def get_queryset(self):
+        """
+        Return a filtered queryset based on filter_class instance and request querystring parameters
+        """
+        queryset = super(FilterMixin, self).get_queryset()
+
+        self.object_filter = self.get_object_filter(queryset)
+        return self.object_filter.qs
+
+    def get_context_data(self, **kwargs):
+        context = super(FilterMixin, self).get_context_data(**kwargs)
+
+        # Crispy helper to control how filter form is rendered
+        helper = FormHelper()
+        helper.form_tag = False
+        helper.disable_csrf = True
+
+        # attach helper to form instance
+        self.object_filter.form.helper = helper
+
+        # add filter object to context
+        filter_name = self.get_filter_name()
+        context[filter_name] = self.object_filter
+
+        # add the querystring used to filter to the context data removing `page` and `order_by`
+        # param so that we can easily integrate pagination, filtering and ordering
+        query_filter = self.request.GET.copy()
+        if "page" in query_filter:
+            del query_filter["page"]
+        if "order_by" in query_filter:
+            del query_filter["order_by"]
+
+        context['query_filter'] = query_filter
 
         return context
