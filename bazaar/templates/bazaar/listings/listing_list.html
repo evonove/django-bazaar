@@ -1,6 +1,7 @@
 {% extends "bazaar/listings/base.html" %}
 
 {% load i18n %}
+{% load staticfiles %}
 
 {% block stylesheets %}
     {{ block.super }}
@@ -28,7 +29,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-10">
             <h2>{% trans "Listings" %}</h2>
             <div class="listing-striped">
                 {% for listing in listing_list %}
@@ -37,7 +38,7 @@
                             <div class="row">
                                 {% if listing.picture_url %}
                                     <div class="col-md-1">
-                                        <img src="{{ listing.picture_url }}" class="img-thumbnail img-responsive">
+                                        <img src="" data-echo="{{ listing.picture_url }}" class="img-thumbnail img-responsive">
                                     </div>
                                 {% endif %}
                                 <div class="col-md-6">
@@ -107,18 +108,31 @@
 
             {% include "bazaar/paginator.html" %}
         </div>
-        <div class="col-md-2">
-            <h4>Filters</h4>
-        </div>
+        {% block sidebar %}
+            <div class="col-md-2">
+                <div class="row" data-spy="affix">
+                    {% block sidebar-elements %}
+                        <div class="col-md-12">
+                            <h4>Filters</h4>
+                        </div>
+                    {% endblock sidebar-elements %}
+                </div>
+
+                {% block sidebar-extras %}{% endblock sidebar-extras %}
+            </div>
+        {% endblock sidebar %}
     </div>
 {% endblock content %}
 
 {% block javascript %}
     {{ block.super }}
 
+    <script src="{% static "js/echo.min.js" %}"></script>
     <script>
         $(document).ready(function() {
             $("[data-toggle=popover]").popover();
+
+            Echo.init();
         });
     </script>
 {% endblock %}
