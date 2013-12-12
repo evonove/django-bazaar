@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load staticfiles %}
+{% load crispy_forms_tags %}
 
 {% block stylesheets %}
     {{ block.super }}
@@ -44,7 +45,14 @@
                 <div class="row" data-spy="affix">
                     {% block sidebar-elements %}
                         <div class="col-md-12">
-                            <h4>Filters</h4>
+                            <h4>{% trans "Filters" %}</h4>
+                            <form method="get">
+                                {% crispy listing_filter.form %}
+                                <button type="submit" class="btn btn-primary">{% trans "Filter" %}</button>
+                                <a href="{% url 'listing-list' %}" class="btn{% if query_filter %} btn-primary{% else %} btn-default{% endif %}"
+                                {% if not query_filter %} disabled="disabled" {% endif %}>{% trans "Reset" %}</a>
+                            </form>
+
                         </div>
                     {% endblock sidebar-elements %}
                 </div>
