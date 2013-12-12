@@ -71,7 +71,15 @@
                                 {% endblock listing-header-publishings %}
                             </div>
 
-                            {% block listing-header-extras %}{% endblock listing-header-extras %}
+                            {% block listing-header-extras %}
+                                {% if listing.is_stock_low %}
+                                    <div class="col-md-2">
+                                        <div class="alert alert-danger">
+                                            <strong>{% trans "Warning!" %}</strong> {% trans "Stock is low" %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endblock listing-header-extras %}
 
                         {% endblock listing-header-elements %}
                     </div>

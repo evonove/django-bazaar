@@ -15,6 +15,30 @@ class Listing(models.Model):
     picture_url = models.URLField(blank=True)
     products = models.ManyToManyField(Product, related_name="listings", through="ListingSet")
 
+    @property
+    def available_units(self):
+        """
+        Returns available units across all publishings
+        """
+        available = 0
+        for publishing in self.publishings.all():
+            available += publishing.available_units
+
+        return available
+
+    def is_stock_low(self):
+        """
+        Returns True when products stock cannot satisfy published listings
+        """
+        for ls in self.listing_sets.all():
+            try:
+                product_quantity = ls.product.stock.quantity
+            except models.ObjectDoesNotExist:
+                product_quantity = 0
+
+            if product_quantity < self.available_units * ls.quantity:
+                return True
+
     def __str__(self):
         return self.title
 
