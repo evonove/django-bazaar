@@ -42,6 +42,7 @@ setup(
         'django-stored-messages',
         'django-money>=0.4.1',
         'django-money-rates',
+        'django-filter',
     ],
     license="BSD",
     zip_safe=False,
