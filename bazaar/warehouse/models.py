@@ -16,7 +16,7 @@ from ..utils import money_to_default
 class Stock(models.Model):
     price = MoneyField(help_text=_("Average unit price for this stock in the system currency"))
     product = models.OneToOneField(Product, related_name="stock")
-    quantity = models.IntegerField(default=0)
+    quantity = models.DecimalField(max_digits=30, decimal_places=4, default=0)
 
     def save(self, *args, **kwargs):
         self.price = money_to_default(self.price)
