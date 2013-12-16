@@ -7,6 +7,31 @@ from ..fields import MoneyField
 from ..goods.models import Product
 
 
+class ListinManager(models.Manager):
+    def low_stock_ids(self):
+        """
+        Returns a list of ids of the listings for which the quantity of a product in stock
+        is less than the amount needed to satisfy it
+        """
+        from django.db import connection
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT DISTINCT l.id
+            FROM listings_listing AS l join listings_listingset AS ls
+            ON l.id = ls.listing_id JOIN goods_product AS p
+            ON p.id = ls.product_id JOIN listings_publishing AS pu
+            ON pu.listing_id = l.id LEFT JOIN warehouse_stock AS s
+            ON p.id = s.product_id
+            WHERE COALESCE(s.quantity, 0) <= (
+                SELECT SUM(p1.available_units * ls.quantity)
+                FROM listings_publishing AS p1
+                WHERE p1.listing_id = l.id)
+            GROUP BY l.id, p.id""")
+
+        res = cursor.fetchall()
+        return [r[0] for r in res]
+
+
 @python_2_unicode_compatible
 class Listing(models.Model):
     title = models.CharField(max_length=100)
@@ -14,6 +39,8 @@ class Listing(models.Model):
 
     picture_url = models.URLField(blank=True)
     products = models.ManyToManyField(Product, related_name="listings", through="ListingSet")
+
+    objects = ListinManager()
 
     @property
     def available_units(self):
