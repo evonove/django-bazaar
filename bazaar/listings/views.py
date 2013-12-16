@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.views import generic
 
 from braces.views import LoginRequiredMixin
@@ -12,3 +14,7 @@ class ListingListView(LoginRequiredMixin, BazaarPrefixMixin, FilterMixin, generi
     paginate_by = 50
 
     filter_class = ListingFilter
+
+    def get_queryset(self):
+        qs = super(ListingListView, self).get_queryset()
+        return qs.prefetch_related("listing_sets__product__stock", "publishings__store")
