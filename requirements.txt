@@ -7,10 +7,8 @@ Pillow==2.2.1
 django-braces==1.2.2
 django-crispy-forms==1.4.0
 django-stored-messages==0.1.2
+django-money==0.4.1
 django-money-rates==0.2.1
 django-filter==0.7
 
 pytz
-
-# Use django-money master zip because the pypi version do not install
-https://github.com/jakewins/django-money/archive/master.zip
