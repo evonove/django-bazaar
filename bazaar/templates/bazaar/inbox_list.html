@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load staticfiles %}
+
+{% block messages %}
+    <div class="bazaar-messages row">
+        <div class="col-md-6">
+        </div>
+    </div>
+{% endblock messages %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            {% if inbox_list %}
+                <ul id="messages" class="list-group">
+                    {% for message in inbox_list %}
+                        <li class="list-group-item">
+                            <p>{{ message.message }}</p>
+                            <small>{{ message.message.date }}</small>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>{% trans "There are no messages for you" %}</p>
+            {% endif %}
+
+            {% include "bazaar/paginator.html" %}
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-lg btn-primary" data-mark-all-read="{% url "bazaar:mark_all_read" %}">{% trans "Mark all read" %}</button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+
+    <script>
+        $(document).ready(function () {
+            $("[data-mark-all-read]").click(function(event) {
+                // mark all user messages as read
+                $.post($(this).data("mark-all-read"))
+                .done(function(data) {
+                    var alert =
+                            '<div class="alert alert-success alert-dismissable">' +
+                            '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                            data['message'] + '</div>';
+                    $(".bazaar-messages > div").append(alert);
+                });
+            });
+        });
+    </script>
+{% endblock javascript %}

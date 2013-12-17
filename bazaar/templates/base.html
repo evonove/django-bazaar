@@ -1,3 +1,5 @@
+{% load stored_messages_tags %}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -22,6 +24,14 @@
 {% endblock navigation %}
 
 {% block main %}
+    {% block messages %}
+        <div class="bazaar-messages row">
+            <div class="col-md-6">
+                {% stored_messages_list 3 %}
+            </div>
+        </div>
+    {% endblock messages %}
+
     {% block content %}
         <h1>Bazaar Base</h1>
     {% endblock content %}

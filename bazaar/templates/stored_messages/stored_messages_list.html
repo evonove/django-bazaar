@@ -1,0 +1,18 @@
+{% load i18n %}
+
+{% if messages %}
+    <div class="alert alert-warning alert-dismissable bazaar-message">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        {% for message in messages %}
+            <p>{{ message.message|truncatewords:20 }}</p>
+        {% endfor %}
+
+        {% if count > messages|length %}
+            <p>
+                <small>{% blocktrans %}There are {{ count }} pending messages{% endblocktrans %}.
+                    <a href="{% url "bazaar:messages" %}"><strong>{% trans "Read all" %}</strong></a>
+                </small>
+            </p>
+        {% endif %}
+    </div>
+{% endif %}

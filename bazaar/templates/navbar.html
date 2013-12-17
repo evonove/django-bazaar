@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load stored_messages_tags %}
 
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-header">
@@ -22,9 +23,15 @@
                     <a href="{{ listings }}">{% trans "Listings" %}</a>
                 </li>
             {% endblock navbar-elements %}
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
+
             {% if user.is_authenticated %}
+                {% stored_messages_count as message_count %}
+                <li>
+                    <a href="{% url "bazaar:messages" %}">
+                        {% trans "Messages" %}
+                        {% if message_count > 0 %} <span class="badge"><small>{{ message_count }}</small></span>{% endif %}
+                    </a>
+                </li>
                 <li><a href="{% url "bazaar:logout" %}">{% trans "Log out" %}</a></li>
             {% else %}
                 <li><a href="{% url "bazaar:login" %}">{% trans "Log in" %}</a></li>
