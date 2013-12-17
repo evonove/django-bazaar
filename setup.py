@@ -40,6 +40,7 @@ setup(
         'django-braces',
         'django-crispy-forms>=1.4.0',
         'django-stored-messages',
+        'djangorestframework==2.3.10',
         'django-money>=0.4.1',
         'django-money-rates',
         'django-filter',

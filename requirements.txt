@@ -10,5 +10,6 @@ django-stored-messages==0.2.0
 django-money==0.4.1
 django-money-rates==0.2.1
 django-filter==0.7
+djangorestframework==2.3.10
 
 pytz

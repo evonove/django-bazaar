@@ -19,8 +19,11 @@ settings.configure(
         "django.contrib.messages",
         "django.contrib.staticfiles",
         "django.contrib.admin",
+
         "crispy_forms",
         "djmoney_rates",
+        "stored_messages",
+        "rest_framework",
 
         "bazaar",
         "bazaar.goods",
