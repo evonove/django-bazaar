@@ -7,7 +7,7 @@ from ..fields import MoneyField
 from ..goods.models import Product
 
 
-class ListinManager(models.Manager):
+class ListingManager(models.Manager):
     def low_stock_ids(self):
         """
         Returns a list of ids of the listings for which the quantity of a product in stock
@@ -40,7 +40,7 @@ class Listing(models.Model):
     picture_url = models.URLField(blank=True)
     products = models.ManyToManyField(Product, related_name="listings", through="ListingSet")
 
-    objects = ListinManager()
+    objects = ListingManager()
 
     @property
     def available_units(self):
