@@ -29,9 +29,11 @@ class LowPriceListingFilter(django_filters.Filter):
 
 class ListingFilter(BaseFilterSet):
     title = django_filters.CharFilter(lookup_type="icontains")
+    available_units = django_filters.NumberFilter(name="publishings__available_units",
+                                                  lookup_type="lte")
     low_stock = LowStockListingFilter()
     low_price = LowPriceListingFilter()
 
     class Meta:
         model = Listing
-        fields = ["title", "publishings__store", "publishings__available_units"]
+        fields = ["title", "publishings__store", "available_units"]
