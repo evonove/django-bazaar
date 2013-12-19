@@ -18,7 +18,7 @@
                                 {% endif %}
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-3">
 
                                 {% block listing-header-info %}
                                     <a data-toggle="collapse" href="#listing{{ listing.id }}">
@@ -70,28 +70,26 @@
                                 {% endblock listing-header-publishings %}
                             </div>
 
-                            {% block listing-header-extras %}
-                                {% if listing.is_stock_low %}
-                                    <div class="col-md-2">
-                                        <div class="alert alert-warning">
+                            <div class="col-md-2">
+                                {% block listing-header-extras %}
+                                    {% if listing.is_stock_low %}
+                                        <div class="alert alert-warning alert-small">
                                             <small>
                                                 {% trans "Stock is low" %}
                                             </small>
                                         </div>
-                                    </div>
-                                {% endif %}
-                                {% if listing.is_low_cost %}
-                                    <div class="col-md-2">
-                                        <div class="alert alert-warning">
+                                    {% endif %}
+                                    {% if listing.is_low_cost %}
+                                        <div class="alert alert-warning alert-small">
                                             <small>
                                                 {% blocktrans with cost=listing.cost %}
                                                     Price low! Should be greater than {{ cost }}
                                                 {% endblocktrans %}
                                             </small>
                                         </div>
-                                    </div>
-                                {% endif %}
-                            {% endblock listing-header-extras %}
+                                    {% endif %}
+                                {% endblock listing-header-extras %}
+                            </div>
 
                         {% endblock listing-header-elements %}
                     </div>
