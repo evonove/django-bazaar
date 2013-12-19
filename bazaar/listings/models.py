@@ -3,8 +3,11 @@ from __future__ import unicode_literals
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
+from moneyed import Money
+
 from ..fields import MoneyField
 from ..goods.models import Product
+from ..settings import bazaar_settings
 
 
 class ListingManager(models.Manager):
@@ -31,6 +34,27 @@ class ListingManager(models.Manager):
         res = cursor.fetchall()
         return [r[0] for r in res]
 
+    def low_cost_ids(self):
+        """
+        Returns a list of ids of the listings that have a publishing with a price lower
+        than their cost
+        """
+        from django.db import connection
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT DISTINCT l.id
+            FROM listings_listing AS l JOIN listings_publishing AS pu
+            ON l.id = pu.listing_id
+            WHERE pu.price <= (SELECT SUM(s.price * ls.quantity)
+                FROM listings_listing AS l1 JOIN listings_listingset AS ls
+                ON l1.id = ls.listing_id JOIN goods_product AS p
+                ON p.id = ls.product_id LEFT JOIN warehouse_stock AS s
+                ON p.id = s.product_id
+                WHERE l1.id = l.id)""")
+
+        res = cursor.fetchall()
+        return [r[0] for r in res]
+
 
 @python_2_unicode_compatible
 class Listing(models.Model):
@@ -53,6 +77,22 @@ class Listing(models.Model):
 
         return available
 
+    @property
+    def cost(self):
+        """
+        Returns global cost for the listing
+        """
+        cost = Money(0.00, bazaar_settings.DEFAULT_CURRENCY)
+        for ls in self.listing_sets.all():
+            try:
+                avg_cost = ls.product.stock.price
+            except models.ObjectDoesNotExist:
+                avg_cost = Money(0, bazaar_settings.DEFAULT_CURRENCY)
+
+            cost += avg_cost * ls.quantity
+
+        return cost
+
     def is_stock_low(self):
         """
         Returns True when products stock cannot satisfy published listings
@@ -64,6 +104,12 @@ class Listing(models.Model):
                 product_quantity = 0
 
             if product_quantity < self.available_units * ls.quantity:
+                return True
+
+    def is_low_cost(self):
+        listing_cost = self.cost
+        for publishing in self.publishings.all():
+            if listing_cost > publishing.price:
                 return True
 
     def __str__(self):

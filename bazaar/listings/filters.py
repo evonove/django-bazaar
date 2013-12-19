@@ -18,9 +18,19 @@ class LowStockListingFilter(django_filters.Filter):
         return qs
 
 
+class LowPriceListingFilter(django_filters.Filter):
+    field_class = forms.BooleanField
+
+    def filter(self, qs, value):
+        if value:
+            qs = qs.filter(pk__in=Listing.objects.low_cost_ids())
+        return qs
+
+
 class ListingFilter(BaseFilterSet):
     title = django_filters.CharFilter(lookup_type="icontains")
     low_stock = LowStockListingFilter()
+    low_price = LowPriceListingFilter()
 
     class Meta:
         model = Listing

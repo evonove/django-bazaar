@@ -73,8 +73,21 @@
                             {% block listing-header-extras %}
                                 {% if listing.is_stock_low %}
                                     <div class="col-md-2">
-                                        <div class="alert alert-danger">
-                                            <strong>{% trans "Warning!" %}</strong> {% trans "Stock is low" %}
+                                        <div class="alert alert-warning">
+                                            <small>
+                                                {% trans "Stock is low" %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                {% if listing.is_low_cost %}
+                                    <div class="col-md-2">
+                                        <div class="alert alert-warning">
+                                            <small>
+                                                {% blocktrans with cost=listing.cost %}
+                                                    Price low! Should be greater than {{ cost }}
+                                                {% endblocktrans %}
+                                            </small>
                                         </div>
                                     </div>
                                 {% endif %}
