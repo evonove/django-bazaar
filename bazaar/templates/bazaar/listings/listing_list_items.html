@@ -71,7 +71,7 @@
                             </div>
 
                             <div class="col-md-2">
-                                {% block listing-header-extras %}
+                                {% block listing-header-messages %}
                                     {% if listing.is_stock_low %}
                                         <div class="alert alert-warning alert-small">
                                             <small>
@@ -88,8 +88,10 @@
                                             </small>
                                         </div>
                                     {% endif %}
-                                {% endblock listing-header-extras %}
+                                {% endblock listing-header-messages %}
                             </div>
+
+                            {% block listing-header-extra %}{% endblock listing-header-extra %}
 
                         {% endblock listing-header-elements %}
                     </div>
