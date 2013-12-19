@@ -4,6 +4,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
+from moneyed import Money
+
 from ..fields import MoneyField
 from ..settings import bazaar_settings
 
@@ -58,7 +60,7 @@ class Product(models.Model):
             if product_price.price_list_id == bazaar_settings.DEFAULT_PRICE_LIST_ID:
                 return product_price.price
 
-        return 0
+        return Money(0, bazaar_settings.DEFAULT_CURRENCY)
 
     def set_price(self, price):
         """
