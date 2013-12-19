@@ -1,3 +1,3 @@
 <a>
-    {{ ls.product }}{% if ls.quantity > 1 %} <small>x{{ ls.quantity|floatformat:0 }}</small>{% endif %} ({{ ls.product.stock.quantity }})
+    {{ ls.product }}{% if ls.quantity > 1 %} <small>x{{ ls.quantity|floatformat:0 }}</small>{% endif %} ({{ ls.product.stock.quantity|default:0|floatformat:0 }})
 </a>
