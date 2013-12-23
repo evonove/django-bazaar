@@ -39,7 +39,7 @@ setup(
         'Pillow',
         'django-braces',
         'django-crispy-forms>=1.4.0',
-        'django-stored-messages',
+        'django-stored-messages>=0.2.1',
         'djangorestframework==2.3.10',
         'django-money>=0.4.1',
         'django-money-rates',
