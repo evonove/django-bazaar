@@ -27,7 +27,7 @@ class TestProduct(BaseTestCase):
         self.assertEqual(str(self.product), "a product")
 
     def test_product_price_empty(self):
-        self.assertEqual(self.product.price, 0)
+        self.assertEqual(self.product.price, Money(0, "EUR"))
 
     def test_product_price(self):
         ProductPrice.objects.create(price=10, product=self.product,

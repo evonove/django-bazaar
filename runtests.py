@@ -33,6 +33,7 @@ settings.configure(
         "tests",
     ],
     SITE_ID=1,
+    STATIC_URL="/static/",
     # Custom project settings go here
     DJANGO_MONEY_RATES={
         "DEFAULT_BACKEND": "tests.backends.RateBackend",
