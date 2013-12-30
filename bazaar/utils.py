@@ -16,7 +16,6 @@ def money_to_default(money):
         default_currency = moneyed.CURRENCIES[bazaar_settings.DEFAULT_CURRENCY]
 
         if money.currency != default_currency:
-            amount = convert_money(money.amount, money.currency.code, default_currency.code)
-            money = moneyed.Money(amount, default_currency)
+            money = convert_money(money.amount, money.currency.code, default_currency.code)
 
     return money
