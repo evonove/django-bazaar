@@ -1,4 +1,4 @@
-django>=1.5.4
+django>=1.5
 
 # Additional requirements go here
 Pillow==2.2.1
@@ -8,7 +8,7 @@ django-braces==1.2.2
 django-crispy-forms==1.4.0
 django-stored-messages==0.2.1
 django-money==0.4.1
-django-money-rates==0.2.1
+django-money-rates==0.3.0
 django-filter==0.7
 djangorestframework==2.3.10
 
