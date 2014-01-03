@@ -27,6 +27,8 @@ DEFAULTS = {
     'CURRENCIES': (),
     'DEFAULT_CURRENCY': moneyed.EUR.code,
     'DEFAULT_PRICE_LIST_ID': 1,
+
+    'PUBLISHING_ACTIVE_STATUS': ['Active'],
 }
 
 # List of settings that cannot be empty

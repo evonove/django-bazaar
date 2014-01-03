@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import string
+
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -148,6 +150,9 @@ class Publishing(models.Model):
 
     listing = models.ForeignKey(Listing, related_name="publishings")
     store = models.ForeignKey(Store, related_name="publishings")
+
+    def is_active(self):
+        return self.status.lower() in map(string.lower, bazaar_settings.PUBLISHING_ACTIVE_STATUS)
 
     def __str__(self):
         return "Publishing %s on %s" % (self.external_id, self.store)
