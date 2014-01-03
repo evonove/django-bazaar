@@ -144,6 +144,8 @@ class Publishing(models.Model):
     pub_date = models.DateTimeField(null=True, blank=True)
     last_modified = models.DateTimeField(auto_now=True)
 
+    status = models.CharField(max_length=50, blank=True)
+
     listing = models.ForeignKey(Listing, related_name="publishings")
     store = models.ForeignKey(Store, related_name="publishings")
 
