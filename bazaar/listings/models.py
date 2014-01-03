@@ -135,7 +135,7 @@ class Store(models.Model):
 
 @python_2_unicode_compatible
 class Publishing(models.Model):
-    external_id = models.CharField(max_length=128)
+    external_id = models.CharField(max_length=128, db_index=True)
 
     price = MoneyField()
 
