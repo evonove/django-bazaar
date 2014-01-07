@@ -139,6 +139,7 @@ class Store(models.Model):
 class Publishing(models.Model):
     external_id = models.CharField(max_length=128, db_index=True)
 
+    original_price = MoneyField()
     price = MoneyField()
 
     available_units = models.IntegerField(default=0)
