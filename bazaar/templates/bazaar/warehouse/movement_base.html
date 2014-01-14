@@ -1,0 +1,12 @@
+{% extends "bazaar/warehouse/base.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-4">
+            <h1>{% block movement-title %}{% endblock movement-title %}</h1>
+            <form class="form-horizontal" method="post" action="">
+                {% include "bazaar/warehouse/movement_form.html" %}
+            </form>
+        </div>
+    </div>
+{% endblock content %}

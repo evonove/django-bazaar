@@ -15,6 +15,7 @@ bazaar_patterns = patterns(
 
     url(r'', include("bazaar.goods.urls")),
     url(r'', include("bazaar.listings.urls")),
+    url(r'', include("bazaar.warehouse.urls")),
 )
 
 # uniform namespace for all urls
