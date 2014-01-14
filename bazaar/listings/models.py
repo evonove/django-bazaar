@@ -68,6 +68,9 @@ class Listing(models.Model):
 
     objects = ListingManager()
 
+    class Meta:
+        ordering = ["title"]
+
     @property
     def available_units(self):
         """
