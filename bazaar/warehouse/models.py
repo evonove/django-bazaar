@@ -8,6 +8,8 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from bazaar.signals import product_stock_changed
+
 from ..fields import MoneyField
 from ..goods.models import Product
 from ..utils import money_to_default
@@ -63,3 +65,5 @@ def update_stock_price(sender, instance, created, **kwargs):
 
         stock.quantity += movement.quantity
         stock.save()
+
+        product_stock_changed.send(sender=stock, quantity=movement.quantity)
