@@ -27,7 +27,7 @@ class ListingManager(models.Manager):
             ON p.id = ls.product_id JOIN listings_publishing AS pu
             ON pu.listing_id = l.id LEFT JOIN warehouse_stock AS s
             ON p.id = s.product_id
-            WHERE COALESCE(s.quantity, 0) <= (
+            WHERE COALESCE(s.quantity, 0) < (
                 SELECT SUM(p1.available_units * ls.quantity)
                 FROM listings_publishing AS p1
                 WHERE p1.listing_id = l.id)
@@ -47,7 +47,7 @@ class ListingManager(models.Manager):
         cursor.execute("""SELECT DISTINCT l.id
             FROM listings_listing AS l JOIN listings_publishing AS pu
             ON l.id = pu.listing_id
-            WHERE pu.price <= (SELECT SUM(s.price * ls.quantity)
+            WHERE pu.price < (SELECT SUM(s.price * ls.quantity)
                 FROM listings_listing AS l1 JOIN listings_listingset AS ls
                 ON l1.id = ls.listing_id JOIN goods_product AS p
                 ON p.id = ls.product_id LEFT JOIN warehouse_stock AS s
