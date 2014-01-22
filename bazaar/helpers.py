@@ -11,25 +11,34 @@ class FormHelperMixin(object):
     """
     TODO: add a comment
     """
+    def get_form_helper(self):
+        helper = FormHelper(self)
+        helper.form_class = "form-horizontal"
+        helper.label_class = "col-md-3"
+        helper.field_class = "col-md-8"
+
+        helper.layout.append(
+            Div(
+                Div(
+                    StrictButton(_("Submit"), css_class="btn-primary", type="submit"),
+                    css_class="col-md-offset-3 col-md-8",
+                ),
+                css_class="form-group"
+            ),
+        )
+        return helper
+
     @property
     def helper(self):
         if not hasattr(self, "_helper"):
-            helper = FormHelper(self)
-            helper.form_class = "form-horizontal"
-            helper.label_class = "col-md-2"
-            helper.field_class = "col-md-10"
-            helper.form_tag = False
-
-            helper.layout.append(
-                Div(
-                    Div(
-                        StrictButton(_("Submit"), css_class="btn-primary", type="submit"),
-                        css_class="col-md-offset-2 col-md-10",
-                    ),
-                    css_class="form-group"
-                ),
-            )
-
-            self._helper = helper
+            self._helper = self.get_form_helper()
 
         return self._helper
+
+
+class FormHelperMixinNoTag(FormHelperMixin):
+    def get_form_helper(self):
+        helper = super(FormHelperMixinNoTag, self).get_form_helper()
+        helper.form_tag = False
+
+        return helper

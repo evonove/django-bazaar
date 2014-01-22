@@ -11,10 +11,10 @@ from bazaar.settings import bazaar_settings
 from djmoney.forms.fields import MoneyField
 
 from ..goods.models import Product
-from ..helpers import FormHelperMixin
+from ..helpers import FormHelperMixinNoTag
 
 
-class BaseMovementForm(FormHelperMixin, forms.Form):
+class BaseMovementForm(FormHelperMixinNoTag, forms.Form):
     product = forms.IntegerField()
     quantity = forms.DecimalField(validators=[MinValueValidator(Decimal('0.01'))])
     notes = forms.CharField(required=False, widget=forms.Textarea)
