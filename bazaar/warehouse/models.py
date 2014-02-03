@@ -12,6 +12,7 @@ from bazaar.signals import product_stock_changed
 
 from ..fields import MoneyField
 from ..goods.models import Product
+from ..orders.models import Order
 from ..utils import money_to_default
 
 
@@ -20,6 +21,16 @@ class Stock(models.Model):
     price = MoneyField(help_text=_("Average unit price for this stock in the system currency"))
     product = models.OneToOneField(Product, related_name="stock")
     quantity = models.DecimalField(max_digits=30, decimal_places=4, default=0)
+
+    @property
+    def available(self):
+        pending = Order.objects.filter(
+            publishing__listing__listing_sets__product=self.product
+        ).filter(status=Order.ORDER_PENDING).extra(
+            select={"pending": "SUM(listings_listingset.quantity * orders_order.quantity)"}
+        ).values("pending")[0]["pending"]
+
+        return self.quantity - (pending or 0)
 
     def save(self, *args, **kwargs):
         self.price = money_to_default(self.price)
