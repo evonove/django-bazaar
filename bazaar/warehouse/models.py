@@ -8,11 +8,11 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from ..settings import bazaar_settings
 from bazaar.signals import product_stock_changed
 
 from ..fields import MoneyField
 from ..goods.models import Product
-from ..orders.models import Order
 from ..utils import money_to_default
 
 
@@ -24,13 +24,8 @@ class Stock(models.Model):
 
     @property
     def available(self):
-        pending = Order.objects.filter(
-            publishing__listing__listing_sets__product=self.product
-        ).filter(status=Order.ORDER_PENDING).extra(
-            select={"pending": "SUM(listings_listingset.quantity * orders_order.quantity)"}
-        ).values("pending")[0]["pending"]
-
-        return self.quantity - (pending or 0)
+        backend_class = bazaar_settings.DEFAULT_AVAILABILITY_BACKEND
+        return backend_class().available(self)
 
     def save(self, *args, **kwargs):
         self.price = money_to_default(self.price)

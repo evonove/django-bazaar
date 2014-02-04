@@ -26,6 +26,7 @@ USER_SETTINGS = getattr(settings, 'DJANGO_BAZAAR', None)
 DEFAULTS = {
     'CURRENCIES': (),
     'DEFAULT_CURRENCY': moneyed.EUR.code,
+    'DEFAULT_AVAILABILITY_BACKEND': 'bazaar.warehouse.availability.AvailabilityBackend',
 
     'PUBLISHING_ACTIVE_STATUS': ['Active'],
 }
@@ -33,10 +34,13 @@ DEFAULTS = {
 # List of settings that cannot be empty
 MANDATORY = (
     'DEFAULT_CURRENCY',
+    'DEFAULT_AVAILABILITY_BACKEND',
 )
 
 # List of settings that may be in string import notation.
-IMPORT_STRINGS = ()
+IMPORT_STRINGS = (
+    'DEFAULT_AVAILABILITY_BACKEND',
+)
 
 
 def perform_import(val, setting_name):
