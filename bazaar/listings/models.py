@@ -18,20 +18,39 @@ class ListingManager(models.Manager):
         Returns a list of ids of the listings for which the quantity of a product in stock
         is less than the amount needed to satisfy it
         """
+        from ..orders.models import Order
+
         from django.db import connection
         cursor = connection.cursor()
 
-        cursor.execute("""SELECT DISTINCT l.id
-            FROM listings_listing AS l join listings_listingset AS ls
-            ON l.id = ls.listing_id JOIN goods_product AS p
-            ON p.id = ls.product_id JOIN listings_publishing AS pu
-            ON pu.listing_id = l.id LEFT JOIN warehouse_stock AS s
-            ON p.id = s.product_id
-            WHERE COALESCE(s.quantity, 0) < (
-                SELECT SUM(p1.available_units * ls.quantity)
-                FROM listings_publishing AS p1
-                WHERE p1.listing_id = l.id)
-            GROUP BY l.id, p.id""")
+        cursor.execute("""
+            SELECT DISTINCT A.listing_id FROM
+                (SELECT
+                    "listings_publishing"."listing_id",
+                    "listings_listingset"."product_id",
+                    "listings_publishing"."available_units" * "listings_listingset"."quantity"
+                      AS "needed"
+                FROM "listings_publishing"
+                    JOIN "listings_listingset"
+                    ON "listings_publishing"."listing_id" = "listings_listingset"."listing_id") AS A
+            JOIN
+                (SELECT
+                    "listings_listingset"."product_id",
+                    "warehouse_stock"."quantity" -
+                    SUM("listings_listingset"."quantity" * "orders_order"."quantity") as "available"
+                FROM "orders_order"
+                    JOIN "listings_publishing"
+                    ON "orders_order"."publishing_id" = "listings_publishing"."id"
+                    JOIN "listings_listingset"
+                    ON "listings_publishing"."listing_id" = "listings_listingset"."listing_id"
+                    JOIN "warehouse_stock"
+                    ON "warehouse_stock"."product_id" = "listings_listingset"."product_id"
+
+                WHERE "orders_order"."status" = 0
+                GROUP BY "listings_listingset"."product_id", "warehouse_stock"."quantity") AS B
+            ON A.product_id = B.product_id
+            WHERE A.needed > B.available
+            """, [Order.ORDER_PENDING])
 
         res = cursor.fetchall()
         return [r[0] for r in res]
