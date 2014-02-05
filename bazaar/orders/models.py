@@ -20,7 +20,7 @@ class Order(models.Model):
 
     quantity = models.IntegerField(default=1)
 
-    status = models.CharField(max_length=50, choices=ORDER_STATUS_CHOICES, default=ORDER_PENDING)
+    status = models.IntegerField(max_length=50, choices=ORDER_STATUS_CHOICES, default=ORDER_PENDING)
 
     def __str__(self):
         return "Order %s from %s" % (self.external_id, self.store)
