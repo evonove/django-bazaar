@@ -18,8 +18,6 @@ class ListingManager(models.Manager):
         Returns a list of ids of the listings for which the quantity of a product in stock
         is less than the amount needed to satisfy it
         """
-        from ..orders.models import Order
-
         from django.db import connection
         cursor = connection.cursor()
 
@@ -37,16 +35,16 @@ class ListingManager(models.Manager):
                 (SELECT
                     "listings_listingset"."product_id",
                     "warehouse_stock"."quantity" -
-                    SUM("listings_listingset"."quantity" * "orders_order"."quantity") as "available"
-                FROM "orders_order"
+                    SUM("listings_listingset"."quantity" * "listings_order"."quantity") as "available"
+                FROM "listings_order"
                     JOIN "listings_publishing"
-                    ON "orders_order"."publishing_id" = "listings_publishing"."id"
+                    ON "listings_order"."publishing_id" = "listings_publishing"."id"
                     JOIN "listings_listingset"
                     ON "listings_publishing"."listing_id" = "listings_listingset"."listing_id"
                     JOIN "warehouse_stock"
                     ON "warehouse_stock"."product_id" = "listings_listingset"."product_id"
 
-                WHERE "orders_order"."status" = 0
+                WHERE "listings_order"."status" = %s
                 GROUP BY "listings_listingset"."product_id", "warehouse_stock"."quantity") AS B
             ON A.product_id = B.product_id
             WHERE A.needed > B.available
@@ -179,3 +177,23 @@ class Publishing(models.Model):
 
     def __str__(self):
         return "Publishing %s on %s" % (self.external_id, self.store)
+
+
+@python_2_unicode_compatible
+class Order(models.Model):
+    ORDER_PENDING = 0
+    ORDER_COMPLETED = 1
+    ORDER_STATUS_CHOICES = (
+        (ORDER_PENDING, "Pending"),
+        (ORDER_COMPLETED, "Completed"),
+    )
+    external_id = models.CharField(max_length=256)
+    store = models.ForeignKey(Store)
+    publishing = models.ForeignKey(Publishing, null=True, blank=True)
+
+    quantity = models.IntegerField(default=1)
+
+    status = models.IntegerField(max_length=50, choices=ORDER_STATUS_CHOICES, default=ORDER_PENDING)
+
+    def __str__(self):
+        return "Order %s from %s" % (self.external_id, self.store)

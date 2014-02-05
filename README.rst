@@ -37,7 +37,6 @@ To use it in a project add to `INSTALLED_APPS` the following:
         'bazaar.goods',
         'bazaar.listings',
         'bazaar.warehouse',
-        'bazaar.orders',
     )
 
 Also add `django.core.context_processors.request` to `TEMPLATE_CONTEXT_PROCESSORS`

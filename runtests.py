@@ -29,7 +29,6 @@ settings.configure(
         "bazaar.goods",
         "bazaar.warehouse",
         "bazaar.listings",
-        "bazaar.orders",
         "tests",
     ],
     SITE_ID=1,

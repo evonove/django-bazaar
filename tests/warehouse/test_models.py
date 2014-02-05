@@ -4,8 +4,7 @@ from __future__ import unicode_literals
 from bazaar.goods.models import Product
 from bazaar.warehouse.models import Stock, Movement
 from bazaar.warehouse.utils import in_movement
-from bazaar.orders.models import Order
-from bazaar.listings.models import Listing, ListingSet, Publishing, Store
+from bazaar.listings.models import Listing, ListingSet, Publishing, Store, Order
 
 from moneyed import Money
 
