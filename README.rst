@@ -32,11 +32,14 @@ To use it in a project add to `INSTALLED_APPS` the following:
 
     INSTALLED_APPS = (
         # ...
-        'crispy_forms',
         'bazaar',
         'bazaar.goods',
         'bazaar.listings',
         'bazaar.warehouse',
+        'crispy_forms',
+        'stored_messages',
+        'rest_framework',
+        'djmoney_rates',
     )
 
 Also add `django.core.context_processors.request` to `TEMPLATE_CONTEXT_PROCESSORS`
