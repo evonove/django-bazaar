@@ -29,6 +29,7 @@ DEFAULTS = {
     'DEFAULT_AVAILABILITY_BACKEND': 'bazaar.warehouse.availability.AvailabilityBackend',
 
     'PUBLISHING_ACTIVE_STATUS': ['Active'],
+    'LOGIN_REDIRECT_URL': "bazaar:home",
 }
 
 # List of settings that cannot be empty
