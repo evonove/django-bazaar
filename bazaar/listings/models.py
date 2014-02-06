@@ -191,6 +191,9 @@ class Order(models.Model):
     store = models.ForeignKey(Store)
     publishing = models.ForeignKey(Publishing, null=True, blank=True)
 
+    processed = models.BooleanField(default=False)
+    bypass = models.BooleanField(default=False)
+
     quantity = models.IntegerField(default=1)
 
     status = models.IntegerField(max_length=50, choices=ORDER_STATUS_CHOICES, default=ORDER_PENDING)
