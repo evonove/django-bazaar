@@ -84,25 +84,13 @@ class OrderProcessor(object):
         # get the related publishing
         publishing = self.get_publishing(incoming)
 
-        # skip processing if no publishing is found
-        if publishing is not None:
-            # TODO: to be enhanced
-            for listing_item in publishing.listing.listing_sets.all():
-                self.action(listing_item, incoming, order)
-
-            order = order or self.get_order_model()()
-            order.processed = True
-            order.publishing = publishing
-
-            self.save_order(incoming, order)
+        self.action(publishing, incoming, order)
 
     def action(self, listing_item, incoming, order):
+        """
+        This method should update order with incoming data and perform actions
+        """
         raise NotImplementedError
-
-    def save_order(self, incoming, order):
-        order.external_id = incoming.lineitem_id
-        order.quantity = incoming.quantity
-        order.save()
 
     def _add_message(self, message):
         self._messages.append(message)
