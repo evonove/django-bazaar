@@ -31,7 +31,7 @@ class OrderGrabber(object):
         return self.get_messages()
 
     def process(self, order):
-        self.get_processor().process(order)
+        self.get_processor().run(order)
 
     def run(self, *args, **kwargs):
         for order in self.grab_orders(*args, **kwargs):

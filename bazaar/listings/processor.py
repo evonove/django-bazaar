@@ -24,70 +24,85 @@ class OrderProcessor(object):
 
         return self.publishing_model
 
-    def get_previous_order(self, order):
+    def get_order(self, incoming):
         try:
             model = self.get_order_model()
-            previous = model.objects.get(external_id=order.lineitem_id)
+            return model.objects.get(external_id=incoming.lineitem_id)
         except model.DoesNotExist:
-            previous = model()
-
-        return previous
+            return None
 
     def get_publishing(self, order):
         try:
             model = self.get_publishing_model()
-            publishing = model.objects.get(external_id=order.item_id)
+            return model.objects.get(external_id=order.item_id)
         except model.DoesNotExist:
-            self._add_message("No publishing %s found for order %s" %
-                              (order.item_id, order.external_id))
-            publishing = None
-
-        return publishing
+            self._add_message("No publishing %s found for order %s" % (order.item_id, order))
+            return None
 
     def get_messages(self):
         return self._messages
 
-    def is_modified(self, current, previous):
-        # A new order should be processed
-        if previous.pk is None:
+    def is_modified(self, incoming, order):
+        return False
+
+    def is_new_order(self, incoming, order):
+        if order is None:
             return True
 
-    def skip_order(self, current, previous):
-        # order is unchanged and has been already processed
-        if not self.is_modified(current, previous) and previous.processed:
+        if not order.processed and not order.bypass:
             return True
 
         return False
 
-    def process(self, order):
-        previous = self.get_previous_order(order)
+    def is_order_to_process(self, incoming, order):
+        # a new order should be processed*
+        if order.bypass:
+            return False
 
-        if self.skip_order(order, previous):
-            return
+        # an existing order that has not been processed is threated as a new order
+        if self.is_modified(incoming, order):
+            return True
 
+        return False
+
+    def is_valid(self, incoming):
+        """
+        Validates incoming orders
+        """
+        return True
+
+    def run(self, incoming):
+        if self.is_valid(incoming):
+            order = self.get_order(incoming)
+
+            if self.is_new_order(incoming, order):
+                self.process(incoming, None)
+            elif self.is_order_to_process(incoming, order):
+                self.process(incoming, order)
+
+    def process(self, incoming, order):
         # get the related publishing
-        publishing = self.get_publishing(order)
+        publishing = self.get_publishing(incoming)
 
-        # if order has been marked as bypass we should not process
-        if not previous.bypass and publishing:
-            previous_order = previous if previous.processed else None
-
+        # skip processing if no publishing is found
+        if publishing is not None:
             # TODO: to be enhanced
             for listing_item in publishing.listing.listing_sets.all():
-                self.action(listing_item, publishing, order, previous_order)
+                self.action(listing_item, incoming, order)
 
-            previous.processed = True
-            previous.publishing = publishing
+            order = order or self.get_order_model()()
+            order.processed = True
+            order.publishing = publishing
 
-        self.update_previous_order(order, previous)
+            self.save_order(incoming, order)
 
-    def action(self, listing_item, publishing, current, previous):
+    def action(self, listing_item, incoming, order):
         raise NotImplementedError
 
-    def update_previous_order(self, current, previous):
-        previous.external_id = current.lineitem_id
-        previous.quantity = current.quantity
-        previous.save()
+    def save_order(self, incoming, order):
+        order.external_id = incoming.lineitem_id
+        order.quantity = incoming.quantity
+        order.save()
 
     def _add_message(self, message):
         self._messages.append(message)
