@@ -55,7 +55,10 @@ class Movement(models.Model):
 
 
 @receiver(post_save, sender=Movement)
-def update_stock_price(sender, instance, created, **kwargs):
+def update_stock(sender, instance, created, **kwargs):
+    """
+    Update the average price and stock quantity
+    """
     movement = instance
     if created:
         stock = movement.stock
