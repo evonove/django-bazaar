@@ -34,17 +34,19 @@ class ListingManager(models.Manager):
             JOIN
                 (SELECT
                     "listings_listingset"."product_id",
-                    "warehouse_stock"."quantity" -
-                    SUM("listings_listingset"."quantity" * "listings_order"."quantity") as "available"
-                FROM "listings_order"
+                    COALESCE("warehouse_stock"."quantity", 0) -
+                    SUM("listings_listingset"."quantity" *
+                    COALESCE("listings_order"."quantity", 0)) as "available"
+                FROM "listings_listingset"
                     JOIN "listings_publishing"
-                    ON "listings_order"."publishing_id" = "listings_publishing"."id"
-                    JOIN "listings_listingset"
                     ON "listings_publishing"."listing_id" = "listings_listingset"."listing_id"
-                    JOIN "warehouse_stock"
+                    LEFT JOIN "listings_order"
+                    ON (
+                      "listings_order"."publishing_id" = "listings_publishing"."id" AND
+                      "listings_order"."status" = %s
+                      )
+                    LEFT JOIN "warehouse_stock"
                     ON "warehouse_stock"."product_id" = "listings_listingset"."product_id"
-
-                WHERE "listings_order"."status" = %s
                 GROUP BY "listings_listingset"."product_id", "warehouse_stock"."quantity") AS B
             ON A.product_id = B.product_id
             WHERE A.needed > B.available
