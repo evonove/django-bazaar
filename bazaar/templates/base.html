@@ -29,7 +29,9 @@
     {% block messages %}
         <div class="bazaar-messages row">
             <div class="col-md-6">
-                {% stored_messages_list 3 %}
+                {% autoescape off %}
+                    {% stored_messages_list 3 %}
+                {% endautoescape %}
             </div>
         </div>
     {% endblock messages %}

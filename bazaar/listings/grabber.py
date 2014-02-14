@@ -1,10 +1,8 @@
 from __future__ import unicode_literals
 
-from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
 
-import stored_messages
-
+from ..utils import send_to_staff
 from .processor import OrderProcessor
 
 
@@ -48,7 +46,4 @@ class OrderGrabber(object):
         raise NotImplementedError
 
     def _notify_errors(self):
-        users = get_user_model().objects.filter(is_staff=True)
-
-        message = "\n".join(self.get_messages())
-        stored_messages.add_message_for(users, stored_messages.STORED_ERROR, message)
+        send_to_staff(self.get_messages())

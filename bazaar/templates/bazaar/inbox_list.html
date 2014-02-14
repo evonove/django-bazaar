@@ -17,7 +17,9 @@
                 <ul id="messages" class="list-group">
                     {% for message in inbox_list %}
                         <li class="list-group-item">
-                            <p>{{ message.message }}</p>
+                            {% autoescape off %}
+                                {{ message.message }}
+                            {% endautoescape %}
                             <small>{{ message.message.date }}</small>
                         </li>
                     {% endfor %}
