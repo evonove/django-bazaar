@@ -121,7 +121,7 @@ class Listing(models.Model):
         """
         for ls in self.listing_sets.all():
             try:
-                product_quantity = ls.product.stock.quantity
+                product_quantity = ls.product.stock.available
             except models.ObjectDoesNotExist:
                 product_quantity = 0
 
