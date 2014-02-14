@@ -79,4 +79,5 @@ class MessagesView(ListView):
 
     def get_queryset(self):
         qs = super(MessagesView, self).get_queryset()
+        qs = qs.filter(user=self.request.user)
         return qs.select_related("message").order_by("-message__date")
