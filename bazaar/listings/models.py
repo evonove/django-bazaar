@@ -13,7 +13,7 @@ from ..settings import bazaar_settings
 
 
 class ListingManager(models.Manager):
-    def low_stock_ids(self):
+    def unavailable_ids(self):
         """
         Returns a list of ids of the listings for which the quantity of a product in stock
         is less than the amount needed to satisfy it
@@ -117,7 +117,7 @@ class Listing(models.Model):
 
         return cost
 
-    def is_stock_low(self):
+    def is_unavailable(self):
         """
         Returns True when products stock cannot satisfy published listings
         """

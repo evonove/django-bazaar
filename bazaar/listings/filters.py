@@ -8,12 +8,12 @@ from ..filters import BaseFilterSet
 from .models import Listing
 
 
-class LowStockListingFilter(django_filters.Filter):
+class UnavailableListingFilter(django_filters.Filter):
     field_class = forms.BooleanField
 
     def filter(self, qs, value):
         if value:
-            qs = qs.filter(pk__in=Listing.objects.low_stock_ids())
+            qs = qs.filter(pk__in=Listing.objects.unavailable_ids())
 
         return qs
 
@@ -31,7 +31,7 @@ class ListingFilter(BaseFilterSet):
     title = django_filters.CharFilter(lookup_type="icontains")
     available_units = django_filters.NumberFilter(name="publishings__available_units",
                                                   lookup_type="lte")
-    low_stock = LowStockListingFilter()
+    unavailable = UnavailableListingFilter()
     low_price = LowPriceListingFilter()
 
     class Meta:
