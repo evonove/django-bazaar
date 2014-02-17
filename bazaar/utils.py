@@ -38,5 +38,6 @@ def send_to_staff(messages, level=None):
 
     users = get_user_model().objects.filter(is_staff=True)
 
-    rendered = render_to_string("bazaar/message.html", {"messages": messages})
-    stored_messages.add_message_for(users, level, rendered)
+    for message in messages:
+        rendered = render_to_string("bazaar/message.html", {"message": message})
+        stored_messages.add_message_for(users, level, rendered)
