@@ -14,6 +14,7 @@ class StockAdmin(admin.ModelAdmin):
     ]
     list_display = ('price', 'product', 'quantity')
     raw_id_fields = ('product',)
+    search_fields = ['product__name']
 
 
 admin.site.register(Stock, StockAdmin)
