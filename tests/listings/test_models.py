@@ -46,7 +46,7 @@ class TestPublishingModelManager(TestCase):
         self.assertEqual(publishing3.store.slug, "small")
         self.assertEqual(publishing4.store.slug, "big")
 
-        active_pubs = PublishingManager().active_or_last_completed_publishing(self.listing_a.publishings)
+        active_pubs = Publishing.objects.main_publishings(self.listing_a)
         self.assertEqual(len(active_pubs), 3)
 
     def test_publishing_manager_get_only_last_completed_same_store(self):
@@ -57,7 +57,7 @@ class TestPublishingModelManager(TestCase):
         Publishing.objects.create(status="Completed", pub_date=self.date3, last_modified=self.date3,
                                   listing=self.listing_a, store=self.small_store)
 
-        completed_pubs = PublishingManager().active_or_last_completed_publishing(self.listing_a.publishings)
+        completed_pubs = Publishing.objects.main_publishings(self.listing_a)
         self.assertEqual(len(completed_pubs), 1)
         self.assertEqual(completed_pubs[0].pub_date, self.date3)
 
@@ -71,7 +71,7 @@ class TestPublishingModelManager(TestCase):
         Publishing.objects.create(status="Completed", pub_date=self.date4, last_modified=self.date4,
                                   listing=self.listing_a, store=self.big_store)
 
-        pubs = PublishingManager().active_or_last_completed_publishing(self.listing_a.publishings)
+        pubs = Publishing.objects.main_publishings(self.listing_a)
         self.assertEqual(len(pubs), 2)
         act_pub = pubs[0]
         comp_pub = pubs[1]

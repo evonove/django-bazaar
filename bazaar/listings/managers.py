@@ -2,8 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from itertools import chain
-from django.db.models import Max
+from ..settings import bazaar_settings
 
 
 class ListingManager(models.Manager):
@@ -73,16 +72,35 @@ class ListingManager(models.Manager):
 
 
 class PublishingManager(models.Manager):
+    def active(self, listing=None):
+        qs = self.get_queryset().filter(status__in=bazaar_settings.PUBLISHING_ACTIVE_STATUS)
+        if listing is not None:
+            qs = qs.filter(listing=listing)
+        return qs
 
-    def active_or_last_completed_publishing(self, publishings):
+    def main_publishings(self, listing=None):
+        where = """
+        "listings_publishing"."pub_date" IN
+            (
+                SELECT MAX("A0"."pub_date") AS "max_date"
+                  FROM "listings_publishing" AS "A0"
+                 WHERE NOT ("A0"."status" IN ('Active') )
+                   AND "listings_publishing"."listing_id" = "A0"."listing_id"
+                   AND "listings_publishing"."store_id" = "A0"."store_id"
+              GROUP BY "A0"."listing_id", "A0"."store_id"
+            )
+        AND NOT EXISTS (
+             SELECT *
+               FROM "listings_publishing" AS "B0"
+              WHERE "B0"."status" IN ('Active')
+                AND "listings_publishing"."listing_id" = "B0"."listing_id"
+                AND "listings_publishing"."store_id" = "B0"."store_id"
+            )
         """
-        Retrieves all the active publishings for every store,
-        if no active publishing found, retrieves last completed publishing.
-        """
-        active_pubs = publishings.filter(status__contains='Active')
-        completed_pubs = publishings.exclude(store_id=active_pubs.values_list('store', flat=True).distinct())
-        store_lasts_completed = completed_pubs.values('store').annotate(last_date=Max('pub_date'))
-        for it in store_lasts_completed:
 
-            active_pubs = active_pubs | completed_pubs.filter(pub_date=it["last_date"], store_id=it["store"])
-        return active_pubs
+        qs = self.get_queryset().extra(where=[where])
+
+        if listing is not None:
+            qs = qs.filter(listing=listing)
+
+        return qs | self.active(listing)
