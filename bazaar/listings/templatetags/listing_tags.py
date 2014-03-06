@@ -1,12 +1,12 @@
 from __future__ import unicode_literals
 
 from django import template
-from ..managers import PublishingManager
+from ..models import Publishing
 
 
 register = template.Library()
 
 
 @register.assignment_tag
-def get_active_or_last_completed_publishing(publishings):
-    return PublishingManager().active_or_last_completed_publishing(publishings)
+def main_publishings(listing):
+    return Publishing.objects.main_publishings(listing)
