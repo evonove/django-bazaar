@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.db import models
 
 from itertools import chain
-from django.db.models import Max, Min
+from django.db.models import Max
 
 
 class ListingManager(models.Manager):
@@ -74,15 +74,15 @@ class ListingManager(models.Manager):
 
 class PublishingManager(models.Manager):
 
-    def active_or_last_completed_publishing(self, listing):
+    def active_or_last_completed_publishing(self, publishings):
         """
         Retrieves all the active publishings for every store,
         if no active publishing found, retrieves last completed publishing.
         """
-        active_pubs = listing.publishings.filter(status__contains='Active')
-        completed_pubs = listing.publishings.exclude(store_id=active_pubs.values_list('store', flat=True).distinct())
-        store_lasts_completed = completed_pubs.values('store').distinct().annotate(last_date=Max('pub_date'))
+        active_pubs = publishings.filter(status__contains='Active')
+        completed_pubs = publishings.exclude(store_id=active_pubs.values_list('store', flat=True).distinct())
+        store_lasts_completed = completed_pubs.values('store').annotate(last_date=Max('pub_date'))
         for it in store_lasts_completed:
 
-            active_pubs = list(chain(active_pubs, completed_pubs.filter(pub_date=it["last_date"], store_id=it["store"])))
+            active_pubs = active_pubs | completed_pubs.filter(pub_date=it["last_date"], store_id=it["store"])
         return active_pubs
