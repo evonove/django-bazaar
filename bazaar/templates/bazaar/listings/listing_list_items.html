@@ -58,7 +58,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        {% for publishing in listing.publishings.all %}
+                                        {% for publishing in listing.publishings.main_publishings %}
                                             <tr>
                                                 <td>{{ publishing.store }}</td>
                                                 <td>{{ publishing.price }}</td>
