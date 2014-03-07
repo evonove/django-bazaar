@@ -96,6 +96,12 @@ class Store(models.Model):
 
 @python_2_unicode_compatible
 class Publishing(models.Model):
+    ACTIVE_PUBLISHING = 0
+    COMPLETED_PUBLISHING = 1
+    PUBLISHING_STATUS_CHOICES = (
+        (ACTIVE_PUBLISHING, "Active"),
+        (COMPLETED_PUBLISHING, "Completed"),
+    )
     external_id = models.CharField(max_length=128, db_index=True)
 
     original_price = MoneyField()
@@ -106,7 +112,7 @@ class Publishing(models.Model):
     pub_date = models.DateTimeField(null=True, blank=True)
     last_modified = models.DateTimeField(auto_now=True)
 
-    status = models.CharField(max_length=50, blank=True)
+    status = models.IntegerField(max_length=50, choices=PUBLISHING_STATUS_CHOICES, default=ACTIVE_PUBLISHING)
 
     listing = models.ForeignKey(Listing, related_name="publishings")
     store = models.ForeignKey(Store, related_name="publishings")

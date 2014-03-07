@@ -2,8 +2,6 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from ..settings import bazaar_settings
-
 
 class ListingManager(models.Manager):
     def unavailable_ids(self):
@@ -73,7 +71,7 @@ class ListingManager(models.Manager):
 
 class PublishingManager(models.Manager):
     def active(self, listing=None):
-        qs = self.get_queryset().filter(status__in=bazaar_settings.PUBLISHING_ACTIVE_STATUS)
+        qs = self.get_queryset().filter(status=self.model.ACTIVE_PUBLISHING)
         if listing is not None:
             qs = qs.filter(listing=listing)
         return qs
@@ -84,7 +82,7 @@ class PublishingManager(models.Manager):
             (
                 SELECT MAX("A0"."pub_date") AS "max_date"
                   FROM "listings_publishing" AS "A0"
-                 WHERE NOT ("A0"."status" IN ('Active') )
+                 WHERE NOT ("A0"."status" = %s )
                    AND "listings_publishing"."listing_id" = "A0"."listing_id"
                    AND "listings_publishing"."store_id" = "A0"."store_id"
               GROUP BY "A0"."listing_id", "A0"."store_id"
@@ -92,13 +90,15 @@ class PublishingManager(models.Manager):
         AND NOT EXISTS (
              SELECT *
                FROM "listings_publishing" AS "B0"
-              WHERE "B0"."status" IN ('Active')
+              WHERE "B0"."status" = %s
                 AND "listings_publishing"."listing_id" = "B0"."listing_id"
                 AND "listings_publishing"."store_id" = "B0"."store_id"
             )
         """
 
-        qs = self.get_queryset().extra(where=[where])
+        qs = self.get_queryset().extra(
+            where=[where], params=[self.model.ACTIVE_PUBLISHING, self.model.ACTIVE_PUBLISHING]
+        )
 
         if listing is not None:
             qs = qs.filter(listing=listing)
