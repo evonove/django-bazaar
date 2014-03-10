@@ -8,6 +8,16 @@ from ..filters import BaseFilterSet
 from .models import Listing, Publishing
 
 
+class HighAvailabilityListingFilter(django_filters.Filter):
+    field_class = forms.BooleanField
+
+    def filter(self, qs, value):
+        if value:
+            qs = qs.filter(pk__in=Listing.objects.high_availability())
+
+        return qs
+
+
 class UnavailableListingFilter(django_filters.Filter):
     field_class = forms.BooleanField
 
@@ -43,6 +53,7 @@ class ListingFilter(BaseFilterSet):
     available_units = AvailableUnitsFilter()
     unavailable = UnavailableListingFilter()
     low_price = LowPriceListingFilter()
+    high_availability = HighAvailabilityListingFilter()
 
     class Meta:
         model = Listing

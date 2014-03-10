@@ -4,6 +4,49 @@ from django.db import models
 
 
 class ListingManager(models.Manager):
+    def high_availability(self):
+        """
+        Returns a list of ids of the listings for which the quantity of a product in stock
+        is less than the amount needed to satisfy it
+        """
+        from django.db import connection
+        from models import Order
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            SELECT DISTINCT A.listing_id FROM
+                (SELECT
+                    "listings_publishing"."listing_id",
+                    "listings_listingset"."product_id",
+                    "listings_publishing"."available_units" * "listings_listingset"."quantity"
+                      AS "needed"
+                FROM "listings_publishing"
+                    JOIN "listings_listingset"
+                    ON "listings_publishing"."listing_id" = "listings_listingset"."listing_id") AS A
+            JOIN
+                (SELECT
+                    "listings_listingset"."product_id",
+                    COALESCE("warehouse_stock"."quantity", 0) -
+                    SUM("listings_listingset"."quantity" *
+                    COALESCE("listings_order"."quantity", 0)) as "available"
+                FROM "listings_listingset"
+                    JOIN "listings_publishing"
+                    ON "listings_publishing"."listing_id" = "listings_listingset"."listing_id"
+                    LEFT JOIN "listings_order"
+                    ON (
+                      "listings_order"."publishing_id" = "listings_publishing"."id" AND
+                      "listings_order"."status" = %s
+                      )
+                    LEFT JOIN "warehouse_stock"
+                    ON "warehouse_stock"."product_id" = "listings_listingset"."product_id"
+                GROUP BY "listings_listingset"."product_id", "warehouse_stock"."quantity") AS B
+            ON A.product_id = B.product_id
+            WHERE A.needed < B.available
+            """, [Order.ORDER_PENDING])
+
+        res = cursor.fetchall()
+        return [r[0] for r in res]
+
     def unavailable_ids(self):
         """
         Returns a list of ids of the listings for which the quantity of a product in stock
