@@ -13,6 +13,7 @@ class ListingManager(models.Manager):
         from models import Order
         cursor = connection.cursor()
 
+        # FIXME: following query do not work for listings composed by multiple product
         cursor.execute("""
             SELECT DISTINCT A.listing_id FROM
                 (SELECT
