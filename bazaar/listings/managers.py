@@ -18,7 +18,8 @@ class ListingManager(models.Manager):
                 (SELECT
                     "listings_publishing"."listing_id",
                     "listings_listingset"."product_id",
-                    "listings_publishing"."available_units" * "listings_listingset"."quantity"
+                    "listings_listingset"."quantity",
+                    "listings_publishing"."available_units"
                       AS "needed"
                 FROM "listings_publishing"
                     JOIN "listings_listingset"
@@ -41,7 +42,7 @@ class ListingManager(models.Manager):
                     ON "warehouse_stock"."product_id" = "listings_listingset"."product_id"
                 GROUP BY "listings_listingset"."product_id", "warehouse_stock"."quantity") AS B
             ON A.product_id = B.product_id
-            WHERE A.needed < B.available
+            WHERE A.needed < DIV(B.available, A.quantity)
             """, [Order.ORDER_PENDING])
 
         res = cursor.fetchall()
