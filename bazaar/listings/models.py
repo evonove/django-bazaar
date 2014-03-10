@@ -1,9 +1,8 @@
 from __future__ import unicode_literals
 
-import string
-
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.translation import ugettext_lazy as _
 
 from moneyed import Money
 
@@ -99,8 +98,8 @@ class Publishing(models.Model):
     ACTIVE_PUBLISHING = 0
     COMPLETED_PUBLISHING = 1
     PUBLISHING_STATUS_CHOICES = (
-        (ACTIVE_PUBLISHING, "Active"),
-        (COMPLETED_PUBLISHING, "Completed"),
+        (ACTIVE_PUBLISHING, _("Active")),
+        (COMPLETED_PUBLISHING, _("Completed")),
     )
     external_id = models.CharField(max_length=128, db_index=True)
 
@@ -112,7 +111,7 @@ class Publishing(models.Model):
     pub_date = models.DateTimeField(null=True, blank=True)
     last_modified = models.DateTimeField(auto_now=True)
 
-    status = models.IntegerField(max_length=50, choices=PUBLISHING_STATUS_CHOICES, default=ACTIVE_PUBLISHING)
+    status = models.IntegerField(choices=PUBLISHING_STATUS_CHOICES, default=ACTIVE_PUBLISHING)
 
     listing = models.ForeignKey(Listing, related_name="publishings")
     store = models.ForeignKey(Store, related_name="publishings")
@@ -131,8 +130,8 @@ class Order(models.Model):
     ORDER_PENDING = 0
     ORDER_COMPLETED = 1
     ORDER_STATUS_CHOICES = (
-        (ORDER_PENDING, "Pending"),
-        (ORDER_COMPLETED, "Completed"),
+        (ORDER_PENDING, _("Pending")),
+        (ORDER_COMPLETED, _("Completed")),
     )
     external_id = models.CharField(max_length=256)
     store = models.ForeignKey(Store)
