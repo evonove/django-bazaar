@@ -28,7 +28,6 @@ DEFAULTS = {
     'DEFAULT_CURRENCY': moneyed.EUR.code,
     'DEFAULT_AVAILABILITY_BACKEND': 'bazaar.warehouse.availability.AvailabilityBackend',
 
-    'PUBLISHING_ACTIVE_STATUS': ['Active'],
     'LOGIN_REDIRECT_URL': "bazaar:home",
 }
 

@@ -120,7 +120,7 @@ class Publishing(models.Model):
     objects = PublishingManager()
 
     def is_active(self):
-        return self.status.lower() in map(string.lower, bazaar_settings.PUBLISHING_ACTIVE_STATUS)
+        return self.status == self.ACTIVE_PUBLISHING
 
     def __str__(self):
         return "Publishing %s on %s" % (self.external_id, self.store)
