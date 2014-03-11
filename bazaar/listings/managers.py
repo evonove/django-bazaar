@@ -10,7 +10,7 @@ class ListingManager(models.Manager):
         is less than the amount needed to satisfy it
         """
         from django.db import connection
-        from models import Order
+        from models import Order, Publishing
         cursor = connection.cursor()
 
         # FIXME: following query do not work for listings composed by multiple product
@@ -24,7 +24,24 @@ class ListingManager(models.Manager):
                       AS "needed"
                 FROM "listings_publishing"
                     JOIN "listings_listingset"
-                    ON "listings_publishing"."listing_id" = "listings_listingset"."listing_id") AS A
+                    ON ("listings_publishing"."listing_id" = "listings_listingset"."listing_id")
+                -- following where selects main publishings
+                WHERE "listings_publishing"."pub_date" IN (
+                    SELECT MAX("A0"."pub_date") AS "max_date"
+                      FROM "listings_publishing" AS "A0"
+                     WHERE NOT ("A0"."status" = %s )
+                       AND "listings_publishing"."listing_id" = "A0"."listing_id"
+                       AND "listings_publishing"."store_id" = "A0"."store_id"
+                  GROUP BY "A0"."listing_id", "A0"."store_id"
+                  )
+                AND NOT EXISTS (
+                    SELECT *
+                      FROM "listings_publishing" AS "B0"
+                     WHERE "B0"."status" = %s
+                       AND "listings_publishing"."listing_id" = "B0"."listing_id"
+                       AND "listings_publishing"."store_id" = "B0"."store_id"
+                    )
+                ) AS A
             JOIN
                 (SELECT
                     "listings_listingset"."product_id",
@@ -44,7 +61,7 @@ class ListingManager(models.Manager):
                 GROUP BY "listings_listingset"."product_id", "warehouse_stock"."quantity") AS B
             ON A.product_id = B.product_id
             WHERE A.needed < DIV(B.available, A.quantity)
-            """, [Order.ORDER_PENDING])
+            """, [Publishing.ACTIVE_PUBLISHING, Publishing.ACTIVE_PUBLISHING, Order.ORDER_PENDING])
 
         res = cursor.fetchall()
         return [r[0] for r in res]
@@ -55,7 +72,7 @@ class ListingManager(models.Manager):
         is less than the amount needed to satisfy it
         """
         from django.db import connection
-        from models import Order
+        from models import Order, Publishing
         cursor = connection.cursor()
 
         cursor.execute("""
@@ -67,7 +84,24 @@ class ListingManager(models.Manager):
                       AS "needed"
                 FROM "listings_publishing"
                     JOIN "listings_listingset"
-                    ON "listings_publishing"."listing_id" = "listings_listingset"."listing_id") AS A
+                    ON "listings_publishing"."listing_id" = "listings_listingset"."listing_id"
+                -- following where selects main publishings
+                WHERE "listings_publishing"."pub_date" IN (
+                    SELECT MAX("A0"."pub_date") AS "max_date"
+                      FROM "listings_publishing" AS "A0"
+                     WHERE NOT ("A0"."status" = %s )
+                       AND "listings_publishing"."listing_id" = "A0"."listing_id"
+                       AND "listings_publishing"."store_id" = "A0"."store_id"
+                  GROUP BY "A0"."listing_id", "A0"."store_id"
+                  )
+                AND NOT EXISTS (
+                    SELECT *
+                      FROM "listings_publishing" AS "B0"
+                     WHERE "B0"."status" = %s
+                       AND "listings_publishing"."listing_id" = "B0"."listing_id"
+                       AND "listings_publishing"."store_id" = "B0"."store_id"
+                    )
+                ) AS A
             JOIN
                 (SELECT
                     "listings_listingset"."product_id",
@@ -87,7 +121,7 @@ class ListingManager(models.Manager):
                 GROUP BY "listings_listingset"."product_id", "warehouse_stock"."quantity") AS B
             ON A.product_id = B.product_id
             WHERE A.needed > B.available
-            """, [Order.ORDER_PENDING])
+            """, [Publishing.ACTIVE_PUBLISHING, Publishing.ACTIVE_PUBLISHING, Order.ORDER_PENDING])
 
         res = cursor.fetchall()
         return [r[0] for r in res]
