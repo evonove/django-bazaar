@@ -1,5 +1,8 @@
 from __future__ import unicode_literals
 
+from itertools import chain
+
+from django import forms
 from django.core.exceptions import ImproperlyConfigured
 from django.http import QueryDict
 from django.views import generic
@@ -78,16 +81,6 @@ class SortableMixin(object):
 
         return sort_fields_queries
 
-
-class SortableListView(SortableMixin, generic.ListView):
-    def get_queryset(self):
-        queryset = super(SortableMixin, self).get_queryset()
-
-        if self.get_current_sort_field():
-            queryset = queryset.order_by(self.get_current_sort_field())
-
-        return queryset
-
     def get_context_data(self, **kwargs):
         context = super(SortableMixin, self).get_context_data(**kwargs)
 
@@ -98,6 +91,16 @@ class SortableListView(SortableMixin, generic.ListView):
         return context
 
 
+class SortableListView(SortableMixin, generic.ListView):
+    def get_queryset(self):
+        queryset = super(SortableMixin, self).get_queryset()
+
+        if self.get_current_sort_field():
+            queryset = queryset.order_by(self.get_current_sort_field())
+
+        return queryset
+
+
 class FilterMixin(object):
     """
     This mixin allows the user to specify a FilterSet class that filters the default queryset.
@@ -106,14 +109,17 @@ class FilterMixin(object):
     filter_class = None
     filter_name = None
 
+    def get_filter_class(self):
+        if self.filter_class is None:
+            raise ImproperlyConfigured("FilterMixin requires 'filter_class' to be defined")
+        return self.filter_class
+
     def get_object_filter(self, queryset):
         """
         Return the instance of the filter class for the 'queryset'from ..mixins import FilterMixin
         """
-        if self.filter_class:
-            return self.filter_class(self.request.GET, queryset)
-        else:
-            raise ImproperlyConfigured("FilterMixin requires 'filter_class' to be defined")
+        filter_class = self.get_filter_class()
+        return filter_class(self.request.GET, queryset)
 
     def get_filter_name(self):
         """
@@ -148,14 +154,44 @@ class FilterMixin(object):
         filter_name = self.get_filter_name()
         context[filter_name] = self.object_filter
 
-        # add the querystring used to filter to the context data removing `page` and `order_by`
-        # param so that we can easily integrate pagination, filtering and ordering
+        # add the querystring used to filter to the context data removing `page`
+        # param so that we can easily integrate pagination and filtering
         query_filter = self.request.GET.copy()
         if "page" in query_filter:
             del query_filter["page"]
-        if "order_by" in query_filter:
-            del query_filter["order_by"]
 
         context['query_filter'] = query_filter
 
         return context
+
+
+class FilterSortableMixin(FilterMixin, SortableMixin):
+    def get_filter_class(self):
+        filter_class = super(FilterSortableMixin, self).get_filter_class()
+
+        sort_fields = list(chain.from_iterable((x, "-%s" % x) for x in self.get_sort_fields()))
+
+        class Filter(filter_class):
+            order_by_field = self.sort_param
+
+            class Meta(self.filter_class.Meta):
+                order_by = sort_fields
+
+            def get_ordering_field(self):
+                field = super(Filter, self).get_ordering_field()
+                return forms.ChoiceField(choices=field.choices, label="Ordering",
+                                         required=False, widget=forms.HiddenInput)
+
+        return Filter
+
+    def get_context_data(self, **kwargs):
+        context = super(FilterSortableMixin, self).get_context_data(**kwargs)
+
+        if self.sort_param in context["query_filter"]:
+            del context["query_filter"][self.sort_param]
+
+        return context
+
+
+class FilterSortableListView(FilterSortableMixin, generic.ListView):
+    pass
