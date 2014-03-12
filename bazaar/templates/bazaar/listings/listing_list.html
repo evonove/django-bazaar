@@ -8,9 +8,6 @@
     {{ block.super }}
 
     <style>
-        .bazaar-sidebar.affix {
-            margin-right: 15px;
-        }
         .modal-large {
             width: 1000px;
         }
@@ -45,7 +42,7 @@
         </div>
         {% block sidebar %}
             <div class="col-md-2">
-                <div class="row bazaar-sidebar" data-spy="affix">
+                <div class="row bazaar-sidebar">
                     {% block sidebar-elements %}
                         <div class="col-md-12">
                             <h4>{% trans "Filters" %}</h4>
