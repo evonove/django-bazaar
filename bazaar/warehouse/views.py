@@ -6,8 +6,8 @@ from django.views.generic import FormView
 from braces.views import LoginRequiredMixin
 
 from ..mixins import BazaarPrefixMixin
-from .forms import MovementInForm, MovementOutForm
-from .utils import in_movement, out_movement
+from . import api
+from .forms import MovementForm
 
 
 class MovementMixin(LoginRequiredMixin, BazaarPrefixMixin):
@@ -27,32 +27,20 @@ class MovementMixin(LoginRequiredMixin, BazaarPrefixMixin):
         return initial
 
 
-class MovementInFormView(MovementMixin, FormView):
-    form_class = MovementInForm
-    template_name = "warehouse/movement_in.html"
-    success_url = reverse_lazy("bazaar:movement-in")
+class MovementFormView(MovementMixin, FormView):
+    form_class = MovementForm
+    template_name = "warehouse/movement.html"
+    success_url = reverse_lazy("bazaar:movement")
 
     def form_valid(self, form):
         product = form.cleaned_data["product"]
+        from_location = form.cleaned_data["from_location"]
+        to_location = form.cleaned_data["to_location"]
         quantity = form.cleaned_data["quantity"]
-        price = form.cleaned_data["price"]
-        notes = form.cleaned_data["notes"]
+        unit_price = form.cleaned_data["unit_price"]
+        note = form.cleaned_data["note"]
 
-        in_movement(quantity, self.request.user, notes, product, price)
+        api.move(from_location, to_location, product, quantity, unit_price,
+                 agent=self.request.user, note=note)
 
-        return super(MovementInFormView, self).form_valid(form)
-
-
-class MovementOutFormView(MovementMixin, FormView):
-    form_class = MovementOutForm
-    template_name = "warehouse/movement_out.html"
-    success_url = reverse_lazy("bazaar:movement-out")
-
-    def form_valid(self, form):
-        product = form.cleaned_data["product"]
-        quantity = form.cleaned_data["quantity"]
-        notes = form.cleaned_data["notes"]
-
-        out_movement(quantity, self.request.user, notes, product)
-
-        return super(MovementOutFormView, self).form_valid(form)
+        return super(MovementFormView, self).form_valid(form)

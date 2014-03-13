@@ -1,20 +1,25 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
-from .models import Stock, Movement
+
+from .models import Location, Movement
 
 
-class MovementInline(admin.TabularInline):
-    model = Movement
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ('name', 'title', 'type')
+
+    prepopulated_fields = {
+        'slug': ('name',)
+    }
 
 
-class StockAdmin(admin.ModelAdmin):
-    inlines = [
-        MovementInline,
-    ]
-    list_display = ('price', 'product', 'quantity')
+class MovementAdmin(admin.ModelAdmin):
+    list_display = ('from_location', 'to_location', 'product', 'quantity', 'unit_price')
+    list_filter = ('from_location', 'to_location', 'product')
+
     raw_id_fields = ('product',)
     search_fields = ['product__name']
 
 
-admin.site.register(Stock, StockAdmin)
+admin.site.register(Location, LocationAdmin)
+admin.site.register(Movement, MovementAdmin)
