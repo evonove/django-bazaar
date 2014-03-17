@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from django.db import DatabaseError
+from bazaar.utils import money_to_default, has_default_currency
 
 from .exceptions import MovementException
 from .models import Movement
@@ -12,15 +12,24 @@ def move(from_location, to_location, product, quantity, unit_price, agent=None, 
     agent = agent or ""
     note = note or ""
 
+    # convert price to default currency (whether different)
+    # and save the original in original_unit_price
+    if not has_default_currency(unit_price):
+        original_unit_price = unit_price
+        unit_price = money_to_default(unit_price)
+    else:
+        original_unit_price = None
+
     if quantity < 0:
         raise MovementException("Quantity must be a positive amount")
 
     try:
         movement = Movement.objects.create(
             from_location=from_location, to_location=to_location, product=product,
-            quantity=quantity, unit_price=unit_price, agent=agent, note=note
+            quantity=quantity, unit_price=unit_price, original_unit_price=original_unit_price,
+            agent=agent, note=note
         )
-    except DatabaseError as de:
+    except Exception as de:
         raise MovementException(de)
 
     incoming_movement.send(sender=to_location, movement=movement)

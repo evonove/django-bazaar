@@ -42,7 +42,9 @@ class Movement(models.Model):
 
     product = models.ForeignKey(Product)
     quantity = models.DecimalField(max_digits=30, decimal_places=4)
-    unit_price = MoneyField(null=True, help_text=_("Unit price for this movement"))
+
+    original_unit_price = MoneyField(null=True, help_text=_("Unit price in the original currency"))
+    unit_price = MoneyField(help_text=_("Unit price"))
 
     agent = models.CharField(max_length=100, blank=True,
                              help_text=_("The batch/user that made the movement"))
@@ -57,8 +59,8 @@ class Movement(models.Model):
         return self.quantity * self.unit_price
 
     def __str__(self):
-        return _("Movement '%s' - %s by %s: %.4f") % (
-            self.stock.product, self.reason, self.agent, self.quantity)
+        return _("Movement '%s' from '%s' to '%s': %s") % (
+            self.product, self.from_location.slug, self.to_location.slug, self.quantity)
 
 
 @python_2_unicode_compatible
@@ -70,7 +72,7 @@ class Stock(models.Model):
     product = models.ForeignKey(Product, related_name="stocks")
     location = models.ForeignKey(Location, related_name="stocks")
 
-    unit_price = MoneyField(help_text=_("Average unit price for this stock in the system currency"))
+    unit_price = MoneyField(help_text=_("Average unit price"))
     quantity = models.DecimalField(max_digits=30, decimal_places=4, default=0)
 
     class Meta:
@@ -81,4 +83,4 @@ class Stock(models.Model):
         return self.quantity * self.unit_price
 
     def __str__(self):
-        return _("Stock '%s' at %s: %s") % (self.product, self.location, self.value)
+        return _("Stock '%s' at '%s': %s") % (self.product, self.location.slug, self.value)

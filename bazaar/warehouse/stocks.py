@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 @receiver(incoming_movement)
 def update_stock_on_incoming(sender, movement, **kwargs):
-    stock = Stock.objects.get_or_create(location=sender, product=movement.product)
+    stock, created = Stock.objects.get_or_create(location=sender, product=movement.product)
 
     # new stock quantity
     quantity = stock.quantity + movement.quantity
@@ -34,7 +34,7 @@ def update_stock_on_incoming(sender, movement, **kwargs):
 
 @receiver(outgoing_movement)
 def update_stock_on_outgoing(sender, movement, **kwargs):
-    stock = Stock.objects.get_or_create(location=sender, product=movement.product)
+    stock, created = Stock.objects.get_or_create(location=sender, product=movement.product)
 
     stock.quantity = stock.quantity - movement.quantity
     stock.save()
