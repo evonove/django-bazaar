@@ -21,9 +21,8 @@
                             <div class="col-md-3">
 
                                 {% block listing-header-info %}
-                                    <a data-toggle="collapse" href="#listing{{ listing.id }}">
-                                        <h5>{{ listing.title }}</h5>
-                                    </a>
+                                    <!-- <a data-toggle="collapse"> removed, TODO fix it with logic based on nr of products -->
+                                    <h5>{{ listing.title }}</h5>
                                     {% if listing.description|length > 30 %}
                                         <a data-toggle="modal" data-target="#modalListing{{ listing.id }}">
                                             {% trans "See full description" %}
@@ -99,10 +98,10 @@
             {% endblock listing-header %}
 
             {% block listing-detail %}
-                <div id="listing{{ listing.id }}" class="col-md-12 collapse listing-detail">
+                <div id="listing{{ listing.id }}" class="col-md-12 listing-detail">
                     <div class="row">
                         {% block listing-detail-elements %}
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 {% block listing-detail-products %}
                                     {% trans "Products:" %}
                                     {% for ls in listing.listing_sets.all %}
