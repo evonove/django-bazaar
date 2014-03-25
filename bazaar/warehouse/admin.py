@@ -6,7 +6,7 @@ from .models import Location, Movement
 
 
 class LocationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'title', 'type')
+    list_display = ('name', 'type')
 
     prepopulated_fields = {
         'slug': ('name',)
