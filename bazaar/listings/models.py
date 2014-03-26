@@ -57,20 +57,24 @@ class Listing(models.Model):
         """
         Returns True when products stock cannot satisfy published listings
         """
-        for ls in self.listing_sets.all():
-            try:
-                product_quantity = ls.product.stock.available
-            except models.ObjectDoesNotExist:
-                product_quantity = 0
+        #for ls in self.listing_sets.all():
+            #try:
+                #Todo locations
+            #    product_quantity = ls.product.stock.available
+            #except models.ObjectDoesNotExist:
+            #    product_quantity = 0
 
-            if product_quantity < self.available_units * ls.quantity:
-                return True
+            #if product_quantity < self.available_units * ls.quantity:
+            #    return True
+        return False
 
     def is_low_cost(self):
-        listing_cost = self.cost
-        for publishing in self.publishings.all():
-            if listing_cost > publishing.price:
-                return True
+        #Todo locations
+        #listing_cost = self.cost
+        #for publishing in self.publishings.all():
+        #    if listing_cost > publishing.price:
+        #        return True
+        return False
 
     def __str__(self):
         return self.title
