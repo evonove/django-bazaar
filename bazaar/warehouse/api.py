@@ -20,7 +20,7 @@ def move(from_location, to_location, product, quantity, unit_price, agent=None, 
     else:
         original_unit_price = None
 
-    if quantity < 0:
+    if quantity < 1:
         raise MovementException("Quantity must be a positive amount")
 
     try:
