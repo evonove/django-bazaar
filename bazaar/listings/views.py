@@ -17,5 +17,4 @@ class ListingListView(LoginRequiredMixin, BazaarPrefixMixin, FilterMixin, generi
 
     def get_queryset(self):
         qs = super(ListingListView, self).get_queryset()
-        #TODO location: listing_sets__product__stock
-        return qs.prefetch_related("listing_sets__product", "publishings__store")
+        return qs.prefetch_related("listing_sets__product__stock", "publishings__store")
