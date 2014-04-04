@@ -31,6 +31,7 @@ class Listing(models.Model):
         """
         Returns available units across all publishings
         """
+
         available = 0
         for publishing in self.publishings.all():
             available += publishing.available_units
@@ -57,16 +58,7 @@ class Listing(models.Model):
         """
         Returns True when products stock cannot satisfy published listings
         """
-        for ls in self.listing_sets.all():
-            try:
-                #TODO fava
-                product_quantity = 0
-            except models.ObjectDoesNotExist:
-                product_quantity = 0
-
-            if product_quantity < self.available_units * ls.quantity:
-                return True
-        return False
+        raise NotImplementedError
 
     def is_low_cost(self):
 
