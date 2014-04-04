@@ -5,7 +5,6 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from moneyed import Money
-from ..warehouse.locationsutils import get_stored_quantity, get_stored_price
 
 from ..fields import MoneyField
 from ..goods.models import Product
@@ -46,7 +45,7 @@ class Listing(models.Model):
         cost = Money(0.00, bazaar_settings.DEFAULT_CURRENCY)
         for ls in self.listing_sets.all():
             try:
-                avg_cost = get_stored_price(ls.product)
+                avg_cost = ls.product.price
             except models.ObjectDoesNotExist:
                 avg_cost = Money(0, bazaar_settings.DEFAULT_CURRENCY)
 
@@ -60,7 +59,8 @@ class Listing(models.Model):
         """
         for ls in self.listing_sets.all():
             try:
-                product_quantity = get_stored_quantity(ls.product)
+                #TODO fava
+                product_quantity = 0
             except models.ObjectDoesNotExist:
                 product_quantity = 0
 
