@@ -46,7 +46,7 @@ class Listing(models.Model):
         cost = Money(0.00, bazaar_settings.DEFAULT_CURRENCY)
         for ls in self.listing_sets.all():
             try:
-                avg_cost = ls.product.price
+                avg_cost = ls.product.cost
             except models.ObjectDoesNotExist:
                 avg_cost = Money(0, bazaar_settings.DEFAULT_CURRENCY)
 
