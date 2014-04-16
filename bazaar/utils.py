@@ -13,16 +13,25 @@ import stored_messages
 from .settings import bazaar_settings
 
 
+def get_default_currency():
+    return moneyed.CURRENCIES[bazaar_settings.DEFAULT_CURRENCY]
+
+
+def has_default_currency(money):
+    if hasattr(money, "currency"):
+        return money.currency == get_default_currency()
+    else:
+        return True
+
+
 def money_to_default(money):
     """
     Convert money amount to the system default currency. If money has no 'currency' attribute
     does nothing
     """
-    if hasattr(money, "currency"):
-        default_currency = moneyed.CURRENCIES[bazaar_settings.DEFAULT_CURRENCY]
-
-        if money.currency != default_currency:
-            money = convert_money(money.amount, money.currency.code, default_currency.code)
+    if not has_default_currency(money):
+        default_currency = get_default_currency()
+        money = convert_money(money.amount, money.currency.code, default_currency.code)
 
     return money
 

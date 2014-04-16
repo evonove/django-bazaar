@@ -4,7 +4,6 @@
 from __future__ import unicode_literals
 
 from bazaar.goods.models import Product, PriceList, ProductPrice
-from bazaar.warehouse.models import Stock
 
 from ..base import BaseTestCase
 
@@ -12,11 +11,9 @@ from ..base import BaseTestCase
 class TestProduct(BaseTestCase):
     def setUp(self):
         self.product = Product.objects.create(name="a product")
-        self.stock = Stock.objects.create(product=self.product)
 
     def tearDown(self):
         self.product.delete()
-        self.stock.delete()
 
     def test_model(self):
         self.assertEqual(str(self.product), "a product")

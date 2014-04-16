@@ -4,4 +4,3 @@ import django.dispatch
 
 
 product_price_changed = django.dispatch.Signal(providing_args=["price"])
-product_stock_changed = django.dispatch.Signal(providing_args=["quantity"])

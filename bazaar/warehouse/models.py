@@ -2,77 +2,85 @@ from __future__ import division
 from __future__ import unicode_literals
 
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
-from ..settings import bazaar_settings
-from bazaar.signals import product_stock_changed
-
 from ..fields import MoneyField
 from ..goods.models import Product
-from ..utils import money_to_default
 
 
 @python_2_unicode_compatible
-class Stock(models.Model):
-    price = MoneyField(help_text=_("Average unit price for this stock in the system currency"))
-    product = models.OneToOneField(Product, related_name="stock")
-    quantity = models.DecimalField(max_digits=30, decimal_places=4, default=0)
+class Location(models.Model):
+    LOCATION_SUPPLIER = 0
+    LOCATION_STORAGE = 1
+    LOCATION_OUTPUT = 2
+    LOCATION_CUSTOMER = 3
+    LOCATION_LOST_AND_FOUND = 4
 
-    @property
-    def available(self):
-        backend_class = bazaar_settings.DEFAULT_AVAILABILITY_BACKEND
-        return backend_class().available(self)
+    LOCATION_TYPE_CHOICES = (
+        (LOCATION_SUPPLIER, _("Supplier")),
+        (LOCATION_STORAGE, _("Storage")),
+        (LOCATION_OUTPUT, _("Output")),
+        (LOCATION_CUSTOMER, _("Customer")),
+        (LOCATION_LOST_AND_FOUND, _("Lost And Found")),
+    )
 
-    def save(self, *args, **kwargs):
-        self.price = money_to_default(self.price)
-        return super(Stock, self).save(*args, **kwargs)
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(unique=True)
+    type = models.IntegerField(choices=LOCATION_TYPE_CHOICES)
 
     def __str__(self):
-        return _("Stock '%s' - %s") % (self.product, self.price)
+        return _("Location %s (%s)") % (self.name, self.get_type_display())
 
 
 @python_2_unicode_compatible
 class Movement(models.Model):
-    quantity = models.DecimalField(max_digits=30, decimal_places=4)
-    date = models.DateTimeField(default=timezone.now)
-    agent = models.CharField(max_length=100, help_text=_("The batch/user that made the movement"))
-    reason = models.TextField()
-    price = MoneyField(null=True, help_text=_("Unit price for this movement"))
+    from_location = models.ForeignKey(Location, related_name="outgoing")
+    to_location = models.ForeignKey(Location, related_name="incoming")
 
-    stock = models.ForeignKey(Stock, related_name="movements")
+    date = models.DateTimeField(auto_now_add=True)
+
+    product = models.ForeignKey(Product)
+    quantity = models.DecimalField(max_digits=30, decimal_places=4)
+
+    original_unit_price = MoneyField(null=True, help_text=_("Unit price in the original currency"))
+    unit_price = MoneyField(help_text=_("Unit price"))
+
+    agent = models.CharField(max_length=100, blank=True,
+                             help_text=_("The batch/user that made the movement"))
+    note = models.TextField(blank=True)
 
     class Meta:
         get_latest_by = "date"
         ordering = ["-date"]
 
+    @property
+    def value(self):
+        return self.quantity * self.unit_price
+
     def __str__(self):
-        return _("Movement '%s' - %s by %s: %.4f") % (
-            self.stock.product, self.reason, self.agent, self.quantity)
+        return _("Movement '%s' from '%s' to '%s': %s") % (
+            self.product, self.from_location.slug, self.to_location.slug, self.quantity)
 
 
-@receiver(post_save, sender=Movement)
-def update_stock(sender, instance, created, **kwargs):
+@python_2_unicode_compatible
+class Stock(models.Model):
     """
-    Update the average price and stock quantity
+    Denormalized stock data for a product in a location.
+    TODO: this could be a database view
     """
-    movement = instance
-    if created:
-        stock = movement.stock
+    product = models.ForeignKey(Product, related_name="stocks")
+    location = models.ForeignKey(Location, related_name="stocks")
 
-        # compute average price only for incoming movements
-        if movement.quantity > 0:
-            price = money_to_default(movement.price or 0)
+    unit_price = MoneyField(help_text=_("Average unit price"))
+    quantity = models.DecimalField(max_digits=30, decimal_places=4, default=0)
 
-            new_qta = stock.quantity + movement.quantity
-            if new_qta > 0:
-                avg_price = ((stock.quantity * stock.price + movement.quantity * price) / new_qta)
-                stock.price = avg_price
+    class Meta:
+        unique_together = ('product', 'location')
 
-        stock.quantity += movement.quantity
-        stock.save()
+    @property
+    def value(self):
+        return self.quantity * self.unit_price
 
-        product_stock_changed.send(sender=stock, quantity=movement.quantity)
+    def __str__(self):
+        return _("Stock '%s' at '%s': %s") % (self.product, self.location.slug, self.value)

@@ -1,9 +1,8 @@
 from django.conf.urls import patterns, url
 
-from .views import MovementInFormView, MovementOutFormView
+from .views import MovementFormView
 
 urlpatterns = patterns(
     '',
-    url(r'^movements/in/$', MovementInFormView.as_view(), name="movement-in"),
-    url(r'^movements/out/$', MovementOutFormView.as_view(), name="movement-out"),
+    url(r'^movements/in/$', MovementFormView.as_view(), name="movement"),
 )

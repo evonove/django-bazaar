@@ -31,6 +31,7 @@ class Listing(models.Model):
         """
         Returns available units across all publishings
         """
+
         available = 0
         for publishing in self.publishings.all():
             available += publishing.available_units
@@ -45,7 +46,7 @@ class Listing(models.Model):
         cost = Money(0.00, bazaar_settings.DEFAULT_CURRENCY)
         for ls in self.listing_sets.all():
             try:
-                avg_cost = ls.product.stock.price
+                avg_cost = ls.product.cost
             except models.ObjectDoesNotExist:
                 avg_cost = Money(0, bazaar_settings.DEFAULT_CURRENCY)
 
@@ -57,20 +58,15 @@ class Listing(models.Model):
         """
         Returns True when products stock cannot satisfy published listings
         """
-        for ls in self.listing_sets.all():
-            try:
-                product_quantity = ls.product.stock.available
-            except models.ObjectDoesNotExist:
-                product_quantity = 0
-
-            if product_quantity < self.available_units * ls.quantity:
-                return True
+        raise NotImplementedError
 
     def is_low_cost(self):
+
         listing_cost = self.cost
         for publishing in self.publishings.all():
             if listing_cost > publishing.price:
                 return True
+        return False
 
     def __str__(self):
         return self.title
