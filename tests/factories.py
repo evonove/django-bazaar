@@ -33,9 +33,9 @@ class LocationFactory(factory.django.DjangoModelFactory):
     def name(self):
         return "%s" % dict(Location.LOCATION_TYPE_CHOICES)[self.type]
 
-    @factory.lazy_attribute
-    def slug(self):
-        return slugify(self.name)
+    @factory.lazy_attribute_sequence
+    def slug(self, n):
+        return "%s%d" % (slugify(self.name), n)
 
 
 class StorageFactory(LocationFactory):

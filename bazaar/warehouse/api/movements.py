@@ -1,10 +1,9 @@
 from __future__ import unicode_literals
 
-from bazaar.utils import money_to_default, has_default_currency
-
-from .exceptions import MovementException
-from .models import Movement
-from .signals import incoming_movement, outgoing_movement
+from ...utils import money_to_default, has_default_currency
+from ..exceptions import MovementException
+from ..models import Movement
+from ..signals import incoming_movement, outgoing_movement
 
 
 def move(from_location, to_location, product, quantity, unit_price, agent=None, note=None):

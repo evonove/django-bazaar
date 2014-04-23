@@ -3,12 +3,12 @@ from __future__ import unicode_literals
 from django.test import TestCase
 
 from bazaar.warehouse.exceptions import MovementException
-from bazaar.warehouse.models import Movement, Stock
-from bazaar.warehouse.api import move
+from bazaar.warehouse.models import Movement, Stock, Location
+from bazaar.warehouse.api import move, get_stock_price, get_stock_quantity
 
 from moneyed import Money
 
-from ..factories import (ProductFactory, StorageFactory, SupplierFactory,
+from ..factories import (ProductFactory, StorageFactory, SupplierFactory, StockFactory,
                          CustomerFactory, OutputFactory, LostFoundFactory)
 
 
@@ -95,3 +95,23 @@ class TestStock(TestCase):
         self.assertEqual(supplier_stock.unit_price, Money(0, "EUR"))
         self.assertEqual(storage_stock.unit_price, Money(0.575, "EUR"))
         self.assertEqual(output_stock.unit_price, Money(1.75, "EUR"))
+
+
+class TestStockApi(TestCase):
+    def setUp(self):
+        self.product_a = ProductFactory()
+        self.stock_a = StockFactory(product=self.product_a, unit_price=2.0, quantity=30)
+        self.stock_b = StockFactory(product=self.product_a, unit_price=4.0, quantity=10)
+        self.stock_c = StockFactory(product=self.product_a, unit_price=3.0, quantity=10)
+
+    def test_get_stock_quantity(self):
+        quantity = get_stock_quantity(self.product_a, Location.LOCATION_STORAGE)
+
+        self.assertEqual(quantity, 50)
+
+    def test_get_stock_price(self):
+        from decimal import Decimal
+        price = get_stock_price(self.product_a, Location.LOCATION_STORAGE)
+
+        self.assertEqual(price, Decimal("2.6"))
+
