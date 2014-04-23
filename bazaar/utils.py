@@ -6,7 +6,7 @@ from django.utils import six
 
 from djmoney_rates.utils import convert_money
 
-import moneyed
+from moneyed import Money, get_currency
 
 import stored_messages
 
@@ -14,7 +14,7 @@ from .settings import bazaar_settings
 
 
 def get_default_currency():
-    return moneyed.CURRENCIES[bazaar_settings.DEFAULT_CURRENCY]
+    return get_currency(bazaar_settings.DEFAULT_CURRENCY)
 
 
 def has_default_currency(money):
@@ -24,16 +24,24 @@ def has_default_currency(money):
         return True
 
 
-def money_to_default(money):
+def money_to_default(value):
     """
-    Convert money amount to the system default currency. If money has no 'currency' attribute
-    does nothing
+    Convert 'value' to the system default currency. Returns a Money instance
     """
-    if not has_default_currency(money):
+    if not has_default_currency(value):
         default_currency = get_default_currency()
-        money = convert_money(money.amount, money.currency.code, default_currency.code)
+        value = convert_money(value.amount, value.currency.code, default_currency.code)
 
-    return money
+    return to_money(value)
+
+
+def to_money(value):
+    """
+    Convert a value to a Money instance. Noop if value is a Money instance.
+    """
+    if not isinstance(value, Money):
+        value = Money(value, get_default_currency())
+    return value
 
 
 def send_to_staff(messages, level=None):

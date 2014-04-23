@@ -14,4 +14,4 @@ class TestUtils(BaseTestCase):
 
     def test_non_money_values_are_returned_untouched(self):
         money = money_to_default(1.5)
-        self.assertEqual(money, 1.5)
+        self.assertEqual(money, Money(1.5, "EUR"))
