@@ -25,7 +25,9 @@ def update_stock_on_incoming(sender, movement, **kwargs):
     quantity = stock.quantity + movement.quantity
 
     # update average unit price
-    avg_unit_price = (stock.value + movement.value) / quantity
+    divider = quantity if quantity else 2
+
+    avg_unit_price = (stock.value + movement.value) / divider
 
     stock.quantity = quantity
     stock.unit_price = avg_unit_price
