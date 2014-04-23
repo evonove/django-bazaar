@@ -106,12 +106,27 @@ class TestStockApi(TestCase):
 
     def test_get_stock_quantity(self):
         quantity = get_stock_quantity(self.product_a, Location.LOCATION_STORAGE)
-
         self.assertEqual(quantity, 50)
 
+    def test_get_stock_quantity_from_empty_stock(self):
+        quantity = get_stock_quantity(ProductFactory(), Location.LOCATION_STORAGE)
+        self.assertEqual(quantity, 0)
+
     def test_get_stock_price(self):
-        from decimal import Decimal
         price = get_stock_price(self.product_a, Location.LOCATION_STORAGE)
+        self.assertEqual(price, Money(2.6, "EUR"))
 
-        self.assertEqual(price, Decimal("2.6"))
+    def test_get_stock_price_no_stocks(self):
+        price = get_stock_price(ProductFactory(), Location.LOCATION_STORAGE)
+        self.assertEqual(price, Money(0, "EUR"))
 
+    def test_get_stock_price_empty_stocks(self):
+        product = ProductFactory()
+        StockFactory(product=product, unit_price=2.0, quantity=0)
+        StockFactory(product=product, unit_price=4.0, quantity=0)
+        StockFactory(product=product, unit_price=3.0, quantity=0)
+
+        with self.assertNumQueries(1):
+            price = get_stock_price(product, Location.LOCATION_STORAGE)
+
+        self.assertEqual(price, Money(3.0, "EUR"))
