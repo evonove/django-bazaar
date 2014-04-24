@@ -2,12 +2,17 @@ from __future__ import unicode_literals
 
 from ...utils import money_to_default, has_default_currency
 from ..exceptions import MovementException
-from ..models import Movement
 from ..signals import incoming_movement, outgoing_movement
+
+
+__all__ = ["move"]
 
 
 def move(from_location, to_location, product, quantity, unit_price, agent=None, note=None):
     """Move a product from `from_location` to `to_location`"""
+
+    from ..models import Movement
+
     agent = agent or ""
     note = note or ""
 
