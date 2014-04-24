@@ -6,7 +6,6 @@ import collections
 from django.db.models import Sum
 
 from ...utils import money_to_default
-from ..models import Stock, Location
 
 
 __all__ = [
@@ -18,6 +17,8 @@ __all__ = [
 
 
 def get_stock_quantity(product, location_type=None, **kwargs):
+    from ..models import Stock
+
     qs = Stock.objects.filter(product=product, **kwargs)
 
     if location_type:
@@ -32,6 +33,8 @@ def get_stock_quantity(product, location_type=None, **kwargs):
 
 
 def get_stock_price(product, location_type=None, **kwargs):
+    from ..models import Stock
+
     qs = Stock.objects.filter(product=product, **kwargs)
 
     if location_type:
@@ -56,40 +59,50 @@ def get_stock_price(product, location_type=None, **kwargs):
 
 
 def get_supplier_quantity(product, **kwargs):
+    from ..models import Location
     return get_stock_quantity(product, Location.LOCATION_SUPPLIER, **kwargs)
 
 
 def get_supplier_price(product, **kwargs):
+    from ..models import Location
     return get_stock_price(product, Location.LOCATION_SUPPLIER, **kwargs)
 
 
 def get_storage_quantity(product, **kwargs):
+    from ..models import Location
     return get_stock_quantity(product, Location.LOCATION_STORAGE, **kwargs)
 
 
 def get_storage_price(product, **kwargs):
+    from ..models import Location
     return get_stock_price(product, Location.LOCATION_STORAGE, **kwargs)
 
 
 def get_output_quantity(product, **kwargs):
+    from ..models import Location
     return get_stock_quantity(product, Location.LOCATION_OUTPUT, **kwargs)
 
 
 def get_output_price(product, **kwargs):
+    from ..models import Location
     return get_stock_price(product, Location.LOCATION_OUTPUT, **kwargs)
 
 
 def get_customer_quantity(product, **kwargs):
+    from ..models import Location
     return get_stock_quantity(product, Location.LOCATION_CUSTOMER, **kwargs)
 
 
 def get_customer_price(product, **kwargs):
+    from ..models import Location
     return get_stock_price(product, Location.LOCATION_CUSTOMER, **kwargs)
 
 
 def get_lostandfound_quantity(product, **kwargs):
+    from ..models import Location
     return get_stock_quantity(product, Location.LOCATION_LOST_AND_FOUND, **kwargs)
 
 
 def get_lostandfound_price(product, **kwargs):
+    from ..models import Location
     return get_stock_price(product, Location.LOCATION_LOST_AND_FOUND, **kwargs)
