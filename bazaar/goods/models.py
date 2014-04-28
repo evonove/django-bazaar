@@ -5,7 +5,6 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from ..fields import MoneyField
-from ..warehouse.api import get_storage_price
 
 
 @python_2_unicode_compatible
@@ -31,6 +30,7 @@ class Product(models.Model):
         """
         Defines the cost of the good
         """
+        from ..warehouse.api import get_storage_price
         return get_storage_price(self)
 
     def __str__(self):
