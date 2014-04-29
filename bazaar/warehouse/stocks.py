@@ -7,11 +7,13 @@ from __future__ import division
 from __future__ import unicode_literals
 
 import logging
+import warnings
 
 from django.dispatch import receiver
 
 from .models import Stock, Location
-from .signals import incoming_movement, outgoing_movement, lost_and_found_changed, supplier_changed, storage_changed, output_changed, customer_changed
+from .signals import (incoming_movement, outgoing_movement, lost_and_found_changed, unknown_changed,
+                      supplier_changed, storage_changed, output_changed, customer_changed)
 
 
 logger = logging.getLogger(__name__)
@@ -32,7 +34,8 @@ def update_stock_on_incoming(sender, movement, **kwargs):
     stock.quantity = quantity
     stock.unit_price = avg_unit_price
     stock.save()
-    _changed_location_signal_sender(stock)
+
+    _send_changed_location(stock)
 
 
 @receiver(outgoing_movement)
@@ -41,17 +44,23 @@ def update_stock_on_outgoing(sender, movement, **kwargs):
 
     stock.quantity = stock.quantity - movement.quantity
     stock.save()
-    _changed_location_signal_sender(stock)
+
+    _send_changed_location(stock)
 
 
-def _changed_location_signal_sender(stock):
+def _send_changed_location(stock):
     if stock.location.type == Location.LOCATION_LOST_AND_FOUND:
-        lost_and_found_changed.send(sender=stock, product=stock.product)
+        signal = lost_and_found_changed
     elif stock.location.type == Location.LOCATION_SUPPLIER:
-        supplier_changed.send(sender=stock, product=stock.product)
+        signal = supplier_changed
     elif stock.location.type == Location.LOCATION_STORAGE:
-        storage_changed.send(sender=stock, product=stock.product)
+        signal = storage_changed
     elif stock.location.type == Location.LOCATION_OUTPUT:
-        output_changed.send(sender=stock, product=stock.product)
+        signal = output_changed
     elif stock.location.type == Location.LOCATION_CUSTOMER:
-        customer_changed.send(sender=stock, product=stock.product)
+        signal = customer_changed
+    else:
+        warnings.warn("Unknown location type '%s' has changed" % stock.location.type)
+        signal = unknown_changed
+
+    signal.send(sender=stock, product=stock.product)
