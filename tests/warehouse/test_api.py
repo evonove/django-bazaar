@@ -1,12 +1,16 @@
 from __future__ import unicode_literals
+from django.dispatch import receiver
 
 from django.test import TestCase
+from bazaar.fields import MoneyField
+from bazaar.settings import bazaar_settings
 
 from bazaar.warehouse.exceptions import MovementException
 from bazaar.warehouse.models import Movement, Stock, Location
 from bazaar.warehouse.api import move, get_stock_price, get_stock_quantity
 
 from moneyed import Money
+from bazaar.warehouse.signals import lost_and_found_changed, supplier_changed, storage_changed, output_changed, customer_changed
 
 from ..factories import (ProductFactory, StorageFactory, SupplierFactory, StockFactory,
                          CustomerFactory, OutputFactory, LostFoundFactory)
@@ -45,6 +49,153 @@ class TestMovementApi(TestCase):
 
         self.assertEqual(movement.unit_price, Money(0.74, "EUR"))
         self.assertEqual(movement.original_unit_price, Money(1.0, "USD"))
+
+
+class TestSignalsApi(TestCase):
+    def setUp(self):
+        self.product = ProductFactory()
+        self.storage = StorageFactory()
+        self.supplier = SupplierFactory()
+        self.customer = CustomerFactory()
+        self.output = OutputFactory()
+        self.lostfound = LostFoundFactory()
+
+    def test_move_laf_to_supplier_launch_proper_signals(self):
+        self.s_lostandfound_sender = None
+        self.s_lostandfound_product = None
+
+        @receiver(lost_and_found_changed)
+        def lostandfound_listener(sender, product, **kwargs):
+            self.s_lostandfound_sender = sender
+            self.s_lostandfound_product = product
+
+        self.s_supplier_sender = None
+        self.s_supplier_product = None
+
+        @receiver(supplier_changed)
+        def supplier_listener(sender, product, **kwargs):
+            self.s_supplier_sender = sender
+            self.s_supplier_product = product
+
+        quantity = 10
+        price = Money(3, bazaar_settings.DEFAULT_CURRENCY)
+        move(self.lostfound, self.supplier, self.product, quantity, price)
+        lostandfound_stock = Stock.objects.get(location=self.lostfound, product=self.product)
+        supplier_stock = Stock.objects.get(location=self.supplier, product=self.product)
+
+        self.assertEqual(self.s_lostandfound_sender, lostandfound_stock)
+        self.assertEqual(self.s_supplier_sender, supplier_stock)
+
+        self.assertEqual(self.s_lostandfound_product, self.product)
+        self.assertEqual(self.s_supplier_product, self.product)
+
+        self.assertEqual(self.s_lostandfound_sender.quantity, -quantity)
+        self.assertEqual(self.s_supplier_sender.quantity, quantity)
+
+        self.assertEqual(self.s_supplier_sender.unit_price, price)
+
+    def test_move_supplier_to_storage_launch_proper_signals(self):
+        self.s_supplier_sender = None
+        self.s_supplier_product = None
+
+        @receiver(supplier_changed)
+        def supplier_listener(sender, product, **kwargs):
+            self.s_supplier_sender = sender
+            self.s_supplier_product = product
+
+        self.s_storage_sender = None
+        self.s_storage_product = None
+
+        @receiver(storage_changed)
+        def storage_listener(sender, product, **kwargs):
+            self.s_storage_sender = sender
+            self.s_storage_product = product
+
+        quantity = 20
+        price = Money(3, bazaar_settings.DEFAULT_CURRENCY)
+        move(self.supplier, self.storage, self.product, quantity, price)
+        supplier_stock = Stock.objects.get(location=self.supplier, product=self.product)
+        storage_stock = Stock.objects.get(location=self.storage, product=self.product)
+
+        self.assertEqual(self.s_supplier_sender, supplier_stock)
+        self.assertEqual(self.s_storage_sender, storage_stock)
+
+        self.assertEqual(self.s_supplier_product, self.product)
+        self.assertEqual(self.s_storage_product, self.product)
+
+        self.assertEqual(self.s_supplier_sender.quantity, -quantity)
+        self.assertEqual(self.s_storage_sender.quantity, quantity)
+
+        self.assertEqual(self.s_storage_sender.unit_price, price)
+
+    def test_move_storage_to_output_launch_proper_signals(self):
+        self.s_storage_sender = None
+        self.s_storage_product = None
+
+        @receiver(storage_changed)
+        def storage_listener(sender, product, **kwargs):
+            self.s_storage_sender = sender
+            self.s_storage_product = product
+
+        self.s_output_sender = None
+        self.s_output_product = None
+
+        @receiver(output_changed)
+        def output_listener(sender, product, **kwargs):
+            self.s_output_sender = sender
+            self.s_output_product = product
+
+        quantity = 20
+        price = Money(3, bazaar_settings.DEFAULT_CURRENCY)
+        move(self.storage, self.output, self.product, quantity, price)
+        storage_stock = Stock.objects.get(location=self.storage, product=self.product)
+        output_stock = Stock.objects.get(location=self.output, product=self.product)
+
+        self.assertEqual(self.s_output_sender, output_stock)
+        self.assertEqual(self.s_storage_sender, storage_stock)
+
+        self.assertEqual(self.s_output_product, self.product)
+        self.assertEqual(self.s_storage_product, self.product)
+
+        self.assertEqual(self.s_output_sender.quantity, quantity)
+        self.assertEqual(self.s_storage_sender.quantity, -quantity)
+
+        self.assertEqual(self.s_output_sender.unit_price, price)
+
+    def test_move_output_to_customer_launch_proper_signals(self):
+        self.s_output_sender = None
+        self.s_output_product = None
+
+        @receiver(output_changed)
+        def output_listener(sender, product, **kwargs):
+            self.s_output_sender = sender
+            self.s_output_product = product
+
+        self.s_customer_sender = None
+        self.s_customer_product = None
+
+        @receiver(customer_changed)
+        def customer_listener(sender, product, **kwargs):
+            self.s_customer_sender = sender
+            self.s_customer_product = product
+
+
+        quantity = 20
+        price = Money(3, bazaar_settings.DEFAULT_CURRENCY)
+        move(self.output, self.customer, self.product, quantity, price)
+        output_stock = Stock.objects.get(location=self.output, product=self.product)
+        customer_stock = Stock.objects.get(location=self.customer, product=self.product)
+
+        self.assertEqual(self.s_output_sender, output_stock)
+        self.assertEqual(self.s_customer_sender, customer_stock)
+
+        self.assertEqual(self.s_output_product, self.product)
+        self.assertEqual(self.s_customer_product, self.product)
+
+        self.assertEqual(self.s_output_sender.quantity, -quantity)
+        self.assertEqual(self.s_customer_sender.quantity, quantity)
+
+        self.assertEqual(self.s_customer_sender.unit_price, price)
 
 
 class TestStock(TestCase):
