@@ -9,6 +9,9 @@ class OrderProcessor(object):
     order_model = Order
     publishing_model = Publishing
 
+    order_lookup_id = None
+    publishing_lookup_id = None
+
     def __init__(self):
         self._messages = []
 
@@ -24,17 +27,29 @@ class OrderProcessor(object):
 
         return self.publishing_model
 
+    def get_order_lookup_id(self):
+        if self.order_lookup_id is None:
+            raise ImproperlyConfigured("OrderGrabber requires 'order_lookup_id' to be defined")
+
+        return self.order_lookup_id
+
+    def get_publishing_lookup_id(self):
+        if self.publishing_lookup_id is None:
+            raise ImproperlyConfigured("OrderGrabber requires 'publishing_lookup_id' to be defined")
+
+        return self.publishing_lookup_id
+
     def get_order(self, incoming):
         try:
             model = self.get_order_model()
-            return model.objects.get(external_id=incoming.lineitem_id)
+            return model.objects.get(external_id=getattr(incoming, self.get_order_lookup_id()))
         except model.DoesNotExist:
             return None
 
     def get_publishing(self, order):
         try:
             model = self.get_publishing_model()
-            return model.objects.get(external_id=order.item_id)
+            return model.objects.get(external_id=getattr(order, self.get_publishing_lookup_id()))
         except model.DoesNotExist:
             self._add_message("No publishing %s found for order %s" % (order.item_id, order))
             return None
