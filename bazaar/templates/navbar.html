@@ -25,13 +25,15 @@
             {% endblock navbar-elements %}
 
             {% if user.is_authenticated %}
-                {% stored_messages_count as message_count %}
-                <li>
-                    <a href="{% url "bazaar:messages" %}">
-                        {% trans "Messages" %}
-                        {% if message_count > 0 %} <span class="badge"><small>{{ message_count }}</small></span>{% endif %}
-                    </a>
-                </li>
+                {% block navbar-messages %}
+                    {% stored_messages_count as message_count %}
+                    <li>
+                        <a href="{% url "bazaar:messages" %}">
+                            {% trans "Messages" %}
+                            {% if message_count > 0 %} <span class="badge"><small>{{ message_count }}</small></span>{% endif %}
+                        </a>
+                    </li>
+                {% endblock navbar-messages %}
                 <li><a href="{% url "bazaar:logout" %}">{% trans "Log out" %}</a></li>
             {% else %}
                 <li><a href="{% url "bazaar:login" %}">{% trans "Log in" %}</a></li>
