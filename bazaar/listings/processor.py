@@ -17,25 +17,25 @@ class OrderProcessor(object):
 
     def get_order_model(self):
         if self.order_model is None:
-            raise ImproperlyConfigured("OrderGrabber requires 'order_model' to be defined")
+            raise ImproperlyConfigured("OrderProcessor requires 'order_model' to be defined")
 
         return self.order_model
 
     def get_publishing_model(self):
         if self.publishing_model is None:
-            raise ImproperlyConfigured("OrderGrabber requires 'publishing_model' to be defined")
+            raise ImproperlyConfigured("OrderProcessor requires 'publishing_model' to be defined")
 
         return self.publishing_model
 
     def get_order_lookup_id(self):
         if self.order_lookup_id is None:
-            raise ImproperlyConfigured("OrderGrabber requires 'order_lookup_id' to be defined")
+            raise ImproperlyConfigured("OrderProcessor requires 'order_lookup_id' to be defined")
 
         return self.order_lookup_id
 
     def get_publishing_lookup_id(self):
         if self.publishing_lookup_id is None:
-            raise ImproperlyConfigured("OrderGrabber requires 'publishing_lookup_id' to be defined")
+            raise ImproperlyConfigured("OrderProcessor requires 'publishing_lookup_id' to be defined")
 
         return self.publishing_lookup_id
 

@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from model_utils.managers import InheritanceManager
 
 
 class ListingManager(models.Manager):
@@ -148,7 +149,8 @@ class ListingManager(models.Manager):
         return [r[0] for r in res]
 
 
-class PublishingManager(models.Manager):
+class PublishingManager(InheritanceManager):
+
     def active(self, listing=None):
         qs = self.get_queryset().filter(status=self.model.ACTIVE_PUBLISHING)
         if listing is not None:
