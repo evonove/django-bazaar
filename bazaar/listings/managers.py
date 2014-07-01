@@ -152,9 +152,9 @@ class ListingManager(models.Manager):
 class PublishingManager(InheritanceManager):
 
     def active(self, listing=None):
-        qs = self.get_queryset().filter(status=self.model.ACTIVE_PUBLISHING)
+        qs = self.get_queryset().filter(status=self.model.ACTIVE_PUBLISHING).select_subclasses()
         if listing is not None:
-            qs = qs.filter(listing=listing)
+            qs = qs.filter(listing=listing).select_subclasses()
         return qs
 
     def main_publishings(self, listing=None):
@@ -179,9 +179,9 @@ class PublishingManager(InheritanceManager):
 
         qs = self.get_queryset().extra(
             where=[where], params=[self.model.ACTIVE_PUBLISHING, self.model.ACTIVE_PUBLISHING]
-        )
+        ).select_subclasses()
 
         if listing is not None:
-            qs = qs.filter(listing=listing)
+            qs = qs.filter(listing=listing).select_subclasses()
 
         return qs | self.active(listing)

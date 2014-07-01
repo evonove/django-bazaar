@@ -114,6 +114,9 @@ class Publishing(models.Model):
 
     objects = PublishingManager()
 
+    def get_template_name(self):
+        return NotImplementedError("We doesn't provide a default publishing template.")
+
     def is_active(self):
         return self.status == self.ACTIVE_PUBLISHING
 
