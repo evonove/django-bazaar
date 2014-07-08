@@ -5,12 +5,13 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from moneyed import Money
+from ..warehouse.api import get_storage_price, get_storage_quantity
 
 from ..fields import MoneyField
 from ..goods.models import Product
 from ..settings import bazaar_settings
 
-from managers import ListingManager, PublishingManager
+from .managers import ListingManager, PublishingManager
 
 
 @python_2_unicode_compatible
@@ -43,27 +44,35 @@ class Listing(models.Model):
         """
         Returns global cost for the listing
         """
-        cost = Money(0.00, bazaar_settings.DEFAULT_CURRENCY)
+        cost = 0
         for ls in self.listing_sets.all():
             try:
-                avg_cost = ls.product.cost
+                avg_cost = get_storage_price(ls.product)
             except models.ObjectDoesNotExist:
-                avg_cost = Money(0, bazaar_settings.DEFAULT_CURRENCY)
+                avg_cost = 0
 
-            cost += avg_cost * ls.quantity
+            cost += avg_cost * float(ls.quantity)
 
-        return cost
+        return Money(cost, bazaar_settings.DEFAULT_CURRENCY)
 
     def is_unavailable(self):
         """
         Returns True when products stock cannot satisfy published listings
         """
-        raise NotImplementedError
+        for ls in self.listing_sets.all():
+            try:
+                product_quantity = get_storage_quantity(ls.product)
+            except models.ObjectDoesNotExist:
+                product_quantity = 0
+
+            if product_quantity < self.available_units * ls.quantity:
+                return True
+        return False
 
     def is_low_cost(self):
 
         listing_cost = self.cost
-        for publishing in self.publishings.all():
+        for publishing in self.publishings.filter(status=Publishing.ACTIVE_PUBLISHING):
             if listing_cost > publishing.price:
                 return True
         return False

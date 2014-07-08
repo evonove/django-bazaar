@@ -29,6 +29,8 @@ DEFAULTS = {
     'DEFAULT_AVAILABILITY_BACKEND': 'bazaar.warehouse.availability.AvailabilityBackend',
 
     'LOGIN_REDIRECT_URL': "bazaar:home",
+    'STORES': {},
+    'LISTING_FILTER': 'bazaar.listings.filters.ListingFilter',
 }
 
 # List of settings that cannot be empty
@@ -40,6 +42,7 @@ MANDATORY = (
 # List of settings that may be in string import notation.
 IMPORT_STRINGS = (
     'DEFAULT_AVAILABILITY_BACKEND',
+    'LISTING_FILTER',
 )
 
 
