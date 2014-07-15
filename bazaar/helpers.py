@@ -1,11 +1,10 @@
 from __future__ import unicode_literals
 from django.core.urlresolvers import reverse_lazy
-from django.forms.fields import DateTimeField
 
 from django.utils.translation import ugettext as _
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Div, ButtonHolder, HTML, Submit, Layout, Field
+from crispy_forms.layout import Div, ButtonHolder, HTML, Submit, Layout
 from crispy_forms.bootstrap import TabHolder, Tab, StrictButton
 
 
@@ -47,18 +46,15 @@ class FormModelHelperMixin(FormHelperMixin):
         helper.field_class = "col-md-8"
 
         extended_fields = self.MetaHelper.extended_fields if hasattr(self.MetaHelper, 'extended_fields') else []
-        readonly_fields = self.MetaHelper.readonly_fields if hasattr(self.MetaHelper, 'readonly_fields') else []
         list_url = reverse_lazy(self.MetaHelper.name_list_url, kwargs={}) if self.MetaHelper.name_list_url else '#'
 
         if extended_fields:
             helper.layout = Layout(
                 TabHolder(
                     Tab(_('general attributes').title(),
-                        *self.fields.keys()
-                    ),
+                        *self.fields.keys()),
                     Tab(_('specific attributes').title(),
-                        extended_fields
-                    )
+                        extended_fields)
                 )
             )
 
@@ -81,20 +77,13 @@ class FormModelHelperMixin(FormHelperMixin):
                 css_class="form-group"
             ),
         )
-
-        for name_field, field in self.fields.iteritems():
-            if name_field in readonly_fields:
-                field.widget.attrs['readonly'] = True
-                continue
-            if isinstance(field, DateTimeField):
-                helper['pub_date'].wrap(Field, template="layout/datetimepicker.html", data_format="YYYY-MM-DD hh:mm")
-
         return helper
 
     class MetaHelper:
         """
         Accepted attrs:
         name_url_list: url name to back to list view.
+        name_url_list: url name to back delete object.
         readonly_fields: set some model fields as read_only.
         extended_fields: set model fields layout in two tabs. Extended_fields will go in the second tab.
         """
