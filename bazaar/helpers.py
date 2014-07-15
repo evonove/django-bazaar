@@ -1,10 +1,12 @@
 from __future__ import unicode_literals
+from django.core.urlresolvers import reverse_lazy
+from django.forms.fields import DateTimeField
 
 from django.utils.translation import ugettext as _
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Div
-from crispy_forms.bootstrap import StrictButton
+from crispy_forms.layout import Div, ButtonHolder, HTML, Submit, Layout, Field
+from crispy_forms.bootstrap import TabHolder, Tab, StrictButton
 
 
 class FormHelperMixin(object):
@@ -34,6 +36,72 @@ class FormHelperMixin(object):
             self._helper = self.get_form_helper()
 
         return self._helper
+
+
+class FormModelHelperMixin(FormHelperMixin):
+
+    def get_form_helper(self):
+        helper = FormHelper(self)
+        helper.form_class = "form-horizontal"
+        helper.label_class = "col-md-3"
+        helper.field_class = "col-md-8"
+
+        extended_fields = self.MetaHelper.extended_fields if hasattr(self.MetaHelper, 'extended_fields') else []
+        readonly_fields = self.MetaHelper.readonly_fields if hasattr(self.MetaHelper, 'readonly_fields') else []
+        list_url = reverse_lazy(self.MetaHelper.name_list_url, kwargs={}) if self.MetaHelper.name_list_url else '#'
+
+        if extended_fields:
+            helper.layout = Layout(
+                TabHolder(
+                    Tab(_('general attributes').title(),
+                        *self.fields.keys()
+                    ),
+                    Tab(_('specific attributes').title(),
+                        extended_fields
+                    )
+                )
+            )
+
+        helper.layout.append(
+            Div(
+                Div(
+                    ButtonHolder(
+                        HTML('<a '
+                             'href="{}" '
+                             'class="btn btn-default" data-dismiss="modal">'
+                             '<i class="glyphicon glyphicon-chevron-left"></i>&nbsp;{}'
+                             '</a>&nbsp;'.format(list_url, _('back'.title()))),
+                        Submit('save', _("Submit")),
+                        HTML('&nbsp;<a data-toggle="modal" href="#modalDelete" class="btn btn-danger float-right">'
+                             '<i class="glyphicon glyphicon-trash"></i>&nbsp;{}'
+                             '</a>'.format(_('Delete'.title()))),
+                    ),
+                    css_class="col-md-offset-3 col-md-8",
+                ),
+                css_class="form-group"
+            ),
+        )
+
+        for name_field, field in self.fields.iteritems():
+            if name_field in readonly_fields:
+                field.widget.attrs['readonly'] = True
+                continue
+            if isinstance(field, DateTimeField):
+                helper['pub_date'].wrap(Field, template="layout/datetimepicker.html", data_format="YYYY-MM-DD hh:mm")
+
+        return helper
+
+    class MetaHelper:
+        """
+        Accepted attrs:
+        name_url_list: url name to back to list view.
+        readonly_fields: set some model fields as read_only.
+        extended_fields: set model fields layout in two tabs. Extended_fields will go in the second tab.
+        """
+        name_list_url = None
+        name_delete_url = None
+        readonly_fields = []
+        extended_fields = []
 
 
 class FormHelperMixinNoTag(FormHelperMixin):
