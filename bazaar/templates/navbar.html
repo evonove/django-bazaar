@@ -18,7 +18,7 @@
                     <a href="{{ products }}">{% trans "Products" %}</a>
                 </li>
 
-                {% url "bazaar:listing-list" as listings %}
+                {% url "bazaar:listings-list" as listings %}
                 <li class="{% ifequal request.path listings %}active{% endifequal %}">
                     <a href="{{ listings }}">{% trans "Listings" %}</a>
                 </li>

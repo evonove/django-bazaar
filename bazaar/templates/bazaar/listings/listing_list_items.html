@@ -22,7 +22,7 @@
 
                                 {% block listing-header-info %}
                                     <!-- <a data-toggle="collapse"> removed, TODO fix it with logic based on nr of products -->
-                                    <h5>{{ listing.title }}</h5>
+                                    <h5><a href="{% url 'bazaar:listings-detail' listing.id %}"> {{ listing.title }}</a> </h5>
                                     {% if listing.description|length > 30 %}
                                         <a data-toggle="modal" data-target="#modalListing{{ listing.id }}">
                                             {% trans "See full description" %}

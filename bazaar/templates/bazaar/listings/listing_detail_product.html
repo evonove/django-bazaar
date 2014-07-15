@@ -1,0 +1,33 @@
+{% load i18n %}
+
+<table class="table table-striped table-bordered">
+    <thead>
+    <tr>
+        <th>
+            {% trans "Product name" %}
+        </th>
+        <th>
+            {% trans "Quantity" %}
+        </th>
+        <th>
+            {% trans "Product price" %}
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for listing_set in listing.listing_sets.all %}
+            <tr>
+                <td>
+                    {{ listing_set.product.name }}
+                </td>
+                <td>
+                    {{ listing_set.quantity }}
+                </td>
+                <td>
+                    {{  listing_set.product.price }}
+                </td>
+            </tr>
+
+        {% endfor %}
+    </tbody>
+</table>

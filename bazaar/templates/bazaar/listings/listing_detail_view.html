@@ -1,0 +1,133 @@
+{% extends "bazaar/listings/base.html" %}
+
+{% load i18n %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+
+{% block stylesheets %}
+    {{ block.super }}
+
+{%  endblock stylesheets %}
+{% block messages %}
+
+{% endblock messages %}
+{% block content %}
+    <div class="merchant-actions row">
+        <div class="col-md-10">
+            <a href="{% url 'bazaar:listings-list' %}" class="btn btn-default">
+                <i class="glyphicon glyphicon-chevron-left"></i>&nbsp;{% trans "Back" %}
+            </a>
+            <a href="{% url 'bazaar:listings-update' listing.id %}" class="btn btn-primary">
+                <i class="glyphicon glyphicon-pencil"></i>&nbsp;{% trans "Modify" %}
+            </a>
+
+            <div class="pull-right">
+                <a data-toggle="modal" href="#modalDelete" class="btn btn-danger">
+                    <i class="glyphicon glyphicon-trash"></i>&nbsp;{% trans "Delete" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% if listing.picture_url %}
+            <div class="col-md-2">
+                <img src='{{ listing.picture_url }}' class='img-thumbnail'>
+            </div>
+        {% endif %}
+        <div class="col-md-10">
+            <h3>{{ listing.title }} </h3>
+        </div>
+        <div class="col-md-10">
+            {% include "bazaar/listings/listing_detail_product.html" %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        {% trans "Store" %}
+                    </th>
+                    <th>
+                        {% trans "Price" %}
+                    </th>
+                    <th>
+                        {% trans "Available Units" %}
+                    </th>
+                    <th>
+                        {% trans "Status" %}
+                    </th>
+                    <th>
+                        {% trans "Publication Date" %}
+                    </th>
+                    <th>
+                        {% trans "Last Modified" %}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pub in listing.publishings.all %}
+                    <tr>
+                        <th>
+                            {{ pub.store.name }}
+                        </th>
+                        <th>
+                            {{ pub.price }}
+                        </th>
+                        <th>
+                            {{ pub.available_units }}
+                        </th>
+                        <th>
+                            {{ pub.get_status_display }}
+                        </th>
+                        <th>
+                            {{ pub.pub_date }}
+                        </th>
+                        <th>
+                            {{ pub.last_modified }}
+                        </th>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 bio">
+            <h4>Description:</h4>
+            {% if listing.description|length > 30 %}
+                {% autoescape off %}{{ listing.description }}{% endautoescape %}
+            {% else %}
+                <p>{{ listing.description }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- modalDelete -->
+    <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>{% trans "Confirm Delete " %}{{ set.name }}</h3>
+                </div>
+                <div class="modal-body">
+                    <form class="form-inline" method="POST" action="{% url 'bazaar:listings-delete' listing.id %}">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
+                        <button type="submit" value="DELETE" class="btn btn-danger">{% trans "Delete" %}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end modalDelete -->
+
+
+{% endblock content %}

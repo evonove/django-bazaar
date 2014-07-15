@@ -1,0 +1,21 @@
+{% extends "bazaar/listings/base.html" %}
+
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block messages %}
+{% endblock messages %}
+
+{% block content %}
+    <div class="row">
+        <div id="title" class="col-md-8">
+            {% if listing %}
+                <h1>{% trans "Update a listing" %}</h1>
+            {% else %}
+                <h1>{% trans "Create a listing" %}</h1>
+            {% endif %}
+
+            {% crispy form %}
+        </div>
+    </div>
+{% endblock content %}
