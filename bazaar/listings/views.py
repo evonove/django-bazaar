@@ -136,6 +136,7 @@ class PublishingTagsMixin(object):
 
 
 class PublishingListView(LoginRequiredMixin, PublishingTagsMixin, FilterSortableListView):
+    template_name = 'bazaar/listings/publishing_list.html'
     model = Publishing
     paginate_by = 100
     sort_fields = (
@@ -148,6 +149,7 @@ class PublishingCreateView(SuccessMessageMixin, LoginRequiredMixin, PublishingTa
     model = Publishing
     form_class = PublishingForm
     success_url = reverse_lazy("bazaar:publishings-list")
+    template_name = 'bazaar/listings/publishing_form.html'
 
 
 class PublishingDeleteView(LoginRequiredMixin, generic.DeleteView):
@@ -158,6 +160,7 @@ class PublishingDeleteView(LoginRequiredMixin, generic.DeleteView):
 class PublishingUpdateView(SuccessMessageMixin, LoginRequiredMixin, PublishingTagsMixin, generic.UpdateView):
     model = Publishing
     form_class = PublishingForm
+    template_name = 'bazaar/listings/publishing_form.html'
 
     def get_success_url(self):
         return reverse_lazy("bazaar:publishings-update", kwargs={'pk': self.object.id})

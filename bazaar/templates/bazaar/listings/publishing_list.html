@@ -1,0 +1,107 @@
+{% extends "magic/base.html" %}
+
+{% load i18n %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+{% load bazaar_list %}
+
+{% block stylesheets %}
+    {{ block.super }}
+
+    <style>
+        .modal-large {
+            width: 1000px;
+        }
+        .publishing-detail {
+            margin-top: 10px;
+        }
+        .publishing-item {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        .publishing-striped {
+            margin-left: 15px;
+            margin-right: 15px;
+        }
+        .publishing-striped>.publishing-item:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+    </style>
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-10 col-sm-10">
+            <h2>{% trans "publishings"|capfirst %}</h2>
+            <table class="table table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th><a href="?{{ query_filter.urlencode }}&{{ sort_fields.id.query }}">{% trans "id" %} {% sort_direction sort_fields.id %}</a></th>
+                    <th><a href="?{{ query_filter.urlencode }}&{{ sort_fields.external_id.query }}">{% trans "external_id" %} {% sort_direction sort_fields.external_id %}</a></th>
+                    <th><a href="?{{ query_filter.urlencode }}&{{ sort_fields.pub_date.query }}">{% trans "publishing"|capfirst %} {% trans "date"|capfirst %} {% sort_direction sort_fields.pub_date %}</a></th>
+                    <th><a href="?{{ query_filter.urlencode }}&{{ sort_fields.last_modified.query }}">{% trans "last"|capfirst %} {% trans "modified"|capfirst %} {% sort_direction sort_fields.last_modified %}</a></th>
+                    <th><a href="?{{ query_filter.urlencode }}&{{ sort_fields.status.query }}">{% trans "status"|capfirst %} {% sort_direction sort_fields.status %}</a></th>
+                    <th><a href="?{{ query_filter.urlencode }}&{{ sort_fields.store__name.query }}">{% trans "store"|capfirst %} {% sort_direction sort_fields.store__name %}</a></th>
+                    <th>{% trans "custom"|capfirst %}</th>
+
+                </tr>
+                </thead>
+                <tbody>
+
+                {% for publishing in publishing_list %}
+                    <tr>
+                        <td><a href="{% url 'bazaar:publishings-update' publishing.id %}">{{ publishing.id }}</a></td>
+                        <td>{{ publishing.external_id }}</td>
+                        <td>{{ publishing.pub_date|date:"D d M Y, H:m"|default_if_none:_("No date") }}</td>
+                        <td>{{ publishing.last_modified|date:"D d M Y, H:m"|default_if_none:_("No date") }}</td>
+                        <td>{{ publishing.status }}</td>
+                        <td>{{ publishing.store }}</td>
+                        <td> TODO: put customization here</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <p>{% blocktrans with messages_count=paginator.count %}There are {{ messages_count }} messages{% endblocktrans %}</p>
+
+            {% include "bazaar/paginator.html" %}
+        </div>
+
+        {% block sidebar %}
+            <div class="col-md-2">
+                <div class="row bazaar-sidebar">
+                    {% block sidebar-elements %}
+                        <div class="col-md-12">
+                            <h4>{% trans "Filters" %}</h4>
+                            <form method="get">
+                                {% crispy publishing_filter.form %}
+                                <button type="submit" class="btn btn-primary">{% trans "Filter" %}</button>
+                                {% url "bazaar:publishings-list" as publishings %}
+                                <a href="{{ publishings }}" class="btn{% if query_filter %} btn-primary{% else %} btn-default{% endif %}"
+                                {% if not query_filter %} disabled="disabled" {% endif %}>{% trans "Reset" %}</a>
+                                {% url "bazaar:publishings-create" as publishings_create %}
+                                <a href="{{ publishings_create }}" class="btn{% if query_filter %} btn-primary{% else %} btn-success{% endif %}"
+                                >{% trans "Create" %}</a>
+                            </form>
+
+                        </div>
+                    {% endblock sidebar-elements %}
+                </div>
+
+                {% block sidebar-extras %}{% endblock sidebar-extras %}
+            </div>
+        {% endblock sidebar %}
+    </div>
+{% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+
+    <script src="{% static "js/echo.min.js" %}"></script>
+    <script>
+        $(document).ready(function() {
+            $("[data-toggle=popover]").popover();
+
+            Echo.init();
+        });
+    </script>
+{% endblock %}
