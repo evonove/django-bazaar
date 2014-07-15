@@ -48,6 +48,13 @@ class FormModelHelperMixin(FormHelperMixin):
         extended_fields = self.MetaHelper.extended_fields if hasattr(self.MetaHelper, 'extended_fields') else []
         list_url = reverse_lazy(self.MetaHelper.name_list_url, kwargs={}) if self.MetaHelper.name_list_url else '#'
 
+        is_modelform = hasattr(self, 'instance')
+        have_instance = is_modelform and hasattr(self.instance, 'pk') and self.instance.pk is not None
+        disabled = 'disabled="disabled"' if is_modelform and not have_instance else ''
+        delete_html = '&nbsp;<a data-toggle="modal" href="#modalDelete" class="btn btn-danger float-right" {}>' \
+                      '<i class="glyphicon glyphicon-trash"></i>&nbsp;{}' \
+                      '</a>'.format(disabled, _('Delete'.title()), ) if is_modelform else ''
+
         if extended_fields:
             helper.layout = Layout(
                 TabHolder(
@@ -68,9 +75,7 @@ class FormModelHelperMixin(FormHelperMixin):
                              '<i class="glyphicon glyphicon-chevron-left"></i>&nbsp;{}'
                              '</a>&nbsp;'.format(list_url, _('back'.title()))),
                         Submit('save', _("Submit")),
-                        HTML('&nbsp;<a data-toggle="modal" href="#modalDelete" class="btn btn-danger float-right">'
-                             '<i class="glyphicon glyphicon-trash"></i>&nbsp;{}'
-                             '</a>'.format(_('Delete'.title()))),
+                        HTML(delete_html)
                     ),
                     css_class="col-md-offset-3 col-md-8",
                 ),
