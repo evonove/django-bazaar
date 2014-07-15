@@ -1,14 +1,15 @@
 from __future__ import unicode_literals
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseNotFound
 from django.views import generic
 from braces.views import LoginRequiredMixin
-from bazaar.goods.models import Product
-from .forms import ListingForm
-from .models import Listing, ListingSet
+from .forms import ListingForm, PublishingForm
+from .models import Listing, ListingSet, Publishing
+from ..goods.models import Product
 from ..management.stores.config import stores_loader
 from ..management.listings.config import listings_loader
-from ..mixins import BazaarPrefixMixin, FilterMixin
+from ..mixins import BazaarPrefixMixin, FilterMixin, FilterSortableListView
 
 
 class ListingListView(LoginRequiredMixin, BazaarPrefixMixin, FilterMixin, generic.ListView):
@@ -88,10 +89,13 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
                 self.error_response = HttpResponseNotFound()
         return initial
 
+    def get_success_url(self):
+        return reverse_lazy("bazaar:listings-detail", kwargs={'pk': self.object.id})
+
     def form_valid(self, form):
 
         try:
-            product = Product.objects.get(id=form.cleaned_data.get("product"))
+            product = Product.objects.get(id=form.cleaned_data.get("product").id)
         except Product.DoesNotExist:
             return self.form_invalid(form)
 
@@ -111,12 +115,49 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
                 description=form.cleaned_data.get("description", None)
             )
 
+        ListingSet.objects.filter(listing_id=listing.id).delete()
         listing_set, is_created = ListingSet.objects.get_or_create(listing=listing,
                                                                    product=product,
                                                                    quantity=int(form.cleaned_data.get("quantity")))
-
+        self.object = listing
+        #TODO: Listing update work only with one product
         listing.listing_sets = [listing_set]
-
         listing.save()
 
         return super(ListingUpdateView, self).form_valid(form)
+
+
+class PublishingTagsMixin(object):
+        def get_context_data(self, **kwargs):
+            # Call the base implementation first to get a context
+            context = super(PublishingTagsMixin, self).get_context_data(**kwargs)
+            context['PUBLISHING_STATUS_CHOICES'] = dict(Publishing.PUBLISHING_STATUS_CHOICES)
+            return context
+
+
+class PublishingListView(LoginRequiredMixin, PublishingTagsMixin, FilterSortableListView):
+    model = Publishing
+    paginate_by = 100
+    sort_fields = (
+        'external_id', 'id', 'last_modified',
+        'pub_date', 'status', 'store__name', 'is_active'
+    )
+
+
+class PublishingCreateView(SuccessMessageMixin, LoginRequiredMixin, PublishingTagsMixin, generic.CreateView):
+    model = Publishing
+    form_class = PublishingForm
+    success_url = reverse_lazy("bazaar:publishings-list")
+
+
+class PublishingDeleteView(LoginRequiredMixin, generic.DeleteView):
+    model = Publishing
+    success_url = reverse_lazy("bazaar:publishings-list")
+
+
+class PublishingUpdateView(SuccessMessageMixin, LoginRequiredMixin, PublishingTagsMixin, generic.UpdateView):
+    model = Publishing
+    form_class = PublishingForm
+
+    def get_success_url(self):
+        return reverse_lazy("bazaar:publishings-update", kwargs={'pk': self.object.id})

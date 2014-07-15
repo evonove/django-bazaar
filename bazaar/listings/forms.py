@@ -2,7 +2,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 from django.forms import IntegerField, CharField
-from bazaar.helpers import FormHelperMixin
+from ..helpers import FormHelperMixin
+from .models import Publishing
 
 
 class ListingForm(FormHelperMixin, forms.Form):
@@ -16,3 +17,9 @@ class ListingForm(FormHelperMixin, forms.Form):
         helper = FormHelper(self)
         helper.layout.append(Submit("save", "save"))
         return helper
+
+
+class PublishingForm(forms.ModelForm):
+
+    class Meta:
+        model = Publishing
