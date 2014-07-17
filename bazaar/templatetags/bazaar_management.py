@@ -7,12 +7,12 @@ register = template.Library()
 from ..management.stores.config import stores_loader
 
 
-@register.simple_tag
+@register.assignment_tag
 def store_publishing_template(store_slug):
     return stores_loader.get_store_manager(store_slug).get_store_publishing_template()
 
 
-@register.simple_tag
+@register.assignment_tag
 def store_publishing_list_template(store_slug):
     return stores_loader.get_store_manager(store_slug).get_store_publishing_list_template()
 
