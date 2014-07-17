@@ -1,9 +1,7 @@
 from __future__ import unicode_literals
 
-from django.db.models.signals import post_syncdb
-from ...listings.models import Store
+from ..models import Store
 from ...settings import bazaar_settings, import_from_string
-from ...listings import models as bazaar_listing_app
 
 
 class StoresLoader(object):
@@ -39,9 +37,6 @@ def create_stores(sender, created_models, verbosity, db, **kwargs):
                 name=store_manager.get_store_name(),
                 url=store_manager.get_store_url()
             ).save(using=db)
-
-
-post_syncdb.connect(create_stores, sender=bazaar_listing_app)
 
 
 class StoresLoaderException(Exception):

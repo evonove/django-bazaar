@@ -4,8 +4,7 @@ from django import template
 
 register = template.Library()
 
-from ..management.stores.config import stores_loader
-
+from ..listings.stores import stores_loader
 
 @register.assignment_tag
 def store_publishing_template(store_slug):

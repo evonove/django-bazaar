@@ -1,14 +1,16 @@
 from __future__ import unicode_literals
+
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponseNotFound, HttpResponseRedirect
+from django.http import HttpResponseNotFound
 from django.views import generic
 from braces.views import LoginRequiredMixin
+
+from bazaar.settings import bazaar_settings
 from .forms import ListingForm, PublishingForm
 from .models import Listing, ListingSet, Publishing
 from ..goods.models import Product
-from ..management.stores.config import stores_loader
-from ..management.listings.config import listings_loader
+from .stores import stores_loader
 from ..mixins import BazaarPrefixMixin, FilterMixin, FilterSortableListView
 
 
@@ -18,7 +20,7 @@ class ListingListView(LoginRequiredMixin, BazaarPrefixMixin, FilterMixin, generi
     template_name = "bazaar/listings/listing_list.html"
     filter_name = "listing_filter"
 
-    filter_class = listings_loader.get_listing_filter()
+    filter_class = bazaar_settings.LISTING_FILTER
 
     def get_queryset(self):
         qs = super(ListingListView, self).get_queryset()
