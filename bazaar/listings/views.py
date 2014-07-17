@@ -143,7 +143,7 @@ class PublishingListView(LoginRequiredMixin, PublishingTagsMixin, FilterSortable
     paginate_by = 100
     sort_fields = (
         'external_id', 'id', 'last_modified',
-        'pub_date', 'status', 'store__name', 'is_active'
+        'pub_date', 'status', 'store__name', 'is_active', 'listing__title'
     )
 
 
