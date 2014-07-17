@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound, HttpResponseRedirect
 from django.views import generic
 from braces.views import LoginRequiredMixin
 from .forms import ListingForm, PublishingForm

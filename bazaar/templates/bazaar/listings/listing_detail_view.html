@@ -22,9 +22,15 @@
             </a>
 
             <div class="pull-right">
-                <a data-toggle="modal" href="#modalDelete" class="btn btn-danger">
-                    <i class="glyphicon glyphicon-trash"></i>&nbsp;{% trans "Delete" %}
-                </a>
+                {% if listing.publishings.all %}
+                    <a data-toggle="modal" href="#modalDelete" class="btn btn-danger disabled">
+                        <i class="glyphicon glyphicon-trash"></i>&nbsp;{% trans "Clear all Publishing First" %}
+                    </a>
+                {% else %}
+                    <a data-toggle="modal" href="#modalDelete" class="btn btn-danger">
+                        <i class="glyphicon glyphicon-trash"></i>&nbsp;{% trans "Delete Listing" %}
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -69,27 +75,30 @@
                 </tr>
             </thead>
             <tbody>
-                {% for pub in listing.publishings.all %}
+                {% for publishing in listing.publishings.all %}
+
+                    {% block publishing_list %}
                     <tr>
                         <th>
-                            {{ pub.store.name }}
+                            <a href="{% url 'publishings-update' publishing.id %}"> {{ publishing.store.name }} </a>
                         </th>
                         <th>
-                            {{ pub.price }}
+                            {{ publishing.price }}
                         </th>
                         <th>
-                            {{ pub.available_units }}
+                            {{ publishing.available_units }}
                         </th>
                         <th>
-                            {{ pub.get_status_display }}
+                            {{ publishing.get_status_display }}
                         </th>
                         <th>
-                            {{ pub.pub_date }}
+                            {{ publishing.pub_date }}
                         </th>
                         <th>
-                            {{ pub.last_modified }}
+                            {{ publishing.last_modified }}
                         </th>
                     </tr>
+                    {% endblock publishing_list %}
 
                 {% endfor %}
 
@@ -110,14 +119,16 @@
         </div>
     </div>
 
+    {% if not listing.publishings.all %}
     <!-- modalDelete -->
     <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>{% trans "Confirm Delete " %}{{ set.name }}</h3>
+                    <h3>{% trans "Confirm Delete Listing" %}</h3>
                 </div>
                 <div class="modal-body">
+                    <h3>WARNING!</h3>
                     <form class="form-inline" method="POST" action="{% url 'bazaar:listings-delete' listing.id %}">
                         {% csrf_token %}
                         <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
@@ -128,6 +139,7 @@
         </div>
     </div>
     <!-- end modalDelete -->
+    {% endif %}
 
 
 {% endblock content %}

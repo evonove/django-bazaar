@@ -49,9 +49,12 @@ class FormModelHelperMixin(FormHelperMixin):
         list_url = reverse_lazy(self.MetaHelper.name_list_url, kwargs={}) if self.MetaHelper.name_list_url else '#'
 
         is_modelform = hasattr(self, 'instance')
-        have_instance = is_modelform and hasattr(self.instance, 'pk') and self.instance.pk is not None
-        disabled = 'disabled="disabled"' if is_modelform and not have_instance else ''
-        delete_html = '&nbsp;<a data-toggle="modal" href="#modalDelete" class="btn btn-danger float-right" {}>' \
+        has_instance = is_modelform and hasattr(self.instance, 'pk') and self.instance.pk is not None
+        disabled = 'disabled="disabled"' if is_modelform and not has_instance else ''
+        from .management.stores import stores_loader
+        if is_modelform and hasattr(self.instance, 'store') and not stores_loader.get_store_manager(self.instance.store.slug).get_publishing_delete_action():
+            disabled = 'disabled="disabled"'
+        delete_html = '&nbsp;<a data-toggle="modal" href="#modalDelete" class="btn btn-danger pull-right" {}>' \
                       '<i class="glyphicon glyphicon-trash"></i>&nbsp;{}' \
                       '</a>'.format(disabled, _('Delete'.title()), ) if is_modelform else ''
 

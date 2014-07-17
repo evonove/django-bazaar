@@ -1,8 +1,6 @@
 from __future__ import unicode_literals
 
 from django import template
-from ..management.stores.config import stores_loader
-
 
 register = template.Library()
 
@@ -56,9 +54,3 @@ def sort_direction(context, sort_field):
         "is_sorted": sort_field["is_current"],
         "sort_ascending": context["current_sort_direction"] != "-",
     }
-
-
-@register.simple_tag
-def store_publishing_template(store_slug):
-    return stores_loader.get_store_manager(store_slug).get_store_publishing_template()
-

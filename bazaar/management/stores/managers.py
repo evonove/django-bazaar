@@ -27,9 +27,23 @@ class DefaultStoreManager(object):
     def get_store_forms(self):
         return []
 
+    def get_publishing_form(self):
+        return None
+
+    def get_publishing_delete_action(self):
+        return None
+
+    def get_publishing_update_action(self):
+        return None
+
+    def get_publishing_create_action(self):
+        return None
+
     def get_store_publishing_template(self):
-        #TODO create a default publishing template
-        raise NotImplementedError("You need to publishing template!")
+        raise NotImplementedError("You need to listing-list publishing template!")
+
+    def get_store_publishing_list_template(self):
+        raise NotImplementedError("You need to provide publishing-list template!")
 
     def get_store_extra(self, extra_name):
         return self.extras[extra_name]

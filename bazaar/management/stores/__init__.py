@@ -1,0 +1,1 @@
+from .config import stores_loader
