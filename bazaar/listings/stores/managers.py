@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from ..models import Publishing
 
 from django_filters import FilterSet
 
@@ -26,6 +27,12 @@ class DefaultStoreManager(object):
 
     def get_store_forms(self):
         return []
+
+    def get_publishing_create_url(self):
+        return None
+
+    def get_model(self):
+        return Publishing
 
     def get_publishing_form(self):
         return None

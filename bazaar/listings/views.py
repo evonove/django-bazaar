@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+import datetime
 
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
@@ -152,6 +153,13 @@ class PublishingCreateView(SuccessMessageMixin, LoginRequiredMixin, PublishingTa
     form_class = PublishingForm
     success_url = reverse_lazy("bazaar:publishings-list")
     template_name = 'bazaar/listings/publishing_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.last_modified = datetime.now()
+        self.object.save()
+        self.success_url = reverse_lazy("publishings-update", kwargs={'pk': self.object.id})
+        return super(PublishingCreateView, self).form_valid(form)
 
 
 class PublishingDeleteView(LoginRequiredMixin, generic.DeleteView):
