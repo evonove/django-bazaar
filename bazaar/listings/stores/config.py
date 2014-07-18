@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from django.db import IntegrityError
 
 from ..models import Store
 from ...settings import bazaar_settings, import_from_string
@@ -25,18 +26,22 @@ class StoresLoader(object):
 stores_loader = StoresLoader()
 
 
-def create_stores(sender, created_models, verbosity, db, **kwargs):
-    for store_slug, store_manager in stores_loader.store_managers:
+def create_stores(app, created_models, verbosity, interactive, db, **kwargs):
+    for store_slug, store_manager in stores_loader.store_managers.items():
 
         if verbosity >= 2:
             print("Creating %s Store object" % store_manager.get_store_name())
 
-        if Store in created_models:
-            Store(
-                slug=store_slug,
-                name=store_manager.get_store_name(),
-                url=store_manager.get_store_url()
-            ).save(using=db)
+        store = Store(
+            slug=store_slug,
+            name=store_manager.get_store_name(),
+            url=store_manager.get_store_url()
+        )
+        try:
+            store.save(using=db)
+        except IntegrityError:
+            if verbosity >= 2:
+                print("Store %s already exists" % store_manager.get_store_name())
 
 
 class StoresLoaderException(Exception):
