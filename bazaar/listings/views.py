@@ -156,7 +156,7 @@ class PublishingCreateView(SuccessMessageMixin, LoginRequiredMixin, PublishingTa
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.last_modified = datetime.now()
+        self.object.last_modified = datetime.datetime.now()
         self.object.save()
         self.success_url = reverse_lazy("publishings-update", kwargs={'pk': self.object.id})
         return super(PublishingCreateView, self).form_valid(form)

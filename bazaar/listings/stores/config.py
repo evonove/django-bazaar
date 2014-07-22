@@ -39,7 +39,7 @@ def create_stores(app, created_models, verbosity, interactive, db, **kwargs):
         )
         try:
             store.save(using=db)
-        except IntegrityError:
+        except Exception:
             if verbosity >= 2:
                 print("Store %s already exists" % store_manager.get_store_name())
 
