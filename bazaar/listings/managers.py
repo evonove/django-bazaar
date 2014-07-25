@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from model_utils.managers import InheritanceManager
+from django.db.models import Manager
 
 
 class ListingManager(models.Manager):
@@ -149,12 +149,12 @@ class ListingManager(models.Manager):
         return [r[0] for r in res]
 
 
-class PublishingManager(InheritanceManager):
+class PublishingManager(Manager):
 
     def active(self, listing=None):
-        qs = self.get_queryset().filter(status=self.model.ACTIVE_PUBLISHING).select_subclasses()
+        qs = self.get_queryset().filter(status=self.model.ACTIVE_PUBLISHING)
         if listing is not None:
-            qs = qs.filter(listing=listing).select_subclasses()
+            qs = qs.filter(listing=listing)
         return qs
 
     def main_publishings(self, listing=None):
@@ -179,9 +179,9 @@ class PublishingManager(InheritanceManager):
 
         qs = self.get_queryset().extra(
             where=[where], params=[self.model.ACTIVE_PUBLISHING, self.model.ACTIVE_PUBLISHING]
-        ).select_subclasses()
+        )
 
         if listing is not None:
-            qs = qs.filter(listing=listing).select_subclasses()
+            qs = qs.filter(listing=listing)
 
         return qs | self.active(listing)

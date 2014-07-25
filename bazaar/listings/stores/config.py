@@ -1,6 +1,4 @@
 from __future__ import unicode_literals
-from django.db import IntegrityError
-
 from ..models import Store
 from ...settings import bazaar_settings, import_from_string
 
