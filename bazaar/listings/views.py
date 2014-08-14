@@ -123,7 +123,7 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
                                                                    product=product,
                                                                    quantity=int(form.cleaned_data.get("quantity")))
         self.object = listing
-        #TODO: Listing update work only with one product
+        #TODO: Listing update work only with one product type
         listing.listing_sets = [listing_set]
         listing.save()
 
