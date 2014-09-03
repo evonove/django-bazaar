@@ -54,3 +54,6 @@ class DefaultStoreManager(object):
 
     def get_store_extra(self, extra_name):
         return self.extras[extra_name]
+
+    def get_publishing_discounted_price(self, price):
+        return price
