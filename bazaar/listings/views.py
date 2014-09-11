@@ -4,6 +4,7 @@ import datetime
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseNotFound
+from django.utils import timezone
 from django.views import generic
 from braces.views import LoginRequiredMixin
 
@@ -156,7 +157,7 @@ class PublishingCreateView(SuccessMessageMixin, LoginRequiredMixin, PublishingTa
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.last_modified = datetime.datetime.now()
+        self.object.last_modified = timezone.now()
         self.object.save()
         self.success_url = reverse_lazy("publishings-update", kwargs={'pk': self.object.id})
         return super(PublishingCreateView, self).form_valid(form)

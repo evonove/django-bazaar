@@ -5,6 +5,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from moneyed import Money
+from bazaar.warehouse import api
 from ..warehouse.api import get_storage_price, get_storage_quantity
 
 from ..fields import MoneyField
@@ -30,12 +31,11 @@ class Listing(models.Model):
     @property
     def available_units(self):
         """
-        Returns available units across all publishings
+        Returns available units in the storage
         """
-
         available = 0
-        for publishing in self.publishings.all():
-            available += publishing.available_units
+        for product in self.products.all():
+            available += api.get_storage_quantity(product)
 
         return available
 
