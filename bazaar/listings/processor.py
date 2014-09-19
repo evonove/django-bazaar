@@ -45,6 +45,9 @@ class OrderProcessor(object):
             return model.objects.get(external_id=getattr(incoming, self.get_order_lookup_id()))
         except model.DoesNotExist:
             return None
+        except model.MultipleObjectsReturned as e:
+            self._add_message("Multiple orders found for external_id %s" % getattr(incoming, self.get_order_lookup_id()))
+            raise e
 
     def get_publishing(self, order):
         try:
