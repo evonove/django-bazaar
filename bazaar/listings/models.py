@@ -31,13 +31,18 @@ class Listing(models.Model):
     @property
     def available_units(self):
         """
-        Returns available units in the storage
+        Returns available units of the whole listing in the storage
         """
-        available = 0
-        for product in self.products.all():
-            available += api.get_storage_quantity(product)
-
-        return available
+        availabilities = []
+        min_available = 0
+        for listing_set in self.listing_sets.all():
+            product = listing_set.product
+            quantity = listing_set.quantity
+            if quantity and product:
+                availabilities.append(api.get_storage_quantity(product) // quantity)
+        if availabilities:
+            min_available = min(availabilities)
+        return min_available
 
     @property
     def cost(self):
