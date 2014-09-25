@@ -43,12 +43,11 @@ class Movement(models.Model):
     product = models.ForeignKey(Product)
     quantity = models.DecimalField(max_digits=30, decimal_places=4)
 
-    original_unit_price = MoneyField(null=True, help_text=_("Unit price in the original currency"))
+    original_unit_price = MoneyField(null=True, blank=True, help_text=_("Unit price in the original currency"))
     unit_price = MoneyField(help_text=_("Unit price"))
 
-    agent = models.CharField(max_length=100, blank=True,
-                             help_text=_("The batch/user that made the movement"))
-    note = models.TextField(blank=True)
+    agent = models.CharField(max_length=100, help_text=_("The batch/user that made the movement"))
+    note = models.TextField(null=True, blank=True)
 
     class Meta:
         get_latest_by = "date"
