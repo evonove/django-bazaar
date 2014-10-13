@@ -1,51 +1,17 @@
+#!/usr/bin/env python
+
+from __future__ import unicode_literals
+
+import logging
+import os
 import sys
 
-from django.conf import settings
 
-settings.configure(
-    DEBUG=True,
-    USE_TZ=True,
-    DATABASES={
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-        }
-    },
-    ROOT_URLCONF="bazaar.urls",
-    INSTALLED_APPS=[
-        "django.contrib.auth",
-        "django.contrib.contenttypes",
-        "django.contrib.sessions",
-        "django.contrib.sites",
-        "django.contrib.messages",
-        "django.contrib.staticfiles",
-        "django.contrib.admin",
+logging.disable(logging.CRITICAL)
 
-        "crispy_forms",
-        "djmoney_rates",
-        "stored_messages",
-        "rest_framework",
 
-        "bazaar",
-        "bazaar.goods",
-        "bazaar.warehouse",
-        "bazaar.listings",
-        "tests",
-    ],
-    SITE_ID=1,
-    STATIC_URL="/static/",
-    # Custom project settings go here
-    DJANGO_MONEY_RATES={
-        "DEFAULT_BACKEND": "tests.backends.RateBackend",
-    },
-)
+if __name__ == "__main__":
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tests.settings")
 
-try:
-    from django_nose import NoseTestSuiteRunner
-except ImportError:
-    raise ImportError("To fix this error, run: pip install -r requirement-text.txt")
-
-test_runner = NoseTestSuiteRunner(verbosity=1)
-failures = test_runner.run_tests(["."])
-
-if failures:
-    sys.exit(failures)
+    from django.core.management import execute_from_command_line
+    execute_from_command_line([sys.argv[0], "test", "tests"])

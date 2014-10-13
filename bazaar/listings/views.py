@@ -1,11 +1,11 @@
 from __future__ import unicode_literals
-import datetime
 
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponseNotFound
 from django.utils import timezone
 from django.views import generic
+
 from braces.views import LoginRequiredMixin
 
 from bazaar.settings import bazaar_settings
@@ -26,7 +26,7 @@ class ListingListView(LoginRequiredMixin, BazaarPrefixMixin, FilterMixin, generi
 
     def get_queryset(self):
         qs = super(ListingListView, self).get_queryset()
-        # prefetch list of values, populated by inherit itmes, plus items from each store
+        # prefetch list of values, populated by inherit items, plus items from each store
         prefetch_list = ["listing_sets__product", "publishings__store"]
         for manager in stores_loader.get_all_store_managers():
             prefetch_list.extend(manager.get_store_extra("prefetch_list"))
@@ -51,7 +51,6 @@ class ListingListView(LoginRequiredMixin, BazaarPrefixMixin, FilterMixin, generi
 
 
 class ListingDetailView(LoginRequiredMixin, generic.DetailView):
-
     model = Listing
     template_name = "bazaar/listings/listing_detail_view.html"
 

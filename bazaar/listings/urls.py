@@ -17,5 +17,4 @@ urlpatterns = patterns(
     url(r'^publishings/new/$', PublishingCreateView.as_view(), name="publishings-create"),
     url(r'^publishings/update/(?P<pk>\d+)/$', PublishingUpdateView.as_view(), name='publishings-update'),
     url(r'^publishings/delete/(?P<pk>\d+)/$', PublishingDeleteView.as_view(), name='publishings-delete'),
-
 )

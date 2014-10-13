@@ -1,3 +1,4 @@
+# flake8: noqa
 import django
 
 if django.VERSION < (1, 6):

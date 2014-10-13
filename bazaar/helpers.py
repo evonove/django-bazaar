@@ -52,7 +52,8 @@ class FormModelHelperMixin(FormHelperMixin):
         has_instance = is_modelform and hasattr(self.instance, 'pk') and self.instance.pk is not None
         disabled = 'disabled="disabled"' if is_modelform and not has_instance else ''
         from bazaar.listings.stores import stores_loader
-        if is_modelform and hasattr(self.instance, 'store') and not stores_loader.get_store_manager(self.instance.store.slug).get_publishing_delete_action():
+        if is_modelform and hasattr(self.instance, 'store') and \
+                not stores_loader.get_store_manager(self.instance.store.slug).get_publishing_delete_action():
             disabled = 'disabled="disabled"'
         delete_html = '&nbsp;<a data-toggle="modal" href="#modalDelete" class="btn btn-danger pull-right" {}>' \
                       '<i class="glyphicon glyphicon-trash"></i>&nbsp;{}' \

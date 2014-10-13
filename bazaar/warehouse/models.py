@@ -83,3 +83,10 @@ class Stock(models.Model):
 
     def __str__(self):
         return _("Stock '%s' at '%s': %s") % (self.product, self.location.slug, self.value)
+
+
+import django
+
+if django.VERSION < (1, 7):
+    # import stock module to attach handlers to signals
+    from . import stocks  # noqa

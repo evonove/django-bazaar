@@ -1,2 +1,3 @@
-# import stock module to attach handlers to signals
-from . import stocks
+from __future__ import unicode_literals
+
+default_app_config = 'bazaar.warehouse.apps.WarehouseConfig'
