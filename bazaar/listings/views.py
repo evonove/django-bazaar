@@ -26,7 +26,7 @@ class ListingListView(LoginRequiredMixin, BazaarPrefixMixin, FilterMixin, generi
 
     def get_queryset(self):
         qs = super(ListingListView, self).get_queryset()
-        #prefetch list of values, populated by inherit itmes, plus items from each store
+        # prefetch list of values, populated by inherit itmes, plus items from each store
         prefetch_list = ["listing_sets__product", "publishings__store"]
         for manager in stores_loader.get_all_store_managers():
             prefetch_list.extend(manager.get_store_extra("prefetch_list"))
@@ -35,15 +35,15 @@ class ListingListView(LoginRequiredMixin, BazaarPrefixMixin, FilterMixin, generi
     def get_context_data(self, **kwargs):
         context = super(ListingListView, self).get_context_data(**kwargs)
 
-        #populate forms and actions (tasks).
+        # populate forms and actions (tasks).
         tasks = []
         forms = []
         for manager in stores_loader.get_all_store_managers():
             forms.extend(manager.get_store_forms())
             tasks.append((manager.get_store_name(), manager.get_store_actions()))
         context['tasks'] = tasks
-        #from template create a menu for every store with title == store_name
-        #add all forms to context
+        # from template create a menu for every store with title == store_name
+        # add all forms to context
         for form in forms:
             context[form.name] = form.form
 
@@ -104,7 +104,7 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
             return self.form_invalid(form)
 
         if self.listing_to_update:
-            #Update Listing
+            # Update Listing
             listing = Listing(
                 title=form.cleaned_data.get("title"),
                 picture_url=form.cleaned_data.get("picture_url", None),
@@ -112,7 +112,7 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
                 id=self.listing_to_update.id
             )
         else:
-            #Create listing
+            # Create listing
             listing = Listing.objects.create(
                 title=form.cleaned_data.get("title"),
                 picture_url=form.cleaned_data.get("picture_url", None),
@@ -124,7 +124,7 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
                                                                    product=product,
                                                                    quantity=int(form.cleaned_data.get("quantity")))
         self.object = listing
-        #TODO: Listing update work only with one product type
+        # TODO: Listing update work only with one product type
         listing.listing_sets = [listing_set]
         listing.save()
 

@@ -112,9 +112,9 @@ class Publishing(models.Model):
         (COMPLETED_PUBLISHING, _("Completed")),
     )
     external_id = models.CharField(max_length=128, db_index=True)
-    #Effective purchase cost, with purchase currency
+    # Effective purchase cost, with purchase currency
     original_price = MoneyField()
-    #Current selling price, with selling currency
+    # Current selling price, with selling currency
     price = MoneyField()
 
     available_units = models.IntegerField(default=0)
