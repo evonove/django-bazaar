@@ -2,11 +2,13 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from django.contrib.auth import get_user_model
+from django.core.urlresolvers import reverse
 from django.test import TestCase
+from rest_framework import status
+from bazaar.goods.models import Product
 
 from bazaar.warehouse import api
 from rest_framework import status
-from rest_framework.reverse import reverse
 from tests import factories as f
 
 
@@ -33,7 +35,15 @@ class TestProductView(TestCase):
         self.assertEqual(products[0].price.amount, self.product.price.amount)
         self.assertEqual(products[0].quantity, self.product.quantity)
 
-    def test_detail_view(self):
+	def test_update_view(self):
+        self.client.login(username=self.user.username, password='test')
+        data = {'name': 'ModifiedName'}
+        response = self.client.post(reverse('bazaar:product-update', kwargs={'pk': self.product.pk}), data=data)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        product = Product.objects.get(pk=self.product.pk)
+        self.assertEqual(product.name, 'ModifiedName')
+
+	def test_detail_view(self):
         self.client.login(username=self.user.username, password='test')
         response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)

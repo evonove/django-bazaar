@@ -60,3 +60,4 @@ DJANGO_BAZAAR = {
         'store2': 'tests.stores.Store2',
     }
 }
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
