@@ -8,8 +8,13 @@ from django.test import TestCase
 import datetime
 import pytz
 
-from bazaar.listings.models import Store, Listing, Publishing
+from bazaar.listings.models import Store, Listing, Publishing, Product, ListingSet
 from bazaar.listings.managers import PublishingManager
+from moneyed import Money
+from bazaar.warehouse.api import move
+from ..factories import (ProductFactory, StorageFactory, SupplierFactory, StockFactory,
+                         CustomerFactory, OutputFactory, LostFoundFactory, MovementFactory, ListingFactory,
+                         ListingSetFactory)
 
 
 class TestPublishingModelManager(TestCase):
@@ -82,3 +87,17 @@ class TestPublishingModelManager(TestCase):
             comp_pub = change
         self.assertEqual(act_pub.status, Publishing.ACTIVE_PUBLISHING)
         self.assertEqual(comp_pub.status, Publishing.COMPLETED_PUBLISHING)
+
+
+class TestListingModel(TestCase):
+    def setUp(self):
+        self.product = ProductFactory()
+        self.listing = ListingFactory()
+        self.stock_a = StockFactory(product=self.product, unit_price=2.0, quantity=30)
+        self.listing_set = ListingSetFactory(product=self.product, listing=self.listing)
+
+    def tearDown(self):
+        pass
+
+    def test_retrieve_cost_attribute(self):
+        self.assertEqual(self.listing.cost, Money(2, 'EUR'))

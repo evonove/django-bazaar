@@ -75,3 +75,18 @@ class MovementFactory(factory.django.DjangoModelFactory):
 
     quantity = 1
     unit_price = 1
+
+
+class ListingFactory(factory.django.DjangoModelFactory):
+    FACTORY_FOR = 'listings.Listing'
+
+    title = 'Listing test'
+
+
+class ListingSetFactory(factory.django.DjangoModelFactory):
+    FACTORY_FOR = 'listings.ListingSet'
+
+    product = factory.SubFactory(ProductFactory)
+    listing = factory.SubFactory(ListingFactory)
+
+    quantity = 1

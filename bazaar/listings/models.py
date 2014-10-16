@@ -49,7 +49,7 @@ class Listing(models.Model):
         """
         Returns global cost for the listing
         """
-        cost = 0
+        cost = Money(0, bazaar_settings.DEFAULT_CURRENCY)
         for ls in self.listing_sets.all():
             try:
                 avg_cost = get_storage_price(ls.product)
@@ -58,7 +58,7 @@ class Listing(models.Model):
 
             cost += avg_cost * float(ls.quantity)
 
-        return Money(cost, bazaar_settings.DEFAULT_CURRENCY)
+        return cost
 
     def is_unavailable(self):
         """
