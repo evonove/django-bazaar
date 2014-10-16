@@ -12,11 +12,12 @@ from bazaar.warehouse.api import move, get_stock_price, get_stock_quantity
 from moneyed import Money
 from bazaar.warehouse.signals import lost_and_found_changed, supplier_changed, storage_changed, output_changed, customer_changed
 
+from ..base import BaseTestCase
 from ..factories import (ProductFactory, StorageFactory, SupplierFactory, StockFactory,
                          CustomerFactory, OutputFactory, LostFoundFactory)
 
 
-class TestMovementApi(TestCase):
+class TestMovementApi(BaseTestCase):
     def setUp(self):
         self.product = ProductFactory()
         self.storage = StorageFactory()

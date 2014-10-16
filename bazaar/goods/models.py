@@ -20,7 +20,8 @@ class Product(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=500, blank=True)
     ean = models.CharField(max_length=13, null=True, unique=True)
-    photo = models.ImageField(null=True)
+    # FIXME: Fix upload location for photos
+    photo = models.ImageField(upload_to='./', null=True)
     price = MoneyField(help_text=_("Base default price for product"))
     price_lists = models.ManyToManyField("PriceList", through="ProductPrice",
                                          related_name="products")
@@ -32,6 +33,11 @@ class Product(models.Model):
         """
         from ..warehouse.api import get_storage_price
         return get_storage_price(self)
+
+    @property
+    def quantity(self):
+        from ..warehouse.api import get_storage_quantity
+        return get_storage_quantity(self)
 
     def __str__(self):
         return self.name

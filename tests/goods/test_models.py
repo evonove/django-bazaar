@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from __future__ import absolute_import
 from __future__ import unicode_literals
-from StringIO import StringIO
-from PIL import Image
-from django.db.models.fields.files import ImageFieldFile
 
 from django.test import TestCase
 
