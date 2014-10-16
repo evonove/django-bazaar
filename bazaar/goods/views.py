@@ -9,8 +9,12 @@ from .models import Product
 class ProductListView(LoginRequiredMixin, BazaarPrefixMixin, generic.ListView):
     model = Product
     paginate_by = 20
+    fields = ['photo', 'name', 'price', 'ean']
 
-    fields = ['name', 'photo', 'ean', 'cost', 'price']
+
+class ProductDetailView(LoginRequiredMixin, BazaarPrefixMixin, generic.DetailView):
+    model = Product
+    fields = ['photo', 'name', 'description', 'ean', 'quantity', 'price', 'cost']
 
 
 class ProductCreateView(LoginRequiredMixin, BazaarPrefixMixin, generic.CreateView):

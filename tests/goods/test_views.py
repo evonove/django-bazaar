@@ -28,7 +28,19 @@ class TestProductView(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         products = response.context_data['product_list']
         self.assertEqual(products.count(), 1)
-        self.assertEqual(products[0].name, 'product1')
-        self.assertEqual(products[0].cost.amount, 7.5)
-        self.assertEqual(products[0].price.amount, 2)
-        self.assertEqual(products[0].quantity, 2)
+        self.assertEqual(products[0].name, self.product.name)
+        self.assertEqual(products[0].cost.amount, self.product.cost.amount)
+        self.assertEqual(products[0].price.amount, self.product.price.amount)
+        self.assertEqual(products[0].quantity, self.product.quantity)
+
+    def test_detail_view(self):
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        product = response.context_data['product']
+        self.assertEqual(product.name, self.product.name)
+        self.assertEqual(product.cost.amount, self.product.cost.amount)
+        self.assertEqual(product.price.amount, self.product.price.amount)
+        self.assertEqual(product.quantity, self.product.quantity)
+
+
