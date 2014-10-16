@@ -160,3 +160,8 @@ class Order(models.Model):
 
     def __str__(self):
         return "Order %s from %s" % (self.external_id, self.store)
+
+
+import django
+if django.VERSION < (1, 7):
+    from . import signals  # noqa

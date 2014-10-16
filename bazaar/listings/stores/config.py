@@ -24,10 +24,13 @@ class StoresLoader(object):
 stores_loader = StoresLoader()
 
 
-def create_stores(app, created_models, verbosity, interactive, db, **kwargs):
+def create_stores(sender, **kwargs):
     for store_slug, store_manager in stores_loader.store_managers.items():
 
-        if verbosity >= 2:
+        # this is for compat with django 1.6 and 1.7
+        db = kwargs.get("using", kwargs.get("db"))
+
+        if kwargs["verbosity"] >= 2:
             print("Creating %s Store object" % store_manager.get_store_name())
 
         store = Store(
@@ -38,7 +41,7 @@ def create_stores(app, created_models, verbosity, interactive, db, **kwargs):
         try:
             store.save(using=db)
         except Exception:
-            if verbosity >= 2:
+            if kwargs["verbosity"] >= 2:
                 print("Store %s already exists" % store_manager.get_store_name())
 
 

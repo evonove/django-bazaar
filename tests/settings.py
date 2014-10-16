@@ -53,3 +53,10 @@ MIDDLEWARE_CLASSES = (
 DJANGO_MONEY_RATES = {
     "DEFAULT_BACKEND": "tests.backends.RateBackend",
 }
+
+DJANGO_BAZAAR = {
+    'STORES': {
+        'store1': 'tests.stores.Store1',
+        'store2': 'tests.stores.Store2',
+    }
+}
