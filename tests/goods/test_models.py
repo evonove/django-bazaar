@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
+from StringIO import StringIO
+from PIL import Image
+from django.db.models.fields.files import ImageFieldFile
 
 from django.test import TestCase
 
@@ -15,10 +18,7 @@ from ..factories import ProductFactory, StockFactory
 
 class TestProduct(TestCase):
     def setUp(self):
-        self.product = ProductFactory()
-
-    def tearDown(self):
-        self.product.delete()
+        self.product = ProductFactory(ean="12345678")
 
     def test_model(self):
         self.assertEqual("%s" % self.product, "a product")
@@ -28,6 +28,19 @@ class TestProduct(TestCase):
         StockFactory(product=self.product, unit_price=5, quantity=30)
 
         self.assertEqual(self.product.cost, Money(6.25, "EUR"))
+
+    def test_product_ean_property(self):
+        """
+        Checks that the ean property is set
+        """
+        self.assertEqual(self.product.ean, "12345678")
+
+    def test_product_photo_property(self):
+
+        self.product.photo = 'test.jpg'
+        self.product.save()
+
+        self.assertEqual(self.product.photo.name, 'test.jpg')
 
 
 class TestPriceList(BaseTestCase):

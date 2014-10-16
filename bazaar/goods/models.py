@@ -19,9 +19,9 @@ class PriceList(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=500, blank=True)
-
+    ean = models.CharField(max_length=13, null=True, unique=True)
+    photo = models.ImageField(null=True)
     price = MoneyField(help_text=_("Base default price for product"))
-
     price_lists = models.ManyToManyField("PriceList", through="ProductPrice",
                                          related_name="products")
 
