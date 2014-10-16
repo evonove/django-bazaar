@@ -1,0 +1,13 @@
+image: evonove/ci
+
+script:
+  - pip install tox
+  - tox -r
+
+notify:
+  hipchat:
+    room: {{hipchatRoom}}
+    token: {{hipchatToken}}
+    on_started: true
+    on_success: true
+    on_failure: true
