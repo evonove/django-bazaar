@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from django.views import generic
 
 from braces.views import LoginRequiredMixin
@@ -21,19 +24,6 @@ class ProductCreateView(LoginRequiredMixin, BazaarPrefixMixin, generic.CreateVie
     model = Product
     fields = ['name', 'description', 'ean', 'photo', 'price']
 
-
-class ProductUpdateView(LoginRequiredMixin, BazaarPrefixMixin, generic.UpdateView):
-    model = Product
-    fields = ['name']
-    success_url = '/products'
-
-    # TODO: To be finished
-    def form_valid(self, form):
-        name = form.cleaned_data["name"]
-        product = self.object
-        product.name = name
-        product.save()
-        return super(ProductUpdateView, self).form_valid(form)
 
 class ProductDeleteView(LoginRequiredMixin, BazaarPrefixMixin, generic.DeleteView):
     model = Product

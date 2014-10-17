@@ -35,15 +35,34 @@ class TestProductView(TestCase):
         self.assertEqual(products[0].price.amount, self.product.price.amount)
         self.assertEqual(products[0].quantity, self.product.quantity)
 
-	def test_update_view(self):
+    def test_update_view(self):
         self.client.login(username=self.user.username, password='test')
-        data = {'name': 'ModifiedName'}
+        data = {
+            'unit_price_0': self.product.price.amount,
+            'unit_price_1': self.product.price.currency,
+            'name': 'ModifiedName',
+            'description': self.product.description,
+            'ean': self.product.ean,
+            'photo': self.product.photo.name,
+        }
         response = self.client.post(reverse('bazaar:product-update', kwargs={'pk': self.product.pk}), data=data)
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         product = Product.objects.get(pk=self.product.pk)
         self.assertEqual(product.name, 'ModifiedName')
 
-	def test_detail_view(self):
+    def test_create_view(self):
+        self.client.login(username=self.user.username, password='test')
+        data = {
+            'price': None,
+            'name': 'ModifiedName',
+            'description': 'mydescription',
+            'ean': None,
+            'photo': '',
+        }
+        response = self.client.post(reverse('bazaar:product-create'), data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_detail_view(self):
         self.client.login(username=self.user.username, password='test')
         response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -52,16 +71,4 @@ class TestProductView(TestCase):
         self.assertEqual(product.cost.amount, self.product.cost.amount)
         self.assertEqual(product.price.amount, self.product.price.amount)
         self.assertEqual(product.quantity, self.product.quantity)
-
-    def test_delete_view(self):
-        self.client.login(username=self.user.username, password='test')
-        response = self.client.get(reverse('bazaar:product-delete', kwargs={'pk': self.product.pk}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        product = response.context_data['product']
-        self.assertEqual(product.name, self.product.name)
-        self.assertEqual(product.cost.amount, self.product.cost.amount)
-        self.assertEqual(product.price.amount, self.product.price.amount)
-        self.assertEqual(product.quantity, self.product.quantity)
-
-
 

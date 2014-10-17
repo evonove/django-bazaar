@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from django.db import models
@@ -21,7 +22,7 @@ class Product(models.Model):
     description = models.TextField(max_length=500, blank=True)
     ean = models.CharField(max_length=13, null=True, unique=True)
     # FIXME: Fix upload location for photos
-    photo = models.ImageField(upload_to='./', null=True)
+    photo = models.ImageField(upload_to='./', null=True, blank=True)
     price = MoneyField(help_text=_("Base default price for product"))
     price_lists = models.ManyToManyField("PriceList", through="ProductPrice",
                                          related_name="products")
