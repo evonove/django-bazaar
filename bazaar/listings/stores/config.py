@@ -3,7 +3,7 @@ from ..models import Store
 from ...settings import bazaar_settings, import_from_string
 
 
-class StoresLoader(object):
+class StoreStrategyFactory(object):
 
     store_managers = {}
 
@@ -11,7 +11,7 @@ class StoresLoader(object):
         for store_slug, store_manager in bazaar_settings.STORES.items():
             self.store_managers.update({store_slug: import_from_string(store_manager, "Store Manager")()})
 
-    def get_store_manager(self, store_slug):
+    def get_store_strategy(self, store_slug):
         try:
             return self.store_managers[store_slug]
         except KeyError:
@@ -21,13 +21,13 @@ class StoresLoader(object):
         return self.store_managers.values()
 
 
-stores_loader = StoresLoader()
+stores_loader = StoreStrategyFactory()
 
 
 def create_stores(sender, **kwargs):
     for store_slug, store_manager in stores_loader.store_managers.items():
 
-        # this is for compat with django 1.6 and 1.7
+        # this is for compatibility with django 1.6 and 1.7
         db = kwargs.get("using", kwargs.get("db"))
 
         if kwargs["verbosity"] >= 2:

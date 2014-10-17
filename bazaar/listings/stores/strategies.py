@@ -4,7 +4,7 @@ from ..models import Publishing
 from django_filters import FilterSet
 
 
-class DefaultStoreManager(object):
+class DefaultStoreStrategy(object):
     """
     Mandatory overrides: get_store_name, get_publishing_template
     """
