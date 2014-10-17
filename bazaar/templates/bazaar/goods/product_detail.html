@@ -1,1 +1,23 @@
-{% extends "base.html" %}
+{% extends "bazaar/goods/base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="product">
+                <h1>{% trans "Product" %}</h1>
+                {{ product.name }}
+                {% if product.ean %}
+                - ({{ product.ean }})
+                {% endif %}
+                {% if product.photo %}
+                <img src="{{ product.photo.url }}" alt="{{ product.name }}"/>
+                {% endif %}
+                <h1>{% trans "Description" %}</h1>
+                <div>{{ product.description }}</div>
+                x{{ product.quantity }} {{ product.price }} {{ product.cost }}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

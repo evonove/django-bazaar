@@ -16,7 +16,7 @@ class TestProductView(TestCase):
         self.user = get_user_model().objects.create_user(username='test', email='test@test.it', password='test')
         self.lost_and_found = f.LocationFactory(name='lost and found', slug='lost_and_found', type=4)
         self.storage = f.LocationFactory(name='storage', slug='storage', type=1)
-        self.product = f.ProductFactory(name='product1', price=2)
+        self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
 
         # Move products to the warehouse
         api.move(self.lost_and_found, self.storage, self.product, 1, 5)
