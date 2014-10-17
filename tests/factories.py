@@ -11,21 +11,24 @@ from moneyed import Money
 
 
 class UserFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = 'auth.User'
-    FACTORY_DJANGO_GET_OR_CREATE = ('username',)
+    class Meta:
+        model = 'auth.User'
+        django_get_or_create = ('username',)
 
     username = 'john'
 
 
 class ProductFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = 'goods.Product'
+    class Meta:
+        model = 'goods.Product'
 
     name = 'a product'
     price = Money(1, "EUR")
 
 
 class LocationFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = 'warehouse.Location'
+    class Meta:
+        model = 'warehouse.Location'
 
     type = Location.LOCATION_STORAGE
 
@@ -59,14 +62,16 @@ class LostFoundFactory(LocationFactory):
 
 
 class StockFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = 'warehouse.Stock'
+    class Meta:
+        model = 'warehouse.Stock'
 
     location = factory.SubFactory(StorageFactory)
     product = factory.SubFactory(ProductFactory)
 
 
 class MovementFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = 'warehouse.Movement'
+    class Meta:
+        model = 'warehouse.Movement'
 
     from_location = factory.SubFactory(SupplierFactory)
     to_location = factory.SubFactory(StorageFactory)
@@ -78,13 +83,15 @@ class MovementFactory(factory.django.DjangoModelFactory):
 
 
 class ListingFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = 'listings.Listing'
+    class Meta:
+        model = 'listings.Listing'
 
     title = 'Listing test'
 
 
 class ListingSetFactory(factory.django.DjangoModelFactory):
-    FACTORY_FOR = 'listings.ListingSet'
+    class Meta:
+        model = 'listings.ListingSet'
 
     product = factory.SubFactory(ProductFactory)
     listing = factory.SubFactory(ListingFactory)
