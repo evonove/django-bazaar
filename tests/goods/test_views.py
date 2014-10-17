@@ -43,4 +43,15 @@ class TestProductView(TestCase):
         self.assertEqual(product.price.amount, self.product.price.amount)
         self.assertEqual(product.quantity, self.product.quantity)
 
+    def test_delete_view(self):
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get(reverse('bazaar:product-delete', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        product = response.context_data['product']
+        self.assertEqual(product.name, self.product.name)
+        self.assertEqual(product.cost.amount, self.product.cost.amount)
+        self.assertEqual(product.price.amount, self.product.price.amount)
+        self.assertEqual(product.quantity, self.product.quantity)
+
+
 

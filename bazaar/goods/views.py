@@ -19,3 +19,8 @@ class ProductDetailView(LoginRequiredMixin, BazaarPrefixMixin, generic.DetailVie
 
 class ProductCreateView(LoginRequiredMixin, BazaarPrefixMixin, generic.CreateView):
     model = Product
+
+
+class ProductDeleteView(LoginRequiredMixin, BazaarPrefixMixin, generic.DeleteView):
+    model = Product
+
