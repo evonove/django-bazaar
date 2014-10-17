@@ -8,13 +8,9 @@ from django.test import TestCase
 import datetime
 import pytz
 
-from bazaar.listings.models import Store, Listing, Publishing, Product, ListingSet
-from bazaar.listings.managers import PublishingManager
+from bazaar.listings.models import Store, Listing, Publishing
 from moneyed import Money
-from bazaar.warehouse.api import move
-from ..factories import (ProductFactory, StorageFactory, SupplierFactory, StockFactory,
-                         CustomerFactory, OutputFactory, LostFoundFactory, MovementFactory, ListingFactory,
-                         ListingSetFactory)
+from ..factories import (ProductFactory, StockFactory, ListingFactory, ListingSetFactory)
 
 
 class TestPublishingModelManager(TestCase):
