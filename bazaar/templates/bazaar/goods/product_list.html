@@ -6,11 +6,10 @@
     <div class="row">
         <div class="col-md-8">
             <h1>{% trans "Products" %}</h1>
-
             {% for product in product_list %}
                 <div class="panel panel-default">
                     <!-- Default panel contents -->
-                    <div class="panel-heading">{{ product.name }}</div>
+                    <div class="panel-heading"><a href="{%  url 'bazaar:product-detail' product.id  %}">{{ product.name }}</a></div>
                     {% if product.description %}
                         <div class="panel-body">
                             <p>{{ product.description }}</p>
