@@ -27,3 +27,8 @@ class ProductCreateView(LoginRequiredMixin, BazaarPrefixMixin, generic.CreateVie
 
 class ProductDeleteView(LoginRequiredMixin, BazaarPrefixMixin, generic.DeleteView):
     model = Product
+
+
+class ProductUpdateView(LoginRequiredMixin, BazaarPrefixMixin, generic.UpdateView):
+    model = Product
+    fields = ['name', 'description', 'ean', 'photo', 'price']
