@@ -4,20 +4,20 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-8">
-            <div class="product">
-                <h1>{% trans "Product" %}</h1>
-                {{ product.name }}
+        {% if product.photo  %}
+        <div class="col-md-2">
+            <img src='{{ product.photo }}' alt="{{ product.name }}" class='img-thumbnail'>
+        </div>
+        {% endif %}
+        <div class="col-md-6">
+            <h3>{{ product.name }}
                 {% if product.ean %}
                 - ({{ product.ean }})
-                {% endif %}
-                {% if product.photo %}
-                <img src="{{ product.photo.url }}" alt="{{ product.name }}"/>
-                {% endif %}
-                <h1>{% trans "Description" %}</h1>
+                {% endif %}</h3>
                 <div>{{ product.description }}</div>
-                x{{ product.quantity }} {{ product.price }} {{ product.cost }}
-            </div>
+                Quantity: {{ product.quantity|floatformat }} <br />
+                Price: {{ product.price }} <br />
+                Cost: {{ product.cost }}
         </div>
     </div>
 {% endblock content %}

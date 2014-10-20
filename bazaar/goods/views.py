@@ -10,7 +10,6 @@ class ProductListView(LoginRequiredMixin, BazaarPrefixMixin, generic.ListView):
     model = Product
     paginate_by = 20
     fields = ['photo', 'name', 'price', 'ean']
-    template_name = 'bazaar/goods/product_list'
 
 
 class ProductDetailView(LoginRequiredMixin, BazaarPrefixMixin, generic.DetailView):
@@ -20,6 +19,7 @@ class ProductDetailView(LoginRequiredMixin, BazaarPrefixMixin, generic.DetailVie
 
 class ProductCreateView(LoginRequiredMixin, BazaarPrefixMixin, generic.CreateView):
     model = Product
+    fields = ['name', 'description', 'ean', 'photo', 'price']
 
 
 class ProductDeleteView(LoginRequiredMixin, BazaarPrefixMixin, generic.DeleteView):
