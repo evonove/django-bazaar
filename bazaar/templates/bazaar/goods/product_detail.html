@@ -4,6 +4,21 @@
 
 {% block content %}
     <div class="row">
+        <div class="merchant-actions row">
+            <div class="col-md-10">
+                <a onClick="javascript:history.go(-1);" class="btn btn-default">
+                    <i class="glyphicon glyphicon-chevron-left"></i>&nbsp;{% trans "Back" %}
+                </a>
+                <a href="{% url 'bazaar:product-update' product.id %}" class="btn btn-primary">
+                    <i class="glyphicon glyphicon-pencil"></i>&nbsp;{% trans "Modify" %}
+                </a>
+                <div class="pull-right">
+                    <a data-toggle="modal" href="#modalDelete" class="btn btn-danger">
+                        <i class="glyphicon glyphicon-trash"></i>&nbsp;{% trans "Delete" %}
+                    </a>
+                </div>
+            </div>
+        </div>
         {% if product.photo  %}
         <div class="col-md-2">
             <img src='{{ product.photo }}' alt="{{ product.name }}" class='img-thumbnail'>
@@ -20,4 +35,25 @@
                 Cost: {{ product.cost }}
         </div>
     </div>
+
+
+
+
+    <!-- modalDelete -->
+    <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>{% trans "Confirm Delete " %}{{ product.name }}</h3>
+                </div>
+                <div class="modal-body">
+                    <form class="form-inline" method="POST" action="{% url 'bazaar:product-delete' product.id %}">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
+                        {% csrf_token %}<button type="submit" value="DELETE" class="btn btn-danger">{% trans "Delete" %}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end modalDelete -->
 {% endblock content %}

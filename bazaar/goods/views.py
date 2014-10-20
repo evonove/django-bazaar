@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
+from django.core.urlresolvers import reverse, reverse_lazy
 
 from django.views import generic
 
@@ -27,6 +28,7 @@ class ProductCreateView(LoginRequiredMixin, BazaarPrefixMixin, generic.CreateVie
 
 class ProductDeleteView(LoginRequiredMixin, BazaarPrefixMixin, generic.DeleteView):
     model = Product
+    success_url = reverse_lazy('bazaar:product-list')
 
 
 class ProductUpdateView(LoginRequiredMixin, BazaarPrefixMixin, generic.UpdateView):
