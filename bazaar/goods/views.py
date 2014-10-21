@@ -24,7 +24,12 @@ class ProductDetailView(LoginRequiredMixin, BazaarPrefixMixin, generic.DetailVie
 
 class ProductCreateView(LoginRequiredMixin, BazaarPrefixMixin, generic.CreateView):
     model = Product
+    form_class = ProductForm
+
     fields = ['name', 'description', 'ean', 'photo', 'price']
+
+    def get_success_url(self):
+        return reverse_lazy("bazaar:product-detail", kwargs={'pk': self.object.id})
 
 
 class ProductDeleteView(LoginRequiredMixin, BazaarPrefixMixin, generic.DeleteView):
