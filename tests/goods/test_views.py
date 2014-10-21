@@ -63,6 +63,20 @@ class TestProductView(TestCase):
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertIsNotNone(Product.objects.get(name='ModifiedName'))
 
+    def test_create_view_not_working_with_negative_price(self):
+        self.client.login(username=self.user.username, password='test')
+        data = {
+            'price_0': -1,
+            'price_1': 'EUR',
+            'name': 'ModifiedName',
+            'description': 'mydescription',
+            'ean': None,
+            'photo': '',
+        }
+        response = self.client.post(reverse('bazaar:product-create'), data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Product.objects.filter(name='ModifiedName').count(), 0)
+
     def test_detail_view(self):
         self.client.login(username=self.user.username, password='test')
         response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))

@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
+from django.core.validators import MinValueValidator
 
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
@@ -22,7 +23,7 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     ean = models.CharField(max_length=13, null=True, unique=True)
     photo = models.ImageField(upload_to='products', null=True, blank=True)
-    price = MoneyField(help_text=_("Base default price for product"))
+    price = MoneyField(help_text=_("Base default price for product"), validators=[MinValueValidator(limit_value=0)])
     price_lists = models.ManyToManyField("PriceList", through="ProductPrice",
                                          related_name="products")
 
