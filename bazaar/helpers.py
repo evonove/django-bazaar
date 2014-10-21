@@ -92,7 +92,7 @@ class FormModelHelperMixin(FormHelperMixin):
         """
         Accepted attrs:
         name_url_list: url name to back to list view.
-        name_url_list: url name to back delete object.
+        name_delete_url: url name to back delete object.
         readonly_fields: set some model fields as read_only.
         extended_fields: set model fields layout in two tabs. Extended_fields will go in the second tab.
         """
