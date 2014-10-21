@@ -14,7 +14,7 @@
 {% block content %}
     <div class="product-actions row">
         <div class="col-md-12">
-            <a onClick="javascript:history.go(-1);" class="btn btn-default">
+            <a href="{% url "bazaar:product-list" %}" class="btn btn-default">
                 <i class="glyphicon glyphicon-chevron-left"></i>&nbsp;{% trans "Back" %}
             </a>
             <a href="{% url 'bazaar:product-update' product.id %}" class="btn btn-primary">
