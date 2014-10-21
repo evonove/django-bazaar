@@ -25,13 +25,7 @@
                     {% for product in product_list %}
                         <tr>
                             {% if product.photo %}
-                                <td data-toggle="popover" title
-                                    data-trigger="hover"
-                                    data-html="true"
-                                    data-container="body"
-                                    data-content="<img class='img-thumbnail' src='{{ product.photo }}'>">
-                                    <i class="glyphicon glyphicon-camera"></i>
-                                </td>
+                                <td><i class="glyphicon glyphicon-camera"></i></td>
                             {% else %}
                                 <td></td>
                             {% endif %}
