@@ -6,11 +6,12 @@
 {% block content %}
     <div class="row">
         <div class="col-md-8">
-            <h1>{% trans "Create a product" %}</h1>
-
-            <form method="post" enctype="multipart/form-data">
-                {% crispy form %}
-            </form>
+            {% if product %}
+                <h1>{% trans "Update a Product" %}</h1>
+            {% else %}
+                <h1>{% trans "Create a Product" %}</h1>
+            {% endif %}
+            {% crispy form %}
         </div>
     </div>
 {% endblock content %}

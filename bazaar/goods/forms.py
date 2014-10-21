@@ -7,6 +7,8 @@ from bazaar.helpers import FormHelperMixin
 
 
 class ProductForm(FormHelperMixin, forms.ModelForm):
+    ean = forms.CharField(max_length=20, required=False)
+
     class Meta:
         model = Product
         exclude = ("price_lists", )
