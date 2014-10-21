@@ -5,16 +5,19 @@ from django.core.urlresolvers import reverse_lazy
 from django.views import generic
 
 from braces.views import LoginRequiredMixin
+from bazaar.goods.filters import ProductFilter
 from bazaar.goods.forms import ProductForm
 
-from ..mixins import BazaarPrefixMixin
+from ..mixins import BazaarPrefixMixin, FilterSortableListView
 from .models import Product
 
 
-class ProductListView(LoginRequiredMixin, BazaarPrefixMixin, generic.ListView):
+class ProductListView(LoginRequiredMixin, BazaarPrefixMixin, FilterSortableListView):
     model = Product
     paginate_by = 20
     fields = ['photo', 'name', 'price', 'ean']
+    filter_class = ProductFilter
+    sort_fields = ('name', 'price', 'cost', 'stock')
 
 
 class ProductDetailView(LoginRequiredMixin, BazaarPrefixMixin, generic.DetailView):

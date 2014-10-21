@@ -3,6 +3,8 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
+{% load bazaar_list %}
+
 {% block content %}
     <div class="row">
         <div class="col-md-8">
@@ -12,10 +14,10 @@
                     <thead>
                     <tr>
                         <th></th>
-                        <th><a href="?{{ query_filter.urlencode }}&{{ sort_fields.name.query }}">{% trans "Name" %}</a></th>
-                        <th><a href="?{{ query_filter.urlencode }}&{{ sort_fields.stock_quantity.query }}">{% trans "Stock" %} </a></th>
+                        <th><a href="?{{ query_filter.urlencode }}&{{ sort_fields.name.query }}">{% trans "Name" %} {% sort_direction sort_fields.name %}</a></th>
+                        <th><a href="?{{ query_filter.urlencode }}&{{ sort_fields.stock.query }}">{% trans "Stock" %}</a></th>
                         <th><a href="?{{ query_filter.urlencode }}&{{ sort_fields.cost.query }}">{% trans "Cost" %}</a></th>
-                        <th><a href="?{{ query_filter.urlencode }}&{{ sort_fields.price.query }}">{% trans "Price" %}</a></th>
+                        <th><a href="?{{ query_filter.urlencode }}&{{ sort_fields.price.query }}">{% trans "Price" %} {% sort_direction sort_fields.price %}</a></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -61,6 +63,10 @@
                 <div class="col-md-12">
                     <h4>{% trans "Filters" %}</h4>
                     <form method="get">
+                        <button type="submit" class="btn btn-primary">{% trans "Filter" %}</button>
+                        <a href="{% url 'bazaar:product-list' %}" class="btn{% if query_filter %} btn-primary{% else %} btn-default{% endif %}"
+                                {% if not query_filter %} disabled="disabled" {% endif %}>{% trans "Reset" %}</a>
+                        {% crispy product_filter.form %}
                         <button type="submit" class="btn btn-primary">{% trans "Filter" %}</button>
                         <a href="{% url 'bazaar:product-list' %}" class="btn{% if query_filter %} btn-primary{% else %} btn-default{% endif %}"
                                 {% if not query_filter %} disabled="disabled" {% endif %}>{% trans "Reset" %}</a>
