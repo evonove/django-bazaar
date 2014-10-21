@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from bazaar.goods.models import Product
+from django.utils.translation import ugettext as _
 
 from bazaar.warehouse import api
 from rest_framework import status
@@ -33,6 +34,16 @@ class TestProductView(TestCase):
         self.assertEqual(products[0].cost.amount, self.product.cost.amount)
         self.assertEqual(products[0].price.amount, self.product.price.amount)
         self.assertEqual(products[0].quantity, self.product.quantity)
+
+    def test_list_view_no_products(self):
+        self.client.login(username=self.user.username, password='test')
+        self.product.delete()
+        response = self.client.get(reverse('bazaar:product-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        products = response.context_data['product_list']
+        self.assertEqual(products.count(), 0)
+        self.assertIn(_('No products found'), response.content)
 
     def test_update_view(self):
         self.client.login(username=self.user.username, password='test')

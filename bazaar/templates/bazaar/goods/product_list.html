@@ -10,6 +10,8 @@
         <div class="col-md-10">
             <form id="productsForm" method="post">
                 {% csrf_token %}
+
+                {% if product_list %}
                 <table class="table table-striped table-bordered">
                     <thead>
                     <tr>
@@ -47,6 +49,9 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                {% else %}
+                <h2>{% trans 'No products found' %}</h2>
+                {% endif %}
             </form>
 
         {% include "bazaar/paginator.html" %}
