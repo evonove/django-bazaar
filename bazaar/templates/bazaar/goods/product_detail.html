@@ -5,7 +5,7 @@
 {% block stylesheets %}
     {{ block.super }}
     <style>
-        .product-actions, .product-meta {
+        .product-actions {
             margin-bottom: 15px;
         }
     </style>
@@ -27,7 +27,7 @@
             </div>
         </div>
     </div>
-    <div class="row product-meta">
+    <div class="row">
         {% if product.photo %}
         <div class="col-md-2">
             <a href="{{MEDIA_URL}}{{ product.photo }}"><img src="{{MEDIA_URL}}{{ product.photo }}" class="img-thumbnail" width="100%"></a>
@@ -75,7 +75,6 @@
                 </tbody>
             </table>
 
-            <h4>Description:</h4>
             <p>
                {% if product.description %}
                {{ product.description }}
