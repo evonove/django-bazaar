@@ -19,7 +19,7 @@ class PriceList(models.Model):
 @python_2_unicode_compatible
 class Product(models.Model):
     name = models.CharField(max_length=100)
-    description = models.TextField(max_length=500, blank=True)
+    description = models.TextField(blank=True)
     ean = models.CharField(max_length=13, null=True, unique=True)
     photo = models.ImageField(upload_to='products', null=True, blank=True)
     price = MoneyField(help_text=_("Base default price for product"))
