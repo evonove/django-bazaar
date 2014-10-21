@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-
 """
 This module is largely inspired by django-rest-framework settings.
 
@@ -19,7 +18,6 @@ from django.conf import settings
 from django.utils import importlib, six
 
 import moneyed
-
 
 USER_SETTINGS = getattr(settings, 'DJANGO_BAZAAR', None)
 
