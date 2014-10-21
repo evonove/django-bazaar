@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.views import generic
 
 from braces.views import LoginRequiredMixin
+from bazaar.goods.forms import ProductForm
 
 from ..mixins import BazaarPrefixMixin
 from .models import Product
@@ -33,4 +34,7 @@ class ProductDeleteView(LoginRequiredMixin, BazaarPrefixMixin, generic.DeleteVie
 
 class ProductUpdateView(LoginRequiredMixin, BazaarPrefixMixin, generic.UpdateView):
     model = Product
-    fields = ['name', 'description', 'ean', 'photo', 'price']
+    form_class = ProductForm
+
+    def get_success_url(self):
+        return reverse_lazy("bazaar:product-detail", kwargs={'pk': self.object.id})
