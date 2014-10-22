@@ -47,6 +47,44 @@ class TestProductListView(TestBase):
         self.assertEqual(products.count(), 0)
         self.assertIn(_('No products found').encode(encoding='UTF-8'), response.content)
 
+    def test_name_sort(self):
+        f.ProductFactory(name='product2', price=2, description='the best you can have!')
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get("/products/?&order_by=-name")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        products = response.context_data['product_list']
+        self.assertEqual(products.count(), 2)
+        self.assertEqual(products[0].name, 'product2')
+
+    def test_price_sort(self):
+        f.ProductFactory(name='product2', price=1, description='the best you can have!')
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get("/products/?&order_by=price")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        products = response.context_data['product_list']
+        self.assertEqual(products.count(), 2)
+        self.assertEqual(products[0].name, 'product2')
+
+    def test_stock_sort(self):
+        product2 = f.ProductFactory(name='product2', price=1, description='the best you can have!')
+        api.move(self.lost_and_found, self.storage, product2, 1, 5)
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get("/products/?&order_by=stock")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        products = response.context_data['product_list']
+        self.assertEqual(products.count(), 2)
+        self.assertEqual(products[0].name, 'product2')
+
+    def test_cost_sort(self):
+        product2 = f.ProductFactory(name='product2', price=1, description='the best you can have!')
+        api.move(self.lost_and_found, self.storage, product2, 1, 5000)
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get("/products/?&order_by=purchase_price")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        products = response.context_data['product_list']
+        self.assertEqual(products.count(), 2)
+        self.assertEqual(products[0].name, 'product1')
+
     def test_name_filter(self):
         self.client.login(username=self.user.username, password='test')
         response = self.client.get('/products/?name=noproduct')
