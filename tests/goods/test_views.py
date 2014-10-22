@@ -12,8 +12,7 @@ from rest_framework import status
 from tests import factories as f
 
 
-class TestProductView(TestCase):
-
+class TestBase(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(username='test', email='test@test.it', password='test')
         self.lost_and_found = f.LocationFactory(name='lost and found', slug='lost_and_found', type=4)
@@ -23,6 +22,9 @@ class TestProductView(TestCase):
         # Move products to the warehouse
         api.move(self.lost_and_found, self.storage, self.product, 1, 5)
         api.move(self.lost_and_found, self.storage, self.product, 1, 10)
+
+
+class TestProductListView(TestBase):
 
     def test_list_view(self):
         self.client.login(username=self.user.username, password='test')
@@ -43,7 +45,10 @@ class TestProductView(TestCase):
 
         products = response.context_data['product_list']
         self.assertEqual(products.count(), 0)
-        self.assertIn(_('No products found'), response.content)
+        self.assertIn(b'No products found', response.content)
+
+
+class TestProductUpdateView(TestBase):
 
     def test_update_view(self):
         self.client.login(username=self.user.username, password='test')
@@ -59,6 +64,9 @@ class TestProductView(TestCase):
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         product = Product.objects.get(pk=self.product.pk)
         self.assertEqual(product.name, 'ModifiedName')
+
+
+class TestProductCreateView(TestBase):
 
     def test_create_view(self):
         self.client.login(username=self.user.username, password='test')
@@ -87,6 +95,9 @@ class TestProductView(TestCase):
         response = self.client.post(reverse('bazaar:product-create'), data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Product.objects.filter(name='ModifiedName').count(), 0)
+
+
+class TestProductDetailView(TestBase):
 
     def test_detail_view(self):
         self.client.login(username=self.user.username, password='test')

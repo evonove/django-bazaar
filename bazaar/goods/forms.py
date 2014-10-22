@@ -12,4 +12,3 @@ class ProductForm(FormHelperMixin, forms.ModelForm):
     class Meta:
         model = Product
         exclude = ("price_lists", )
-
