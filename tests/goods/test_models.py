@@ -32,6 +32,9 @@ class TestProduct(TestCase):
         """
         self.assertEqual(self.product.ean, "12345678")
 
+    def test_ean_should_not_be_none(self):
+        self.assertRaises(Exception, ProductFactory, ean=None)
+
     def test_product_photo_property(self):
 
         self.product.photo = 'test.jpg'
