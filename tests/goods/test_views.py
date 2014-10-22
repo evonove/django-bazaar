@@ -45,7 +45,7 @@ class TestProductListView(TestBase):
 
         products = response.context_data['product_list']
         self.assertEqual(products.count(), 0)
-        self.assertIn(b'No products found', response.content)
+        self.assertIn(_('No products found').encode(encoding='UTF-8'), response.content)
 
 
 class TestProductUpdateView(TestBase):
