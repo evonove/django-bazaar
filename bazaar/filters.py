@@ -16,7 +16,3 @@ class BaseFilterSet(django_filters.FilterSet):
                 # Add "---------" entry to choice fields.
                 _filter.extra['choices'] = tuple([("", _("---------")), ] +
                                                  list(_filter.extra['choices']))
-
-        for name, _field in six.iteritems(self.form.fields):
-            # We set the 'onchange' to submit the form automatically
-            _field.widget.attrs['onchange'] = "this.form.submit()"
