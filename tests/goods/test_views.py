@@ -150,6 +150,21 @@ class TestProductUpdateView(TestBase):
         product = Product.objects.get(pk=self.product.pk)
         self.assertEqual(product.name, 'ModifiedName')
 
+    def test_update_view_fails_with_incorrect_data(self):
+        self.client.login(username=self.user.username, password='test')
+        data = {
+            'price_0': 'wrong data',
+            'price_1': self.product.price.currency,
+            'name': 'ModifiedName',
+            'description': self.product.description,
+            'ean': self.product.ean,
+            'photo': self.product.photo.name,
+        }
+        response = self.client.post(reverse('bazaar:product-update', kwargs={'pk': self.product.pk}), data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        product = Product.objects.get(pk=self.product.pk)
+        self.assertEqual(product.name, self.product.name)
+
 
 class TestProductCreateView(TestBase):
 
@@ -164,8 +179,8 @@ class TestProductCreateView(TestBase):
             'photo': '',
         }
         response = self.client.post(reverse('bazaar:product-create'), data=data)
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertIsNotNone(Product.objects.get(name='ModifiedName'))
+        product = Product.objects.get(name='ModifiedName')
+        self.assertRedirects(response, '/products/%s/' % product.pk)
 
     def test_create_view_not_working_without_login(self):
         data = {
