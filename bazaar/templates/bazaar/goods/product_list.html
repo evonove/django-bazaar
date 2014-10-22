@@ -104,6 +104,10 @@
                         <button type="submit" class="btn btn-primary">{% trans "Filter" %}</button>
                         <a href="{% url 'bazaar:product-list' %}" class="btn{% if query_filter %} btn-primary{% else %} btn-default{% endif %}"
                                 {% if not query_filter %} disabled="disabled" {% endif %}>{% trans "Reset" %}</a>
+                        {% block sidebar-elements %}
+                        {% endblock sidebar-elements %}
+                        {% block sidebar-extras %}
+                        {% endblock sidebar-extras %}
                     </form>
                 </div>
             </div>
