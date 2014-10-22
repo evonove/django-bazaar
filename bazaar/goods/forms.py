@@ -10,7 +10,7 @@ from bazaar.helpers import FormHelperMixin
 
 
 def ean_uniqueness(ean):
-    if Product.objects.filter(ean=ean):
+    if Product.objects.filter(ean=ean).exists():
         raise ValidationError(u'A product with this ean already exists')
 
 
