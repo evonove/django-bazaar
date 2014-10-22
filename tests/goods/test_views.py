@@ -37,6 +37,10 @@ class TestProductListView(TestBase):
         self.assertEqual(products[0].price.amount, self.product.price.amount)
         self.assertEqual(products[0].quantity, self.product.quantity)
 
+    def test_list_view_not_working_without_login(self):
+        response = self.client.get(reverse('bazaar:product-list'))
+        self.assertRedirects(response, '/accounts/login/?next=/products/')
+
     def test_list_view_no_products(self):
         self.client.login(username=self.user.username, password='test')
         self.product.delete()
@@ -126,6 +130,11 @@ class TestProductListView(TestBase):
 
 class TestProductUpdateView(TestBase):
 
+    def test_update_view_not_working_without_login(self):
+        response = self.client.get(reverse('bazaar:product-update', kwargs={'pk': self.product.pk}))
+        self.assertRedirects(response, '/accounts/login/?next=%s' % reverse('bazaar:product-update',
+                                                                            kwargs={'pk': self.product.pk}))
+
     def test_update_view(self):
         self.client.login(username=self.user.username, password='test')
         data = {
@@ -158,6 +167,18 @@ class TestProductCreateView(TestBase):
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertIsNotNone(Product.objects.get(name='ModifiedName'))
 
+    def test_create_view_not_working_without_login(self):
+        data = {
+            'price_0': 1,
+            'price_1': 'EUR',
+            'name': 'ModifiedName',
+            'description': 'mydescription',
+            'ean': None,
+            'photo': '',
+        }
+        response = self.client.post(reverse('bazaar:product-create'), data=data)
+        self.assertRedirects(response, '/accounts/login/?next=/products/new/')
+
     def test_create_view_not_working_with_negative_price(self):
         self.client.login(username=self.user.username, password='test')
         data = {
@@ -175,6 +196,10 @@ class TestProductCreateView(TestBase):
 
 class TestProductDetailView(TestBase):
 
+    def test_detail_view_not_working_without_login(self):
+        response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
+        self.assertRedirects(response, '/accounts/login/?next=/products/%s/' % self.product.pk)
+
     def test_detail_view(self):
         self.client.login(username=self.user.username, password='test')
         response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
@@ -184,3 +209,18 @@ class TestProductDetailView(TestBase):
         self.assertEqual(product.cost.amount, self.product.cost.amount)
         self.assertEqual(product.price.amount, self.product.price.amount)
         self.assertEqual(product.quantity, self.product.quantity)
+
+
+class TestDeleteView(TestBase):
+
+    def test_delete_view_not_working_without_login(self):
+        response = self.client.get(reverse('bazaar:product-delete', kwargs={'pk': self.product.pk}))
+        self.assertRedirects(response, '/accounts/login/?next=/products/%s/delete/' % self.product.pk)
+
+    def test_delete_view(self):
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.client.post(reverse('bazaar:product-delete', args=(self.product.pk, )))
+        response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
