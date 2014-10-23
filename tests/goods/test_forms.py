@@ -7,9 +7,9 @@ class MyTests(TestCase):
 
     def setUp(self):
         self.product = ProductFactory(ean="123456789")
-        self.product.save()
+        self.product2 = ProductFactory(ean="12345")
 
-    def test_ean_uniqueness_validator_fails_if_ean_already_exists(self):
+    def test_ean_uniqueness_fails_if_ean_already_exists_when_creating(self):
         form_data = {
             'name': 'test product',
             'ean': "123456789",
@@ -19,7 +19,7 @@ class MyTests(TestCase):
         form = ProductForm(data=form_data)
         self.assertEqual(form.is_valid(), False)
 
-    def test_ean_uniqueness_validator_passes_if_ean_does_not_exist(self):
+    def test_ean_uniqueness_passes_if_ean_does_not_exist_when_creating(self):
         form_data = {
             'name': 'test product',
             'ean': "324234432",
@@ -27,4 +27,34 @@ class MyTests(TestCase):
             'price_1': self.product.price.currency
         }
         form = ProductForm(data=form_data)
+        self.assertEqual(form.is_valid(), True)
+
+    def test_ean_uniqueness_fails_if_ean_already_exists_when_updating(self):
+        form_data = {
+             'name': self.product.name,
+             'ean': self.product2.ean,
+             'price_0': self.product.price.amount,
+             'price_1': self.product.price.currency
+        }
+        form = ProductForm(instance=self.product, data=form_data)
+        self.assertEqual(form.is_valid(), False)
+
+    def test_ean_uniqueness_passes_if_ean_does_not_exist_when_updating(self):
+        form_data = {
+             'name': self.product.name,
+             'ean': '23892839932',
+             'price_0': self.product.price.amount,
+             'price_1': self.product.price.currency
+        }
+        form = ProductForm(instance=self.product, data=form_data)
+        self.assertEqual(form.is_valid(), True)
+
+    def test_ean_uniqueness_passes_if_not_updating_ean(self):
+        form_data = {
+            'name': self.product.name,
+            'ean': self.product.ean,
+            'price_0': self.product.price.amount,
+            'price_1': self.product.price.currency
+        }
+        form = ProductForm(instance=self.product, data=form_data)
         self.assertEqual(form.is_valid(), True)
