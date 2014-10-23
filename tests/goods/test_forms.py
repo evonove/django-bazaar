@@ -3,7 +3,7 @@ from bazaar.goods.forms import ProductForm
 from tests.factories import ProductFactory
 
 
-class MyTests(TestCase):
+class FormsTest(TestCase):
 
     def setUp(self):
         self.product = ProductFactory(ean="123456789")

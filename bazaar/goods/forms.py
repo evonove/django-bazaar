@@ -17,7 +17,7 @@ class ProductForm(FormHelperMixin, forms.ModelForm):
         saved_ean = self.instance.ean
         inserting = self.instance.pk is None
 
-        if form_ean == '':
+        if not form_ean:
             return form_ean
 
         if inserting or (form_ean != saved_ean):

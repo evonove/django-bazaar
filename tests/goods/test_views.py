@@ -292,9 +292,7 @@ class TestProductDetailView(TestBase):
         self.client.login(username=self.user.username, password='test')
         response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn(('<div class="row">\n        \n        <div class="col-md-10">\n'
-                      '            <h3>%s</h3><br/>\n        </div>\n    </div>'
-                      % self.product.name).encode(encoding='UTF-8'), response.content)
+        self.assertNotIn(b'<img ', response.content)
 
 
 class TestDeleteView(TestBase):
