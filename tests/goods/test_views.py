@@ -27,6 +27,9 @@ class TestBase(TestCase):
 class TestProductListView(TestBase):
 
     def test_list_view(self):
+        """
+        Test that list view works fine
+        """
         self.client.login(username=self.user.username, password='test')
         response = self.client.get(reverse('bazaar:product-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -38,10 +41,16 @@ class TestProductListView(TestBase):
         self.assertEqual(products[0].quantity, self.product.quantity)
 
     def test_list_view_not_working_without_login(self):
+        """
+        Test that trying to call the list view without beeing logged redirects to the login page
+        """
         response = self.client.get(reverse('bazaar:product-list'))
         self.assertRedirects(response, '/accounts/login/?next=/products/')
 
     def test_list_view_no_products(self):
+        """
+        Test that a void list view displays "no products"
+        """
         self.client.login(username=self.user.username, password='test')
         self.product.delete()
         response = self.client.get(reverse('bazaar:product-list'))
@@ -52,6 +61,9 @@ class TestProductListView(TestBase):
         self.assertIn(_('No products found').encode(encoding='UTF-8'), response.content)
 
     def test_name_sort(self):
+        """
+        Test that sort by name works correctly
+        """
         f.ProductFactory(name='product2', price=2, description='the best you can have!')
         self.client.login(username=self.user.username, password='test')
         response = self.client.get("/products/?&order_by=-name")
@@ -61,6 +73,9 @@ class TestProductListView(TestBase):
         self.assertEqual(products[0].name, 'product2')
 
     def test_price_sort(self):
+        """
+        Test that sort by price works correctly
+        """
         f.ProductFactory(name='product2', price=1, description='the best you can have!')
         self.client.login(username=self.user.username, password='test')
         response = self.client.get("/products/?&order_by=price")
@@ -70,6 +85,9 @@ class TestProductListView(TestBase):
         self.assertEqual(products[0].name, 'product2')
 
     def test_stock_sort(self):
+        """
+        Test that sort by stock quantity works correctly
+        """
         product2 = f.ProductFactory(name='product2', price=1, description='the best you can have!')
         api.move(self.lost_and_found, self.storage, product2, 1, 5)
         self.client.login(username=self.user.username, password='test')
@@ -80,6 +98,9 @@ class TestProductListView(TestBase):
         self.assertEqual(products[0].name, 'product2')
 
     def test_cost_sort(self):
+        """
+        Test that sort by cost works correctly
+        """
         product2 = f.ProductFactory(name='product2', price=1, description='the best you can have!')
         api.move(self.lost_and_found, self.storage, product2, 1, 5000)
         self.client.login(username=self.user.username, password='test')
@@ -90,6 +111,9 @@ class TestProductListView(TestBase):
         self.assertEqual(products[0].name, 'product1')
 
     def test_name_filter(self):
+        """
+        Test that filter by name works correctly
+        """
         self.client.login(username=self.user.username, password='test')
         response = self.client.get('/products/?name=noproduct')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -102,6 +126,9 @@ class TestProductListView(TestBase):
         self.assertEqual(products.count(), 1)
 
     def test_description_filter(self):
+        """
+        Test that filter by description works correctly
+        """
         self.client.login(username=self.user.username, password='test')
         response = self.client.get('/products/?description=notthisone')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -114,6 +141,9 @@ class TestProductListView(TestBase):
         self.assertEqual(products.count(), 1)
 
     def test_ean_filter(self):
+        """
+        Test that filter by ean works correctly
+        """
         self.product.ean = 'myean'
         self.product.save()
         self.client.login(username=self.user.username, password='test')
@@ -131,11 +161,17 @@ class TestProductListView(TestBase):
 class TestProductUpdateView(TestBase):
 
     def test_update_view_not_working_without_login(self):
+        """
+        Test that the update view redirects to the login page if the user is not logged
+        """
         response = self.client.get(reverse('bazaar:product-update', kwargs={'pk': self.product.pk}))
         self.assertRedirects(response, '/accounts/login/?next=%s' % reverse('bazaar:product-update',
                                                                             kwargs={'pk': self.product.pk}))
 
     def test_update_view(self):
+        """
+        Test that the update view works fine
+        """
         self.client.login(username=self.user.username, password='test')
         data = {
             'price_0': self.product.price.amount,
@@ -151,6 +187,9 @@ class TestProductUpdateView(TestBase):
         self.assertEqual(product.name, 'ModifiedName')
 
     def test_update_view_fails_with_incorrect_data(self):
+        """
+        Test that the update view fails with incorrect input
+        """
         self.client.login(username=self.user.username, password='test')
         data = {
             'price_0': 'wrong data',
@@ -169,6 +208,9 @@ class TestProductUpdateView(TestBase):
 class TestProductCreateView(TestBase):
 
     def test_create_view(self):
+        """
+        Test that the create view works fine
+        """
         self.client.login(username=self.user.username, password='test')
         data = {
             'price_0': 1,
@@ -183,6 +225,9 @@ class TestProductCreateView(TestBase):
         self.assertRedirects(response, '/products/%s/' % product.pk)
 
     def test_create_view_not_working_without_login(self):
+        """
+        Test that the create view redirects to the login page if the user is not logged
+        """
         data = {
             'price_0': 1,
             'price_1': 'EUR',
@@ -195,6 +240,9 @@ class TestProductCreateView(TestBase):
         self.assertRedirects(response, '/accounts/login/?next=/products/new/')
 
     def test_create_view_not_working_with_negative_price(self):
+        """
+        Test that the create view doesn't work with negative price
+        """
         self.client.login(username=self.user.username, password='test')
         data = {
             'price_0': -1,
@@ -212,10 +260,16 @@ class TestProductCreateView(TestBase):
 class TestProductDetailView(TestBase):
 
     def test_detail_view_not_working_without_login(self):
+        """
+        Test that the detail view redirects to the login page if the user is not logged
+        """
         response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
         self.assertRedirects(response, '/accounts/login/?next=/products/%s/' % self.product.pk)
 
     def test_detail_view(self):
+        """
+        Test that the detail view works fine
+        """
         self.client.login(username=self.user.username, password='test')
         response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -246,10 +300,16 @@ class TestProductDetailView(TestBase):
 class TestDeleteView(TestBase):
 
     def test_delete_view_not_working_without_login(self):
+        """
+        Test that the delete view redirects to the login page if the user is not logged
+        """
         response = self.client.get(reverse('bazaar:product-delete', kwargs={'pk': self.product.pk}))
         self.assertRedirects(response, '/accounts/login/?next=/products/%s/delete/' % self.product.pk)
 
     def test_delete_view(self):
+        """
+        Test that the delete view works fine
+        """
         self.client.login(username=self.user.username, password='test')
         response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
