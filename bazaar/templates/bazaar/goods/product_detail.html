@@ -30,7 +30,7 @@
     <div class="row">
         {% if product.photo %}
         <div class="col-md-2">
-            <a href="{{MEDIA_URL}}{{ product.photo }}"><img src="{{MEDIA_URL}}{{ product.photo }}" class="img-thumbnail" width="100%"></a>
+            <a href="{{ product.photo.url }}"><img src="{{ product.photo.url }}" class="img-thumbnail" width="100%"></a>
         </div>
         {% endif %}
         <div class="col-md-10">
