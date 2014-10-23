@@ -59,17 +59,29 @@
                 </thead>
                 <tbody>
                 <tr>
+                    {% if product.ean != None %}
                     <td>
                         {{ product.ean }}
                     </td>
+                    {% else %}
                     <td>
-                        {{ product.quantity|floatformat }}
+                        --
                     </td>
+                    {% endif %}
+                    {% if product.quantity != None %}
+                    <td>
+                        {{ product.quantity|floatformat }} 
+                    </td>
+                    {% else %}
+                    <td>
+                        --
+                    </td>
+                    {% endif %}
                     <td>
                         {{ product.cost }}
                     </td>
                     <td>
-                        {{ product.price }}
+                        {{ product.price.amount }} &euro;
                     </td>
                 </tr>
                 </tbody>

@@ -46,7 +46,7 @@
                             <td>
                                 <a href="{% url 'bazaar:product-detail' product.id %}">{{ product.name }}</a>
                             </td>
-                            {% if product.description != None %}
+                            {% if product.description != '' %}
                             <td>
                                 {{ product.description|truncatewords:4}}
                             </td>
@@ -66,7 +66,7 @@
                             {% endif %}
                             {% if product.purchase_price != None %}
                             <td>
-                                {{ product.purchase_price }} &euro;
+                                {{ product.purchase_price|floatformat:2 }} &euro;
                             </td>
                             {% else %}
                             <td>
@@ -74,7 +74,7 @@
                             </td>
                             {% endif %}
                             <td>
-                                {{ product.price.amount }} &euro;
+                                {{ product.price.amount|floatformat:2 }} &euro;
                             </td>
                         </tr>
                     {% endfor %}
