@@ -78,10 +78,10 @@
                     </td>
                     {% endif %}
                     <td>
-                        {{ product.cost }}
+                        {{ product.cost.amount|floatformat:2 }} &euro;
                     </td>
                     <td>
-                        {{ product.price.amount }} &euro;
+                        {{ product.price.amount|floatformat:2 }} &euro;
                     </td>
                 </tr>
                 </tbody>
