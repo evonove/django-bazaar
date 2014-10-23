@@ -30,7 +30,8 @@ class ProductForm(FormHelperMixin, forms.ModelForm):
             ),
             FormActions(
                 Div(
-                    HTML("""<a class="btn btn-default" href="{% url 'bazaar:product-list' %}"><i class="glyphicon glyphicon-chevron-left"></i>&nbsp;Back</a>&nbsp;"""),
+                    HTML("""<a class="btn btn-default" href="{% url 'bazaar:product-list' %}">"""
+                         """<i class="glyphicon glyphicon-chevron-left"></i>&nbsp;Back</a>&nbsp;"""),
                     Submit('save', 'Submit'),
                     css_class="col-md-8 col-md-offset-3"
                 ),
