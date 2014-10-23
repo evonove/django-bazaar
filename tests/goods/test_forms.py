@@ -8,6 +8,7 @@ class MyTests(TestCase):
     def setUp(self):
         self.product = ProductFactory(ean="123456789")
         self.product2 = ProductFactory(ean="12345")
+        self.product3 = ProductFactory(ean='')
 
     def test_ean_uniqueness_fails_if_ean_already_exists_when_creating(self):
         form_data = {
@@ -57,4 +58,24 @@ class MyTests(TestCase):
             'price_1': self.product.price.currency
         }
         form = ProductForm(instance=self.product, data=form_data)
+        self.assertEqual(form.is_valid(), True)
+
+    def test_empty_ean_when_updating(self):
+        form_data = {
+            'name': self.product.name,
+            'ean': '',
+            'price_0': self.product.price.amount,
+            'price_1': self.product.price.currency
+        }
+        form = ProductForm(instance=self.product, data=form_data)
+        self.assertEqual(form.is_valid(), True)
+
+    def test_empty_ean_when_inserting(self):
+        form_data = {
+            'name': self.product.name,
+            'ean': '',
+            'price_0': self.product.price.amount,
+            'price_1': self.product.price.currency
+        }
+        form = ProductForm(data=form_data)
         self.assertEqual(form.is_valid(), True)

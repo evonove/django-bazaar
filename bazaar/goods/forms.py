@@ -16,6 +16,10 @@ class ProductForm(FormHelperMixin, forms.ModelForm):
         form_ean = self.cleaned_data['ean']
         saved_ean = self.instance.ean
         inserting = self.instance.pk is None
+
+        if form_ean == '':
+            return form_ean
+
         if inserting or (form_ean != saved_ean):
             if Product.objects.filter(ean=form_ean).exists():
                 raise ValidationError(u'A product with this ean already exists')
