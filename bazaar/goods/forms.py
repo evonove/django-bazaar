@@ -9,13 +9,18 @@ from bazaar.goods.models import Product
 from bazaar.helpers import FormHelperMixin
 
 
-def ean_uniqueness(ean):
-    if Product.objects.filter(ean=ean).exists():
-        raise ValidationError(u'A product with this ean already exists')
-
-
 class ProductForm(FormHelperMixin, forms.ModelForm):
-    ean = forms.CharField(max_length=20, required=False, validators=[ean_uniqueness])
+    ean = forms.CharField(max_length=20, required=False)
+
+    def clean_ean(self):
+        form_ean = self.cleaned_data['ean']
+        saved_ean = self.instance.ean
+        inserting = self.instance.pk is None
+        if inserting or (form_ean != saved_ean):
+            if Product.objects.filter(ean=form_ean).exists():
+                raise ValidationError(u'A product with this ean already exists')
+
+        return form_ean
 
     def __init__(self, *args, **kwargs):
         super(ProductForm, self).__init__(*args, **kwargs)
