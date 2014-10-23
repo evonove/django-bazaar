@@ -225,6 +225,23 @@ class TestProductDetailView(TestBase):
         self.assertEqual(product.price.amount, self.product.price.amount)
         self.assertEqual(product.quantity, self.product.quantity)
 
+    def test_detail_view_img_being_shown(self):
+        self.client.login(username=self.user.username, password='test')
+        self.product.photo = 'product_photo.jpg'
+        self.product.save()
+        response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(('<img src="%s" class="img-thumbnail" width="100'
+                      % self.product.photo.url).encode(encoding='UTF-8'), response.content)
+
+    def test_detail_view_img_not_being_shown(self):
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(('<div class="row">\n        \n        <div class="col-md-10">\n'
+                      '            <h3>%s</h3><br/>\n        </div>\n    </div>'
+                      % self.product.name).encode(encoding='UTF-8'), response.content)
+
 
 class TestDeleteView(TestBase):
 
