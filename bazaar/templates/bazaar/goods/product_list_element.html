@@ -1,0 +1,71 @@
+{% load i18n %}
+
+<tr>
+    {% block photo_column %}
+        {% if product.photo %}
+            <td><i class="glyphicon glyphicon-camera"></i></td>
+        {% else %}
+            <td></td>
+        {% endif %}
+    {% endblock %}
+
+    {% block ean_column %}
+        {% if product.ean != '' %}
+        <td>
+            {{ product.ean }}
+        </td>
+        {% else %}
+        <td>
+            --
+        </td>
+        {% endif %}
+    {% endblock %}
+
+    {% block name_column %}
+        <td>
+            <a href="{% url 'bazaar:product-detail' product.id %}">{{ product.name }}</a>
+        </td>
+    {% endblock %}
+
+    {% block description_column %}
+        {% if product.description != '' %}
+        <td>
+            {{ product.description|truncatewords:4}}
+        </td>
+        {% else %}
+        <td>
+            --
+        </td>
+        {% endif %}
+    {% endblock %}
+
+    {% block stock_column %}
+        {% if product.stock != None %}
+        <td>
+            {{ product.stock|floatformat }}
+        </td>
+        {% else %}
+        <td>
+            --
+        </td>
+        {% endif %}
+    {% endblock %}
+
+    {% block purchase_price_column %}
+        {% if product.purchase_price != None %}
+        <td>
+            {{ product.purchase_price|floatformat:2 }} &euro;
+        </td>
+        {% else %}
+        <td>
+            --
+        </td>
+        {% endif %}
+    {% endblock %}
+
+    {% block purchase_price %}
+    <td>
+        {{ product.price.amount|floatformat:2 }} &euro;
+    </td>
+    {% endblock %}
+</tr>

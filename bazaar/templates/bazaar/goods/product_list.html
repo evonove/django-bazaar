@@ -27,56 +27,7 @@
                     <tbody>
 
                     {% for product in product_list %}
-                        <tr>
-                            {% if product.photo %}
-                                <td><i class="glyphicon glyphicon-camera"></i></td>
-                            {% else %}
-                                <td></td>
-                            {% endif %}
-
-                            {% if product.ean != '' %}
-                            <td>
-                                {{ product.ean }}
-                            </td>
-                            {% else %}
-                            <td>
-                                --
-                            </td>
-                            {% endif %}
-                            <td>
-                                <a href="{% url 'bazaar:product-detail' product.id %}">{{ product.name }}</a>
-                            </td>
-                            {% if product.description != '' %}
-                            <td>
-                                {{ product.description|truncatewords:4}}
-                            </td>
-                            {% else %}
-                            <td>
-                                --
-                            </td>
-                            {% endif %}
-                            {% if product.stock != None %}
-                            <td>
-                                {{ product.stock|floatformat }}
-                            </td>
-                            {% else %}
-                            <td>
-                                --
-                            </td>
-                            {% endif %}
-                            {% if product.purchase_price != None %}
-                            <td>
-                                {{ product.purchase_price|floatformat:2 }} &euro;
-                            </td>
-                            {% else %}
-                            <td>
-                                --
-                            </td>
-                            {% endif %}
-                            <td>
-                                {{ product.price.amount|floatformat:2 }} &euro;
-                            </td>
-                        </tr>
+                        {% include "bazaar/goods/product_list_element.html" %}
                     {% endfor %}
                     </tbody>
                 </table>
