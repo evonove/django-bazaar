@@ -1,9 +1,12 @@
+from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from functools import partial
-
 import moneyed
+import uuid
+
+from django.db.models import CharField
 from djmoney.models.fields import MoneyField as _MoneyField
+from functools import partial
 
 from .settings import bazaar_settings
 
@@ -13,3 +16,12 @@ MoneyField = partial(
     default=moneyed.Money(0.0, bazaar_settings.DEFAULT_CURRENCY),
     default_currency=bazaar_settings.DEFAULT_CURRENCY,
     currency_choices=bazaar_settings.CURRENCIES)
+
+
+class UUIDField(CharField):
+
+    description = 'Field to store UUID values'
+
+    @staticmethod
+    def create_uuid():
+        return uuid.uuid4().hex
