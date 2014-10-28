@@ -59,15 +59,9 @@
                 </thead>
                 <tbody>
                 <tr>
-                    {% if product.ean != '' %}
                     <td>
-                        {{ product.ean }}
+                        {{ product.ean|default:'--' }}
                     </td>
-                    {% else %}
-                    <td>
-                        --
-                    </td>
-                    {% endif %}
                     {% if product.quantity != None %}
                     <td>
                         {{ product.quantity|floatformat }}
