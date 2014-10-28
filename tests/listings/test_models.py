@@ -100,3 +100,11 @@ class TestListingModel(TestCase):
 
     def test_sku_field_created_on_listing_creation(self):
         self.assertTrue(self.listing.sku)
+    def test_on_product_creation_a_listing_should_be_created(self):
+        listings_count_before = Listing.objects.all().count()
+        self.product2 = ProductFactory()
+        listings = Listing.objects.filter(listing_sets__product=self.product2,
+                                          listing_sets__quantity=1)
+        self.assertEqual(listings.count(), 1)
+        listings_count_after = Listing.objects.all().count()
+        self.assertEqual(listings_count_after, listings_count_before+1)

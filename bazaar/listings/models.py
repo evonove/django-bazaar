@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.db.models.signals import post_init, post_save
+from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
@@ -85,6 +87,20 @@ class Listing(models.Model):
 
     def __str__(self):
         return self.title
+
+
+@receiver(post_save, sender=Product)
+def create_listing_for_product(sender, instance, **kwargs):
+    if not kwargs['created']:
+        return
+
+    listing = Listing()
+    listing.title = instance.name
+    listing.description = instance.description
+    listing.save()
+
+    listingSet = ListingSet.objects.create(listing=listing, product=instance, quantity=1)
+    listingSet.save()
 
 
 class ListingSet(models.Model):
