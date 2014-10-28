@@ -22,6 +22,6 @@ class UUIDField(CharField):
 
     description = 'Field to store UUID values'
 
-    @staticmethod
-    def create_uuid():
-        return uuid.uuid4().hex
+
+def create_uuid():
+    return uuid.uuid4().hex
