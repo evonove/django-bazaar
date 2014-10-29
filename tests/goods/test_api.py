@@ -1,11 +1,12 @@
 from __future__ import unicode_literals
 
-from .base import BaseTestCase
 from bazaar.goods.api import listing_bulk_creation
 from bazaar.goods.models import Product
 from bazaar.listings.models import Listing
 from bazaar.settings import bazaar_settings
-from tests.factories import ProductFactory, ListingFactory, ListingSetFactory
+
+from ..base import BaseTestCase
+from ..factories import ProductFactory, ListingFactory, ListingSetFactory
 
 
 class TestApi(BaseTestCase):
@@ -44,7 +45,9 @@ class TestApi(BaseTestCase):
         product = ProductFactory()
 
         self.assertEqual(Listing.objects.all().count(), 0)
+
         listing_bulk_creation(Product.objects.all())
+
         self.assertEqual(Listing.objects.all().count(), 1)
         self.assertEqual(Listing.objects.all()[0].listing_sets.all()[0].product, product)
 
@@ -52,7 +55,9 @@ class TestApi(BaseTestCase):
 
     def test_listing_bulk_creation_correctly_checks_listings(self):
         """
-        Test that 1xlisting are correctly checked
+        There may be some listing with more than one product with quantity 1.
+        Test that the method listing_bulk_creation doesn't consider these listings
+        as 1xlistings
         """
 
         # turn off automatic listing creation on product creation
