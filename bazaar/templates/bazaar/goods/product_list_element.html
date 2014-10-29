@@ -2,23 +2,7 @@
 
 <tr>
     {% block photo_column %}
-        {% if product.photo %}
-            <td><i class="glyphicon glyphicon-camera"></i></td>
-        {% else %}
-            <td></td>
-        {% endif %}
-    {% endblock %}
-
-    {% block ean_column %}
-        {% if product.ean != '' %}
-        <td>
-            {{ product.ean }}
-        </td>
-        {% else %}
-        <td>
-            --
-        </td>
-        {% endif %}
+            <td>{% if product.photo %}<i class="glyphicon glyphicon-camera"></i>{% endif %}</td>
     {% endblock %}
 
     {% block name_column %}
@@ -27,40 +11,44 @@
         </td>
     {% endblock %}
 
-    {% block description_column %}
-        {% if product.description != '' %}
+    {% block ean_column %}
         <td>
-            {{ product.description|truncatewords:4}}
-        </td>
+        {% if product.ean %}
+            {{ product.ean }}
         {% else %}
-        <td>
             --
-        </td>
         {% endif %}
+        </td>
+    {% endblock %}
+
+    {% block sku_column %}
+        <td>
+        {% if product.sku %}
+            {{ product.sku }}
+        {% else %}
+            --
+        {% endif %}
+        </td>
     {% endblock %}
 
     {% block stock_column %}
+        <td>
         {% if product.stock != None %}
-        <td>
             {{ product.stock|floatformat }}
-        </td>
         {% else %}
-        <td>
             --
-        </td>
         {% endif %}
+        </td>
     {% endblock %}
 
     {% block purchase_price_column %}
+        <td>
         {% if product.purchase_price != None %}
-        <td>
             {{ product.purchase_price|floatformat:2 }} &euro;
-        </td>
         {% else %}
-        <td>
             --
-        </td>
         {% endif %}
+        </td>
     {% endblock %}
 
     {% block purchase_price %}
