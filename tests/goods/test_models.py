@@ -10,17 +10,23 @@ from bazaar.goods.models import Product, PriceList, ProductPrice
 from moneyed import Money
 
 from ..base import BaseTestCase
+from bazaar.listings.models import Listing
+from bazaar.settings import bazaar_settings
 from ..factories import ProductFactory, StockFactory
 
 
 class TestProduct(TestCase):
+
     def setUp(self):
-        self.product = ProductFactory(ean="12345678")
+        self.old_setting_value = bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION
+        bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = True
 
     def test_model(self):
+        self.product = ProductFactory(ean="12345678")
         self.assertEqual("%s" % self.product, "a product")
 
     def test_product_cost_property(self):
+        self.product = ProductFactory(ean="12345678")
         StockFactory(product=self.product, unit_price=10, quantity=10)
         StockFactory(product=self.product, unit_price=5, quantity=30)
 
@@ -30,17 +36,38 @@ class TestProduct(TestCase):
         """
         Checks that the ean property is set
         """
+        self.product = ProductFactory(ean="12345678")
         self.assertEqual(self.product.ean, "12345678")
 
     def test_ean_should_not_be_none(self):
+        self.product = ProductFactory(ean="12345678")
         self.assertRaises(Exception, ProductFactory, ean=None)
 
     def test_product_photo_property(self):
-
+        self.product = ProductFactory(ean="12345678")
         self.product.photo = 'test.jpg'
         self.product.save()
 
         self.assertEqual(self.product.photo.name, 'test.jpg')
+
+    def test_on_product_creation_a_listing_should_be_created(self):
+        """
+        Tests that on product creation a new 1x listing is created.
+        """
+        self.assertFalse(Listing.objects.all().exists())
+
+        product = ProductFactory()
+        listings = Listing.objects.filter(listing_sets__product=product,
+                                          listing_sets__quantity=1)
+
+        self.assertEqual(listings.count(), 1)
+
+        listing = listings.get()
+
+        self.assertEqual(listing.listing_sets.count(), 1)
+
+    def tearDown(self):
+        bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = self.old_setting_value
 
 
 class TestPriceList(BaseTestCase):

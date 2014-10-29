@@ -25,7 +25,7 @@ DEFAULTS = {
     'CURRENCIES': (),
     'DEFAULT_CURRENCY': moneyed.EUR.code,
     'DEFAULT_AVAILABILITY_BACKEND': 'bazaar.warehouse.availability.AvailabilityBackend',
-
+    'AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION': False,
     'LOGIN_REDIRECT_URL': "bazaar:home",
     'STORES': {},
     'LISTING_FILTER': 'bazaar.listings.filters.ListingFilter',
