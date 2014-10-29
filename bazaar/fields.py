@@ -18,10 +18,16 @@ MoneyField = partial(
     currency_choices=bazaar_settings.CURRENCIES)
 
 
-class UUIDField(CharField):
-
+class SKUField(CharField):
     description = 'Field to store UUID values'
 
+    def __init__(self, *args, **kwargs):
+        kwargs['editable'] = False
+        kwargs['blank'] = True
+        kwargs['unique'] = True
+        kwargs['max_length'] = 50
+        super(SKUField, self).__init__(*args, **kwargs)
 
-def create_uuid():
+
+def create_sku():
     return uuid.uuid4().hex

@@ -8,7 +8,7 @@ from moneyed import Money
 from bazaar.warehouse import api
 from ..warehouse.api import get_storage_price, get_storage_quantity
 
-from ..fields import MoneyField, UUIDField, create_uuid
+from ..fields import MoneyField, SKUField, create_sku
 from ..goods.models import Product
 from ..settings import bazaar_settings
 
@@ -22,7 +22,7 @@ class Listing(models.Model):
 
     picture_url = models.URLField(blank=True)
     products = models.ManyToManyField(Product, related_name="listings", through="ListingSet")
-    sku = UUIDField(max_length=32, default=create_uuid, unique=True)
+    sku = SKUField(default=create_sku)
 
     objects = ListingManager()
 
