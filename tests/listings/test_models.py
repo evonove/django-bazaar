@@ -99,4 +99,4 @@ class TestListingModel(TestCase):
         self.assertEqual(self.listing.cost, Money(2, 'EUR'))
 
     def test_sku_field_created_on_listing_creation(self):
-        self.assertIsNotNone(self.listing.sku)
+        self.assertTrue(self.listing.sku)
