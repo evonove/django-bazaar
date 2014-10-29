@@ -66,6 +66,24 @@ class TestProduct(TestCase):
 
         self.assertEqual(listing.listing_sets.count(), 1)
 
+    def test_that_a_listing_is_created_only_during_product_creation(self):
+        '''
+        Test that a listing is created only when saving a product for the first time (creation).
+        On subsequent saves, no more listings should be created.
+        '''
+        self.assertFalse(Listing.objects.all().exists())
+
+        product = ProductFactory()
+        listings = Listing.objects.filter(listing_sets__product=product,
+                                          listing_sets__quantity=1)
+
+        self.assertEqual(listings.count(), 1)
+
+        product.name = "test"
+        product.save()
+
+        self.assertEqual(listings.count(), 1)
+
     def tearDown(self):
         bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = self.old_setting_value
 
