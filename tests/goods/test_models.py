@@ -67,10 +67,10 @@ class TestProduct(TestCase):
         self.assertEqual(listing.listing_sets.count(), 1)
 
     def test_that_a_listing_is_created_only_during_product_creation(self):
-        '''
+        """
         Test that a listing is created only when saving a product for the first time (creation).
         On subsequent saves, no more listings should be created.
-        '''
+        """
         self.assertFalse(Listing.objects.all().exists())
 
         product = ProductFactory()

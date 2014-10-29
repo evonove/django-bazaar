@@ -97,13 +97,8 @@ def create_listing_for_product(sender, instance, **kwargs):
     if not kwargs['created']:
         return
 
-    listing = Listing()
-    listing.title = instance.name
-    listing.description = instance.description
-    listing.save()
-
-    listingSet = ListingSet.objects.create(listing=listing, product=instance, quantity=1)
-    listingSet.save()
+    from bazaar.goods.api import listing_bulk_creation
+    listing_bulk_creation(Product.objects.filter(pk=instance.id).all())
 
 
 class ListingSet(models.Model):
