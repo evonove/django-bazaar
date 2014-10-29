@@ -82,6 +82,8 @@ class TestProduct(TestCase):
         product.name = "test"
         product.save()
 
+        listings = Listing.objects.filter(listing_sets__product=product,
+                                          listing_sets__quantity=1)
         self.assertEqual(listings.count(), 1)
 
     def tearDown(self):
