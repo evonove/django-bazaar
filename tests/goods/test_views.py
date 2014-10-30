@@ -125,21 +125,6 @@ class TestProductListView(TestBase):
         products = response.context_data['product_list']
         self.assertEqual(products.count(), 1)
 
-    def test_description_filter(self):
-        """
-        Test that filter by description works correctly
-        """
-        self.client.login(username=self.user.username, password='test')
-        response = self.client.get('/products/?description=notthisone')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        products = response.context_data['product_list']
-        self.assertEqual(products.count(), 0)
-
-        response = self.client.get('/products/?description=have!')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        products = response.context_data['product_list']
-        self.assertEqual(products.count(), 1)
-
     def test_ean_filter(self):
         """
         Test that filter by ean works correctly
