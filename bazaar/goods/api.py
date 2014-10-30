@@ -14,10 +14,5 @@ def listing_bulk_creation(products):
     products = products.exclude(listings__in=one_item_listings)
 
     for product in products:
-        listing = Listing()
-        listing.title = product.name
-        listing.description = product.description
-        listing.save()
-
-        listingSet = ListingSet.objects.create(listing=listing, product=product, quantity=1)
-        listingSet.save()
+        one_item_listing = Listing.objects.create(title=product.name, description=product.description)
+        ListingSet.objects.create(listing=one_item_listing, product=product, quantity=1)
