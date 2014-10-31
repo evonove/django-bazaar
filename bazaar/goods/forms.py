@@ -28,6 +28,8 @@ class EanValidationMixin(forms.ModelForm):
 
 
 class ProductForm(EanValidationMixin, FormHelperMixin, forms.ModelForm):
+    code = forms.CharField(max_length=20, required=False)
+
     def __init__(self, *args, **kwargs):
         super(ProductForm, self).__init__(*args, **kwargs)
         self.helper.layout = Layout(
@@ -36,6 +38,7 @@ class ProductForm(EanValidationMixin, FormHelperMixin, forms.ModelForm):
                 'name',
                 'description',
                 'ean',
+                'code',
                 'photo',
                 'price'
             ),

@@ -28,7 +28,7 @@ class FormsTest(TestCase):
             'price_1': self.product.price.currency
         }
         form = ProductForm(data=form_data)
-        self.assertEqual(form.is_valid(), True)
+        self.assertEqual(form.is_valid(), True, form.errors)
 
     def test_ean_uniqueness_fails_if_ean_already_exists_when_updating(self):
         form_data = {

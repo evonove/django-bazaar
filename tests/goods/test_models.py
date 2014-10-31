@@ -39,6 +39,13 @@ class TestProduct(TestCase):
         self.product = ProductFactory(ean="12345678")
         self.assertEqual(self.product.ean, "12345678")
 
+    def test_product_code_property(self):
+        """
+        Checks that the ean property is set
+        """
+        self.product = ProductFactory(code="thisisacode")
+        self.assertEqual(self.product.code, "thisisacode")
+
     def test_ean_should_not_be_none(self):
         self.product = ProductFactory(ean="12345678")
         self.assertRaises(Exception, ProductFactory, ean=None)
