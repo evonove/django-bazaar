@@ -29,11 +29,7 @@ class ProductsQuerySet(models.QuerySet):
     def with_total_avr_cost(self, location_ids):
         if not isinstance(location_ids, collections.Sequence):
             location_ids = [location_ids]
-
-        dynamic_quantity = ''
-        for id in location_ids:
-            dynamic_quantity += '%s, '
-        dynamic_quantity = dynamic_quantity[:-2]
+        dynamic_quantity = ', '.join(['%s'] * len(location_ids))
 
         return self.extra(
             select=SortedDict([
