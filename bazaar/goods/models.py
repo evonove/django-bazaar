@@ -23,7 +23,7 @@ class Product(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     ean = models.CharField(max_length=20, db_index=True)
-    code = models.CharField(max_length=20, db_index=True, null=True, blank=True)
+    code = models.CharField(max_length=20, db_index=True, blank=True)
     photo = models.ImageField(upload_to='products', null=True, blank=True)
     price = MoneyField(help_text=_("Base default price for product"), validators=[MinValueValidator(limit_value=0)])
     price_lists = models.ManyToManyField("PriceList", through="ProductPrice",
