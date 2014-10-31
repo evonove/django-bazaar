@@ -9,7 +9,7 @@ from bazaar.goods.models import Product
 from bazaar.helpers import FormHelperMixin
 
 
-class ProductForm(FormHelperMixin, forms.ModelForm):
+class EanValidationMixin(forms.ModelForm):
     ean = forms.CharField(max_length=20, required=False)
 
     def clean_ean(self):
@@ -26,6 +26,8 @@ class ProductForm(FormHelperMixin, forms.ModelForm):
 
         return form_ean
 
+
+class ProductForm(EanValidationMixin, FormHelperMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProductForm, self).__init__(*args, **kwargs)
         self.helper.layout = Layout(
