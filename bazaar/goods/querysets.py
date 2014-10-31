@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-
+import collections
 
 from django.utils.datastructures import SortedDict
 
@@ -12,7 +12,7 @@ FORCED_LOWER = -999999
 
 class ProductsQuerySet(models.QuerySet):
 
-    def with_availability(self, location_storage_id):
+    def with_availability(self, location_id):
         return self.extra(
             select=SortedDict([
                 ("availability",
@@ -22,50 +22,29 @@ class ProductsQuerySet(models.QuerySet):
                  "AND warehouse_stock.location_id = %s"),
             ]),
             select_params=(
-                FORCED_LOWER, location_storage_id,
+                FORCED_LOWER, location_id,
             )
         )
 
-    def with_total_avr_cost(self, location_storage_id, location_output_id):
+    def with_total_avr_cost(self, location_ids):
+        if not isinstance(location_ids, collections.Sequence):
+            location_ids = [location_ids]
+
+        dynamic_quantity = ''
+        for id in location_ids:
+            dynamic_quantity += '%s, '
+        dynamic_quantity = dynamic_quantity[:-2]
+
         return self.extra(
             select=SortedDict([
                 ("total_avr_cost",
                  "SELECT SUM(unit_price*quantity)/SUM(quantity) "
                  "FROM warehouse_stock "
                  "WHERE warehouse_stock.product_id = goods_product.id "
-                 "AND(warehouse_stock.location_id = %s OR warehouse_stock.location_id = %s) "
-                 "AND quantity != 0 AND "
-                    "(SELECT SUM(quantity) "
-                    "FROM warehouse_stock "
-                    "WHERE warehouse_stock.product_id = goods_product.id "
-                    "AND(warehouse_stock.location_id = %s OR warehouse_stock.location_id = %s)) != 0"),
+                 "AND warehouse_stock.location_id IN ({})"
+                 "AND quantity > 0".format(dynamic_quantity)),
             ]),
-            select_params=(
-                location_storage_id,
-                location_output_id,
-                location_storage_id,
-                location_output_id
-            )
-        )
-
-    def with_total_avr_cost_by_locations(self, location_ids):
-        where_clause = ' 1 = 0 '
-        for location_id in location_ids:
-            where_clause += 'OR warehouse_stock.location_id = %s '
-        return self.extra(
-            select=SortedDict([
-                ("total_avr_cost",
-                 "SELECT SUM(unit_price*quantity)/SUM(quantity) "
-                 "FROM warehouse_stock "
-                 "WHERE warehouse_stock.product_id = goods_product.id "
-                 "AND({})"
-                 "AND quantity != 0 AND "
-                    "(SELECT SUM(quantity) "
-                    "FROM warehouse_stock "
-                    "WHERE warehouse_stock.product_id = goods_product.id "
-                    "AND({})) != 0".format(where_clause, where_clause)),
-            ]),
-            select_params=location_ids + location_ids
+            select_params=location_ids
         )
 
     def with_stock_quantity(self, location_storage_id, location_output_id):
