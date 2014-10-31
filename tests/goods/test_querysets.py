@@ -31,6 +31,9 @@ class TestBase(TestCase):
 
         api.move(self.storage, self.output, self.product1, 1, 5)
 
+        api.move(self.storage, self.output, self.product2, 1, 50)
+        api.move(self.output, self.storage, self.product2, 1, 50)
+
         api.move(self.storage, self.output, self.product3, 5, 500)
         api.move(self.output, self.customer, self.product3, 2, 500)
 
@@ -52,7 +55,7 @@ class TestProductQuerySet(TestBase):
         self.assertEqual(product.total_avr_cost, 5)
 
         product = Product.objects.with_total_avr_cost(self.storage.id, self.output.id).get(pk=self.product2.id)
-        self.assertEqual(product.total_avr_cost, 30)
+        self.assertEqual(product.total_avr_cost, 32)
 
         product = Product.objects.with_total_avr_cost(self.storage.id, self.output.id).get(pk=self.product3.id)
         self.assertEqual(product.total_avr_cost, 306)
@@ -64,7 +67,7 @@ class TestProductQuerySet(TestBase):
 
         product = Product.objects.with_total_avr_cost_by_locations((self.storage.id, self.output.id))\
             .get(pk=self.product2.id)
-        self.assertEqual(product.total_avr_cost, 30)
+        self.assertEqual(product.total_avr_cost, 32)
 
         product = Product.objects.with_total_avr_cost_by_locations((self.storage.id, self.output.id))\
             .get(pk=self.product3.id)

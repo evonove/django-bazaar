@@ -33,10 +33,16 @@ class ProductsQuerySet(models.QuerySet):
                  "SELECT SUM(unit_price*quantity)/SUM(quantity) "
                  "FROM warehouse_stock "
                  "WHERE warehouse_stock.product_id = goods_product.id "
-                 "AND(warehouse_stock.location_id = %s OR warehouse_stock.location_id = %s)"
-                 "AND quantity != 0"),
+                 "AND(warehouse_stock.location_id = %s OR warehouse_stock.location_id = %s) "
+                 "AND quantity != 0 AND "
+                    "(SELECT SUM(quantity) "
+                    "FROM warehouse_stock "
+                    "WHERE warehouse_stock.product_id = goods_product.id "
+                    "AND(warehouse_stock.location_id = %s OR warehouse_stock.location_id = %s)) != 0"),
             ]),
             select_params=(
+                location_storage_id,
+                location_output_id,
                 location_storage_id,
                 location_output_id
             )
@@ -53,9 +59,13 @@ class ProductsQuerySet(models.QuerySet):
                  "FROM warehouse_stock "
                  "WHERE warehouse_stock.product_id = goods_product.id "
                  "AND({})"
-                 "AND quantity != 0".format(where_clause)),
+                 "AND quantity != 0 AND "
+                    "(SELECT SUM(quantity) "
+                    "FROM warehouse_stock "
+                    "WHERE warehouse_stock.product_id = goods_product.id "
+                    "AND({})) != 0".format(where_clause, where_clause)),
             ]),
-            select_params=location_ids
+            select_params=location_ids + location_ids
         )
 
     def with_stock_quantity(self, location_storage_id, location_output_id):
