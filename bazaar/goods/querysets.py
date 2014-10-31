@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-import sys
 from django.db import models
 
 
@@ -8,7 +7,7 @@ from django.utils.datastructures import SortedDict
 
 from django.utils import timezone
 
-FORCED_LOWER = -(sys.maxint - 1)
+FORCED_LOWER = -999999
 
 
 class ProductsQuerySet(models.QuerySet):

@@ -7,11 +7,9 @@ from bazaar.goods.models import Product
 from bazaar.warehouse import api
 from tests import factories as f
 
-import sys
-
 from django.utils import timezone
 
-FORCED_LOWER = -(sys.maxint - 1)
+FORCED_LOWER = -999999
 
 
 class TestBase(TestCase):
