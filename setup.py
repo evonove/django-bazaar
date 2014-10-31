@@ -36,7 +36,7 @@ setup(
     ],
     include_package_data=True,
     install_requires=[
-        'Django>=1.6',
+        'Django>=1.7',
         'Pillow',
         'django-braces>=1.3',
         'django-crispy-forms>=1.4.0',
