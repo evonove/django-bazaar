@@ -41,7 +41,7 @@ class ProductsQuerySet(models.QuerySet):
                  "SELECT SUM(unit_price*quantity)/SUM(quantity) "
                  "FROM warehouse_stock "
                  "WHERE warehouse_stock.product_id = goods_product.id "
-                 "AND warehouse_stock.location_id IN ({})"
+                 "AND warehouse_stock.location_id IN ({}) "
                  "AND quantity > 0".format(dynamic_quantity)),
             ]),
             select_params=location_ids

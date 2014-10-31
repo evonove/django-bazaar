@@ -60,6 +60,16 @@ class TestProductQuerySet(TestBase):
         product = Product.objects.with_total_avr_cost((self.storage.id, self.output.id)).get(pk=self.product3.id)
         self.assertEqual(product.total_avr_cost, 306)
 
+    def test_with_total_avr_cost_in_one_storage(self):
+        product = Product.objects.with_total_avr_cost(self.storage.id).get(pk=self.product1.id)
+        self.assertEqual(product.total_avr_cost, None)
+
+        product = Product.objects.with_total_avr_cost(self.storage.id).get(pk=self.product2.id)
+        self.assertEqual(product.total_avr_cost, 32)
+
+        product = Product.objects.with_total_avr_cost(self.output.id).get(pk=self.product3.id)
+        self.assertEqual(product.total_avr_cost, 500)
+
     def test_with_stock_quantity(self):
         product = Product.objects.with_stock_quantity(self.storage.id, self.output.id).get(pk=self.product1.id)
         self.assertEqual(product.stock_quantity, 1)
