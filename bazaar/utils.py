@@ -44,7 +44,7 @@ def to_money(value):
     return value
 
 
-def send_to_staff(messages, level=None):
+def send_to_staff(messages, level=None, tags=''):
     if not messages:
         return
 
@@ -57,4 +57,4 @@ def send_to_staff(messages, level=None):
 
     for message in messages:
         rendered = render_to_string("bazaar/message.html", {"message": message})
-        stored_messages.add_message_for(users, level, rendered)
+        stored_messages.add_message_for(users, level, rendered, tags)
