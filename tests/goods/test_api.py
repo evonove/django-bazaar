@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from bazaar.goods.api import listing_bulk_creation
+from bazaar.goods.api import listing_bulk_creation, get_listing_by_id, get_oneper_listing_by_product
 from bazaar.goods.models import Product
 from bazaar.listings.models import Listing
 from bazaar.settings import bazaar_settings
@@ -76,5 +76,55 @@ class TestApi(BaseTestCase):
         listing_bulk_creation(Product.objects.all())
 
         self.assertEqual(Listing.objects.all().count(), 3)
+
+        bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = old_setting_value
+
+    def test_that_get_listing_by_id_works(self):
+        listing = ListingFactory()
+        self.assertEqual(listing, get_listing_by_id(listing.id))
+
+    def test_that_get_listing_by_id_returns_none(self):
+        self.assertEqual(Listing.objects.count(), 0)
+        self.assertIsNone(get_listing_by_id('1'))
+
+    def test_that_get_oneper_listing_by_product_works(self):
+        # turn on automatic listing creation on product creation
+        old_setting_value = bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION
+        bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = True
+
+        self.assertEqual(Listing.objects.count(), 0)
+        product = ProductFactory()
+        self.assertIsNotNone(get_oneper_listing_by_product(product))
+
+        bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = old_setting_value
+
+    def test_that_get_oneper_listing_by_product_returns_none(self):
+        # turn on automatic listing creation on product creation
+        old_setting_value = bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION
+        bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = False
+
+        self.assertEqual(Listing.objects.count(), 0)
+        product = ProductFactory()
+        self.assertIsNone(get_oneper_listing_by_product(product))
+
+        bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = old_setting_value
+
+    def test_that_get_oneper_listing_by_product_works_with_multiple_listings(self):
+        """
+        Verify that only 1x product listing are returned
+        """
+        # turn on automatic listing creation on product creation
+        old_setting_value = bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION
+        bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = True
+
+        self.assertEqual(Listing.objects.count(), 0)
+        product = ProductFactory()
+
+        # create a listing with 2 products
+        listing = ListingFactory()
+        ListingSetFactory(product=product, listing=listing)
+        ListingSetFactory(product=ProductFactory(), listing=listing)
+
+        self.assertIsNotNone(get_oneper_listing_by_product(product))
 
         bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = old_setting_value
