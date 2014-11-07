@@ -12,6 +12,7 @@
 {% endblock stylesheets %}
 
 {% block content %}
+    {% block buttons_holder %}
     <div class="product-actions row">
         <div class="col-md-12">
             <a href="{% url "bazaar:product-list" %}" class="btn btn-default">
@@ -27,17 +28,24 @@
             </div>
         </div>
     </div>
+    {% endblock %}
+    {% block header_row %}
     <div class="row">
-        {% if product.photo %}
-        <div class="col-md-2">
-            <a href="{{ product.photo.url }}"><img src="{{ product.photo.url }}" class="img-thumbnail" width="100%"></a>
-        </div>
-        {% endif %}
-        <div class="col-md-10">
-            <h3>{{ product.name }}</h3><br/>
-        </div>
+        {% block product_image %}
+            {% if product.photo %}
+                <div class="col-md-2">
+                    <a href="{{ product.photo.url }}"><img src="{{ product.photo.url }}" class="img-thumbnail" width="100%"></a>
+                </div>
+            {% endif %}
+        {% endblock %}
+        {% block product_title %}
+            <div class="col-md-10">
+                <h3>{{ product.name }}</h3><br/>
+            </div>
+        {% endblock %}
     </div>
-
+    {% endblock %}
+    {% block detail_row %}
     <div class="row">
         <div class="col-md-12">
             <table class="table table-striped table-bordered">
@@ -82,19 +90,20 @@
             </table>
 
             <p>
-               {% if product.description %}
-               {{ product.description }}
-               {% else %}
-               {% trans "No available description" %}
-               {% endif %}
+                {% if product.description %}
+                    {{ product.description }}
+                {% else %}
+                    {% trans "No available description" %}
+                {% endif %}
             </p>
         </div>
     </div>
-
+    {% endblock %}
     <!-- modalDelete -->
     <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
+                {% block modal_content %}
                 <div class="modal-header">
                     <h3>{% trans "Confirm Delete " %}{{ product.name }}</h3>
                 </div>
@@ -104,6 +113,7 @@
                         {% csrf_token %}<button type="submit" value="DELETE" class="btn btn-danger">{% trans "Delete" %}</button>
                     </form>
                 </div>
+                {% endblock %}
             </div>
         </div>
     </div>

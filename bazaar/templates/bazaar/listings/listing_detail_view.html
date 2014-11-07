@@ -4,15 +4,9 @@
 {% load staticfiles %}
 {% load crispy_forms_tags %}
 
-{% block stylesheets %}
-    {{ block.super }}
 
-{%  endblock stylesheets %}
-{% block messages %}
-
-{% endblock messages %}
 {% block content %}
-    <div class="merchant-actions row">
+    <div class="form-filter-actions row">
         <div class="col-md-10">
             <a href="{% url 'bazaar:listings-list' %}" class="btn btn-default">
                 <i class="glyphicon glyphicon-chevron-left"></i>&nbsp;{% trans "Back" %}

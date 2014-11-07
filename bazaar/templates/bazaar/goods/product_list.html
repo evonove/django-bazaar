@@ -2,7 +2,6 @@
 
 {% load i18n %}
 {% load crispy_forms_tags %}
-
 {% load bazaar_list %}
 
 {% block content %}
@@ -41,7 +40,7 @@
         {% include "bazaar/paginator.html" %}
         </div>
         <div class="col-md-2">
-            <div class="row merchant-actions">
+            <div class="row form-filter-actions">
                 <div class="col-md-12">
                     <a href="{% url "bazaar:product-create" %}" class="btn btn-lg btn-primary">{% trans "Create" %}</a>
                 </div>
