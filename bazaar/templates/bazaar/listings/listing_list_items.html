@@ -104,11 +104,19 @@
                             <div class="col-md-12">
                                 {% block listing-detail-products %}
                                     {% trans "Products:" %}
-                                    {% for ls in listing.listing_sets.all %}
-                                        {% include "bazaar/listings/listing_list_product.html" %}
+                                    <div class="col-md-10">
+                                        <input type="hidden" value="{{ ls.listing.id }}" name="listing_id">
 
-                                        {% if not forloop.last %} - {% endif %}
-                                    {% endfor %}
+                                        <table class="table table-condensed small">
+                                        {% for ls in listing.listing_sets.all %}
+                                            {% include "bazaar/listings/listing_list_product.html" %}
+                                            {% if not forloop.last %} - {% endif %}
+                                        {% endfor %}
+                                        </table>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="submit" name="shelve-btn" class="btn btn-sm btn-default">{% trans "Shelve" %}</button>
+                                    </div>
                                 {% endblock listing-detail-products %}
                             </div>
                         {% endblock listing-detail-elements %}

@@ -21,10 +21,10 @@
                     {{ listing_set.product.name }}
                 </td>
                 <td>
-                    {{ listing_set.quantity }}
+                    {{ listing_set.quantity|floatformat:0 }}
                 </td>
                 <td>
-                    {{  listing_set.product.price }}
+                    {{  listing_set.product.price|floatformat:2 }}
                 </td>
             </tr>
 

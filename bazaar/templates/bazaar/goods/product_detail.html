@@ -13,92 +13,141 @@
 
 {% block content %}
     {% block buttons_holder %}
-    <div class="product-actions row">
-        <div class="col-md-12">
-            <a href="{% url "bazaar:product-list" %}" class="btn btn-default">
-                <i class="glyphicon glyphicon-chevron-left"></i>&nbsp;{% trans "Back" %}
-            </a>
-            <a href="{% url 'bazaar:product-update' product.id %}" class="btn btn-primary">
-                <i class="glyphicon glyphicon-pencil"></i>&nbsp;{% trans "Modify" %}
-            </a>
-            <div class="pull-right">
-                <a data-toggle="modal" href="#modalDelete" class="btn btn-danger">
-                    <i class="glyphicon glyphicon-trash"></i>&nbsp;{% trans "Delete" %}
+        <div class="product-actions row">
+            <div class="col-md-12">
+                <a href="{% url "bazaar:product-list" %}" class="btn btn-default">
+                    <i class="glyphicon glyphicon-chevron-left"></i>&nbsp;{% trans "Back" %}
                 </a>
+                <a href="{% url 'bazaar:product-update' product.id %}" class="btn btn-primary">
+                    <i class="glyphicon glyphicon-pencil"></i>&nbsp;{% trans "Modify" %}
+                </a>
+                <div class="pull-right">
+                    <a data-toggle="modal" href="#modalDelete" class="btn btn-danger">
+                        <i class="glyphicon glyphicon-trash"></i>&nbsp;{% trans "Delete" %}
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
     {% endblock %}
-    {% block header_row %}
-    <div class="row">
-        {% block product_image %}
-            {% if product.photo %}
-                <div class="col-md-2">
-                    <a href="{{ product.photo.url }}"><img src="{{ product.photo.url }}" class="img-thumbnail" width="100%"></a>
-                </div>
-            {% endif %}
-        {% endblock %}
-        {% block product_title %}
-            <div class="col-md-10">
-                <h3>{{ product.name }}</h3><br/>
-            </div>
-        {% endblock %}
-    </div>
-    {% endblock %}
-    {% block detail_row %}
-    <div class="row">
-        <div class="col-md-12">
-            <table class="table table-striped table-bordered">
-                <thead>
-                <tr>
-                    <th>
-                        {% trans "EAN" %}
-                    </th>
-                    <th>
-                        {% trans "Stock" %}
-                    </th>
-                    <th>
-                        {% trans "Cost" %}
-                    </th>
-                    <th>
-                        {% trans "Price" %}
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>
-                        {{ product.ean|default:'--' }}
-                    </td>
-                    {% if product.quantity != None %}
-                    <td>
-                        {{ product.quantity|floatformat }}
-                    </td>
-                    {% else %}
-                    <td>
-                        --
-                    </td>
-                    {% endif %}
-                    <td>
-                        {{ product.cost.amount|floatformat:2 }} &euro;
-                    </td>
-                    <td>
-                        {{ product.price.amount|floatformat:2 }} &euro;
-                    </td>
-                </tr>
-                </tbody>
-            </table>
 
-            <p>
+    {% block header_row %}
+        <div class="row">
+            {% block product_image %}
+                {% if product.photo %}
+                    <div class="col-md-2">
+                        <a href="{{ product.photo.url }}"><img src="{{ product.photo.url }}" class="img-thumbnail" width="100%"></a>
+                    </div>
+                {% endif %}
+            {% endblock %}
+            {% block product_title %}
+                <div class="col-md-10">
+                    <h3>{{ product.name }}</h3><br/>
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block detail_row %}
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                    <tr>
+                        <th>
+                            {% trans "EAN" %}
+                        </th>
+                        <th>
+                            {% trans "Stock" %}
+                        </th>
+                        <th>
+                            {% trans "Cost" %}
+                        </th>
+                        <th>
+                            {% trans "Price" %}
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            {{ product.ean|default:'--' }}
+                        </td>
+                        {% if product.quantity != None %}
+                        <td>
+                            {{ product.quantity|floatformat }}
+                        </td>
+                        {% else %}
+                        <td>
+                            --
+                        </td>
+                        {% endif %}
+                        <td>
+                            {{ product.cost.amount|floatformat:2 }} &euro;
+                        </td>
+                        <td>
+                            {{ product.price.amount|floatformat:2 }} &euro;
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block detail_listing_row %}
+        <div class="row">
+             <div class="col-md-12">
+             <table class="table table-striped table-bordered">
+                 <thead>
+                    <tr>
+                     <th>{% trans "listing title"|title %}</th>
+                     <th>{% trans "all products in listing"|title %}</th>
+                     <th>{% trans "SKU" %}</th>
+                    </tr>
+                 </thead>
+                 <tbody>
+                 {% for listing in product.listings.all %}
+                     <tr>
+                         <td>
+                            <a href="{% url "bazaar:listings-detail" listing.pk %}" class="ellipsify-content" title="{{ listing.title }}">{{ listing.title }}</a>
+                         </td>
+                         <td>
+                            {% block listing-detail %}
+                                <div id="listing{{ listing.id }}" class="col-md-12">
+                                    {% block listing-detail-products %}
+                                        <input type="hidden" value="{{ ls.listing.id }}" name="listing_id">
+                                        <table class="table-condensed small listing-detail-products-table">
+                                        {% for ls in listing.listing_sets.all %}
+                                            {% include "bazaar/listings/listing_list_product.html" %}
+                                        {% endfor %}
+                                        </table>
+                                    {% endblock listing-detail-products %}
+                                </div>
+                            {% endblock listing-detail %}
+                         </td>
+                         <td>
+                             <span class="ellipsify-content" title="{{ listing.sku }}">{{ listing.sku }}</span>
+                         </td>
+                     </tr>
+                 {% endfor %}
+                 </tbody>
+             </table>
+             </div>
+        </div>
+    {% endblock %}
+
+    {% block description %}
+        <div class="row">
+             <div class="col-md-12">
                 {% if product.description %}
                     {{ product.description }}
                 {% else %}
                     {% trans "No available description" %}
                 {% endif %}
-            </p>
+            </div>
         </div>
-    </div>
     {% endblock %}
+
     <!-- modalDelete -->
     <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -118,4 +167,5 @@
         </div>
     </div>
     <!-- end modalDelete -->
+
 {% endblock content %}
