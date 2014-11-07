@@ -7,6 +7,8 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from moneyed import Money
+from bazaar.listings.managers import PublishingsManager
+from bazaar.listings.querysets import PublishingsQuerySet
 from bazaar.warehouse import api
 from ..warehouse.api import get_storage_price, get_storage_quantity
 
@@ -14,7 +16,7 @@ from ..fields import MoneyField, SKUField, create_sku
 from ..goods.models import Product
 from ..settings import bazaar_settings
 
-from .managers import ListingManager, PublishingManager
+from .managers import ListingManager
 
 
 @python_2_unicode_compatible
@@ -142,7 +144,7 @@ class Publishing(models.Model):
     listing = models.ForeignKey(Listing, related_name="publishings")
     store = models.ForeignKey(Store, related_name="publishings")
 
-    objects = PublishingManager()
+    objects = PublishingsManager.for_queryset_class(PublishingsQuerySet)()
 
     def get_template_name(self):
         return NotImplementedError("We doesn't provide a default publishing template.")

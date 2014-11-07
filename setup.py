@@ -45,6 +45,7 @@ setup(
         'django-money-rates>=0.3.1',
         'django-filter>=0.7',
         'djangorestframework==2.3.11',
+        'django-model-utils==2.2',
         'pytz',
     ],
     license="BSD",

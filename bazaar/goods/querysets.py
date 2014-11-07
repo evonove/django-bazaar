@@ -6,11 +6,12 @@ import collections
 from django.utils.datastructures import SortedDict
 
 from django.utils import timezone
+from model_utils.managers import InheritanceQuerySetMixin
 
 FORCED_LOWER = -999999
 
 
-class ProductsQuerySet(models.QuerySet):
+class ProductsQuerySet(InheritanceQuerySetMixin, models.QuerySet):
 
     def with_availability(self, location_id):
         return self.extra(
