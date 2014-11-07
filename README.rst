@@ -56,6 +56,18 @@ A few more settings to go
 .. code-block:: python
 
     LOGIN_REDIRECT_URL = "bazaar:home"
+    CRISPY_TEMPLATE_PACK = "boostrap3"
+
+Also add `bazaar.urls` to urlpatterns
+
+.. code-block:: python
+
+    urlpatterns = patterns('',
+        ...
+
+        url(r'', include("bazaar.urls")),
+    )
+
 
 More documentation coming soon!
 
