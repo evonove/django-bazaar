@@ -141,7 +141,7 @@ class Publishing(models.Model):
 
     status = models.IntegerField(choices=PUBLISHING_STATUS_CHOICES, default=ACTIVE_PUBLISHING)
 
-    listing = models.ForeignKey(Listing, related_name="publishings")
+    listing = models.ForeignKey(Listing, related_name="publishings", null=True, blank=False)
     store = models.ForeignKey(Store, related_name="publishings")
 
     objects = PublishingsManager.for_queryset_class(PublishingsQuerySet)()
