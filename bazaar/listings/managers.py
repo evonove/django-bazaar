@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from model_utils.managers import PassThroughManager, InheritanceManagerMixin
 
 FORCED_LOWER = -999999
 
@@ -151,7 +150,7 @@ class ListingManager(models.Manager):
         return [r[0] for r in res]
 
 
-class PublishingsManager(InheritanceManagerMixin, PassThroughManager):
+class PublishingsManager(models.Manager):
 
     def active(self, listing=None):
         qs = self.get_queryset().filter(status=self.model.ACTIVE_PUBLISHING)

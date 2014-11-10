@@ -5,7 +5,6 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-from bazaar.goods.managers import ProductsManager
 from bazaar.goods.querysets import ProductsQuerySet
 
 from ..fields import MoneyField
@@ -30,7 +29,7 @@ class Product(models.Model):
     price_lists = models.ManyToManyField("PriceList", through="ProductPrice",
                                          related_name="products")
 
-    objects = ProductsManager.for_queryset_class(ProductsQuerySet)()
+    objects = ProductsQuerySet.as_manager()
 
     @property
     def cost(self):

@@ -144,7 +144,7 @@ class Publishing(models.Model):
     listing = models.ForeignKey(Listing, related_name="publishings", null=True, blank=False)
     store = models.ForeignKey(Store, related_name="publishings")
 
-    objects = PublishingsManager.for_queryset_class(PublishingsQuerySet)()
+    objects = PublishingsManager.from_queryset(PublishingsQuerySet)()
 
     def get_template_name(self):
         return NotImplementedError("We doesn't provide a default publishing template.")
