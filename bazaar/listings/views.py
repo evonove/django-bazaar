@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.http import HttpResponseNotFound
 from django.utils import timezone
 from django.views import generic
+from rest_framework import permissions
 
 from braces.views import LoginRequiredMixin
 from rest_framework import mixins
@@ -184,6 +185,7 @@ class ListingViewSet(mixins.ListModelMixin, GenericViewSet):
     model = Listing
     serializer_class = ListingSerializer
     paginate_by = 10
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         queryset = self.model.objects.all()

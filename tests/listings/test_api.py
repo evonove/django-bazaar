@@ -8,6 +8,10 @@ from ..factories import ProductFactory, UserFactory
 
 
 class TestListingApi(APITestCase):
+    def setUp(self):
+        self.user = UserFactory(username='mario', email='email@email.com')
+        self.user.set_password('123456')
+        self.user.save()
 
     def test_that_listings_api_search_works_on_listing_title(self):
         """
@@ -17,7 +21,8 @@ class TestListingApi(APITestCase):
         old_setting_value = bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION
         bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = True
 
-        #self.client.login(username=self.user.username, password='123456')
+        authenticated = self.client.login(username=self.user.username, password='123456')
+        self.assertTrue(authenticated)
         ProductFactory(name='test name')
         ProductFactory(name='another name')
         ProductFactory(name='TeSt')
@@ -36,6 +41,8 @@ class TestListingApi(APITestCase):
         old_setting_value = bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION
         bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = True
 
+        authenticated = self.client.login(username=self.user.username, password='123456')
+        self.assertTrue(authenticated)
         ProductFactory(name='tast name')
         ProductFactory(name='another name')
         ProductFactory(name='TaSt')
@@ -54,6 +61,8 @@ class TestListingApi(APITestCase):
         old_setting_value = bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION
         bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = True
 
+        authenticated = self.client.login(username=self.user.username, password='123456')
+        self.assertTrue(authenticated)
         self.assertEqual(Listing.objects.count(), 0)
         ProductFactory(name='test name')
         listing = Listing.objects.all()[0]
@@ -73,6 +82,8 @@ class TestListingApi(APITestCase):
         old_setting_value = bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION
         bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = True
 
+        authenticated = self.client.login(username=self.user.username, password='123456')
+        self.assertTrue(authenticated)
         self.assertEqual(Listing.objects.count(), 0)
         ProductFactory(name='test name')
         ProductFactory(name='test name')
