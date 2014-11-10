@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from bazaar.goods.api import listing_bulk_creation, get_listing_by_id, get_oneper_listing_by_product
+from bazaar.goods.api import listing_bulk_creation, get_oneper_listing_by_product
 from bazaar.goods.models import Product
 from bazaar.listings.models import Listing
 from bazaar.settings import bazaar_settings
@@ -78,14 +78,6 @@ class TestApi(BaseTestCase):
         self.assertEqual(Listing.objects.all().count(), 3)
 
         bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = old_setting_value
-
-    def test_that_get_listing_by_id_works(self):
-        listing = ListingFactory()
-        self.assertEqual(listing, get_listing_by_id(listing.id))
-
-    def test_that_get_listing_by_id_returns_none(self):
-        self.assertEqual(Listing.objects.count(), 0)
-        self.assertIsNone(get_listing_by_id('1'))
 
     def test_that_get_oneper_listing_by_product_works(self):
         # turn on automatic listing creation on product creation

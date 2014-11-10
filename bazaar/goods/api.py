@@ -18,15 +18,6 @@ def listing_bulk_creation(products):
         ListingSet.objects.create(listing=one_item_listing, product=product, quantity=1)
 
 
-def get_listing_by_id(id):
-    try:
-        listing = Listing.objects.get(pk=id)
-    except Exception:
-        listing = None
-
-    return listing
-
-
 def get_oneper_listing_by_product(product):
     try:
         one_item_listing = product.listings.annotate(Count('listing_sets')).filter(

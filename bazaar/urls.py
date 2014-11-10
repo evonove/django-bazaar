@@ -1,7 +1,11 @@
 from django.conf.urls import patterns, url, include
+from rest_framework.routers import DefaultRouter
+from bazaar.listings.views import ListingViewSet
 
 from .views import HomeView, MessagesView
 
+router = DefaultRouter()
+router.register(r'api/listings', ListingViewSet)
 
 bazaar_patterns = patterns(
     '',
@@ -22,4 +26,5 @@ bazaar_patterns = patterns(
 urlpatterns = patterns(
     '',
     url(r'', include(bazaar_patterns, namespace="bazaar", app_name="bazaar")),
+    url(r'', include(router.urls)),
 )

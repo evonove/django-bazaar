@@ -2,11 +2,15 @@ from __future__ import unicode_literals
 
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
+from django.db.models import Q
 from django.http import HttpResponseNotFound
 from django.utils import timezone
 from django.views import generic
 
 from braces.views import LoginRequiredMixin
+from rest_framework import mixins
+from rest_framework.viewsets import GenericViewSet
+from bazaar.listings.seralizers import ListingSerializer
 
 from bazaar.settings import bazaar_settings
 from .forms import ListingForm, PublishingForm
@@ -174,3 +178,16 @@ class PublishingUpdateView(SuccessMessageMixin, LoginRequiredMixin, PublishingTa
 
     def get_success_url(self):
         return reverse_lazy("bazaar:publishings-update", kwargs={'pk': self.object.id})
+
+
+class ListingViewSet(mixins.ListModelMixin, GenericViewSet):
+    model = Listing
+    serializer_class = ListingSerializer
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = self.model.objects.all()
+        search = self.request.QUERY_PARAMS.get('search', None)
+        if search is not None:
+            queryset = queryset.filter(Q(title__icontains=search) | Q(products__name__icontains=search))
+        return queryset
