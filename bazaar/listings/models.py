@@ -88,7 +88,7 @@ class Listing(models.Model):
         return False
 
     def __str__(self):
-        return self.title
+        return ' '.join(filter(None, (self.title, '({})'.format(self.sku))))
 
 
 @receiver(post_save, sender=Product)

@@ -95,11 +95,13 @@ class FormModelHelperMixin(FormHelperMixin):
         name_delete_url: url name to back delete object.
         readonly_fields: set some model fields as read_only.
         extended_fields: set model fields layout in two tabs. Extended_fields will go in the second tab.
+        readonly_fields_if_not_empty: set some model fields as read_only only after are set, as listing in publishing
         """
         name_list_url = None
         name_delete_url = None
         readonly_fields = []
         extended_fields = []
+        readonly_fields_if_not_empty = []
 
 
 class FormHelperMixinNoTag(FormHelperMixin):
