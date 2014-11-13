@@ -27,7 +27,7 @@ class TestListingApi(APITestCase):
         ProductFactory(name='another name')
         ProductFactory(name='TeSt')
 
-        response = self.client.get(reverse('listing-list'), {'search': 'test'})
+        response = self.client.get(reverse('bazaar:listing-list'), {'search': 'test'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['count'], 2)
 
@@ -47,7 +47,7 @@ class TestListingApi(APITestCase):
         ProductFactory(name='another name')
         ProductFactory(name='TaSt')
 
-        response = self.client.get(reverse('listing-list'), {'search': 'test'})
+        response = self.client.get(reverse('bazaar:listing-list'), {'search': 'test'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['count'], 0)
 
@@ -68,7 +68,7 @@ class TestListingApi(APITestCase):
         listing = Listing.objects.all()[0]
         listing.title = 'toast name'
 
-        response = self.client.get(reverse('listing-list'), {'search': 'test'})
+        response = self.client.get(reverse('bazaar:listing-list'), {'search': 'test'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['count'], 1)
 
@@ -89,7 +89,7 @@ class TestListingApi(APITestCase):
         ProductFactory(name='test name')
         ProductFactory(name='test name')
 
-        response = self.client.get(reverse('listing-list'), {'search': 'tast'})
+        response = self.client.get(reverse('bazaar:listing-list'), {'search': 'tast'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['count'], 0)
 

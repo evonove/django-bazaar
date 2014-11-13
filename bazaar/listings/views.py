@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
-from django.db.models import Q
 from django.http import HttpResponseNotFound
 from django.utils import timezone
 from django.views import generic
@@ -10,6 +9,7 @@ from rest_framework import permissions
 
 from braces.views import LoginRequiredMixin
 from rest_framework import mixins
+from rest_framework.filters import SearchFilter
 from rest_framework.viewsets import GenericViewSet
 from bazaar.listings.seralizers import ListingSerializer
 
@@ -186,10 +186,5 @@ class ListingViewSet(mixins.ListModelMixin, GenericViewSet):
     serializer_class = ListingSerializer
     paginate_by = 10
     permission_classes = (permissions.IsAuthenticated,)
-
-    def get_queryset(self):
-        queryset = self.model.objects.all()
-        search = self.request.QUERY_PARAMS.get('search', None)
-        if search is not None:
-            queryset = queryset.filter(Q(title__icontains=search) | Q(products__name__icontains=search))
-        return queryset
+    filter_backends = (SearchFilter,)
+    search_fields = ('title', 'products__name')
