@@ -10,7 +10,7 @@
                     <div class="row">
 
                         {% block listing-header-elements %}
-                            <div class="col-md-1">
+                            <div class="col-md-1 no-wrap">
                                 {% if listing.picture_url %}
                                     {% block listing-header-picture %}
                                         <img src="" data-echo="{{ listing.picture_url }}" class="img-thumbnail img-responsive">
@@ -60,7 +60,7 @@
                                         {% for publishing in listing.publishings.main_publishings %}
                                             <tr>
                                                 <td>{{ publishing.store }}</td>
-                                                <td>{{ publishing.price }}</td>
+                                                <td class="no-wrap">{{ publishing.price }}</td>
                                                 <td>{{ publishing.available_units }}</td>
                                             </tr>
                                         {% endfor %}
@@ -101,10 +101,10 @@
                 <div id="listing{{ listing.id }}" class="col-md-12 listing-detail">
                     <div class="row">
                         {% block listing-detail-elements %}
+                            {% trans "Products:" %}
                             <div class="col-md-12">
                                 {% block listing-detail-products %}
-                                    {% trans "Products:" %}
-                                    <div class="col-md-10">
+                                    <div class="col-md-11">
                                         <input type="hidden" value="{{ ls.listing.id }}" name="listing_id">
 
                                         <table class="table table-condensed small">
@@ -114,7 +114,7 @@
                                         {% endfor %}
                                         </table>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-md-1">
                                         <button type="submit" name="shelve-btn" class="btn btn-sm btn-default">{% trans "Shelve" %}</button>
                                     </div>
                                 {% endblock listing-detail-products %}
