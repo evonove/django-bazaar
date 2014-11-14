@@ -1,14 +1,14 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
-from django.forms import IntegerField, CharField
+from django.forms import IntegerField, CharField, Textarea
 from ..helpers import FormHelperMixin
 from .models import Publishing
 
 
 class ListingForm(FormHelperMixin, forms.Form):
     title = CharField()
-    description = CharField(required=False)
+    description = CharField(required=False, widget=Textarea)
     picture_url = CharField(required=False)
     product = CharField()
     quantity = IntegerField()

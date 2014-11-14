@@ -106,18 +106,22 @@
         {% endif %}
         </div>
     </div>
-    {% if listing.description %}
-    <div class="row">
-        <div class="col-md-10 bio">
-            <h4>{%  trans "description"|title %}:</h4>
-            {% if listing.description|length > 30 %}
-                {% autoescape off %}{{ listing.description }}{% endautoescape %}
-            {% else %}
-                <p>{{ listing.description }}</p>
-            {% endif %}
+    {% block description %}
+        {% if listing.description %}
+        <div class="row">
+            <div class="col-md-12 bio">
+                <h4>{%  trans "description"|title %}:</h4>
+                {% if listing.description|length > 30 %}
+                    {% autoescape off %}{{ listing.description }}{% endautoescape %}
+                {% else %}
+                    <p>{{ listing.description }}</p>
+                {% endif %}
+            </div>
         </div>
-    </div>
-    {% endif %}
+        {% else %}
+            {% trans "No available description" %}
+        {% endif %}
+    {% endblock %}
 
     {% if not listing.publishings.all %}
     <!-- modalDelete -->

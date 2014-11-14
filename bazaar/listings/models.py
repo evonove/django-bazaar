@@ -22,7 +22,7 @@ from .managers import ListingManager
 @python_2_unicode_compatible
 class Listing(models.Model):
     title = models.CharField(max_length=100)
-    description = models.TextField(max_length=500, blank=True)
+    description = models.TextField(blank=True)
 
     picture_url = models.URLField(blank=True)
     products = models.ManyToManyField(Product, related_name="listings", through="ListingSet")

@@ -141,15 +141,20 @@
     {% endblock %}
 
     {% block description %}
+        {% if product.description %}
         <div class="row">
-             <div class="col-md-12">
-                {% if product.description %}
-                    {{ product.description }}
+            <div class="col-md-12 bio">
+                <h4>{%  trans "description"|title %}:</h4>
+                {% if product.description|length > 30 %}
+                    {% autoescape off %}{{ product.description }}{% endautoescape %}
                 {% else %}
-                    {% trans "No available description" %}
+                    <p>{{ product.description }}</p>
                 {% endif %}
             </div>
         </div>
+        {% else %}
+            {% trans "No available description" %}
+        {% endif %}
     {% endblock %}
 
     <!-- modalDelete -->
