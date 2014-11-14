@@ -3,13 +3,16 @@ from __future__ import unicode_literals
 
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
+from django.db.models import Count
 from django.test import TestCase
 from bazaar.goods.models import Product
 from django.utils.translation import ugettext as _
+from bazaar.listings.models import Listing, ListingSet
 
 from bazaar.warehouse import api
 from rest_framework import status
 from tests import factories as f
+from tests.factories import PublishingFactory
 
 
 class TestBase(TestCase):
@@ -25,7 +28,6 @@ class TestBase(TestCase):
 
 
 class TestProductListView(TestBase):
-
     def test_list_view(self):
         """
         Test that list view works fine
@@ -144,7 +146,6 @@ class TestProductListView(TestBase):
 
 
 class TestProductUpdateView(TestBase):
-
     def test_update_view_not_working_without_login(self):
         """
         Test that the update view redirects to the login page if the user is not logged
@@ -191,7 +192,6 @@ class TestProductUpdateView(TestBase):
 
 
 class TestProductCreateView(TestBase):
-
     def test_create_view(self):
         """
         Test that the create view works fine
@@ -243,7 +243,6 @@ class TestProductCreateView(TestBase):
 
 
 class TestProductDetailView(TestBase):
-
     def test_detail_view_not_working_without_login(self):
         """
         Test that the detail view redirects to the login page if the user is not logged
@@ -271,7 +270,7 @@ class TestProductDetailView(TestBase):
         response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(('<img src="%s" class="img-thumbnail" width="100'
-                      % self.product.photo.url).encode(encoding='UTF-8'), response.content)
+                       % self.product.photo.url).encode(encoding='UTF-8'), response.content)
 
     def test_detail_view_img_not_being_shown(self):
         self.client.login(username=self.user.username, password='test')
@@ -285,9 +284,71 @@ class TestProductDetailView(TestBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('<th>Code</th>'.encode(encoding='UTF-8'), response.content)
 
+    def test_delete_button_disabled_if_there_is_a_publishing(self):
+        one_item_listing = Listing.objects.create(title=self.product.name, description=self.product.description)
+        ListingSet.objects.create(listing=one_item_listing, product=self.product, quantity=1)
+        PublishingFactory(listing=one_item_listing)
+
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertIn(
+            "Can't delete a product that was published at least once".encode(encoding='UTF-8'),
+            response.content)
+
+    def test_delete_button_enabled_if_no_publishing(self):
+        one_item_listing = Listing.objects.create(title=self.product.name, description=self.product.description)
+        ListingSet.objects.create(listing=one_item_listing, product=self.product, quantity=1)
+
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertNotIn(
+            "Can't delete a product that was published at least once".encode(encoding='UTF-8'),
+            response.content
+        )
+
+    def test_delete_button_enabled_if_product_has_no_listings(self):
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertNotIn(
+            "Can't delete a product that was published at least once".encode(encoding='UTF-8'),
+            response.content
+        )
+
+    def test_delete_button_disabled_if_there_is_at_least_one_published_listing(self):
+        product2 = Product.objects.create(name="another product", description="another description")
+        one_item_listing = Listing.objects.create(title=self.product.name, description=self.product.description)
+        two_item_listing = Listing.objects.create(title="2x1", description="buy 2 for 1")
+        ListingSet.objects.create(listing=one_item_listing, product=self.product, quantity=1)
+        ListingSet.objects.create(listing=two_item_listing, product=self.product, quantity=1)
+        ListingSet.objects.create(listing=two_item_listing, product=product2, quantity=4)
+
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertNotIn(
+            "Can't delete a product that was published at least once".encode(encoding='UTF-8'),
+            response.content
+        )
+
+        PublishingFactory(listing=two_item_listing)
+
+        response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertIn(
+            "Can't delete a product that was published at least once".encode(encoding='UTF-8'),
+            response.content
+        )
+
 
 class TestDeleteView(TestBase):
-
     def test_delete_view_not_working_without_login(self):
         """
         Test that the delete view redirects to the login page if the user is not logged
@@ -305,3 +366,70 @@ class TestDeleteView(TestBase):
         self.client.post(reverse('bazaar:product-delete', args=(self.product.pk, )))
         response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_view_deletes_associated_listings(self):
+        """
+        Test that associated listings are deleted too when using the delete view
+        """
+        one_item_listing = Listing.objects.create(title=self.product.name, description=self.product.description)
+        ListingSet.objects.create(listing=one_item_listing, product=self.product, quantity=1)
+
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        product_listings_id = list(self.product.listings.values_list('id', flat=True))
+
+        # Check Product.DoesNotExist not thrown
+        Product.objects.get(id=self.product.id)
+
+        self.client.post(reverse('bazaar:product-delete', args=(self.product.pk, )))
+
+        # Check product has been deleted
+        self.assertRaises(Product.DoesNotExist, Product.objects.get, **{'id': self.product.id})
+
+        # Check that all associated listings have been deleted
+        self.assertEqual(len(Listing.objects.filter(id__in=product_listings_id)), 0)
+
+        self.assertEqual(len(Listing.objects.annotate(Count('products')).filter(products__count=0)), 0,
+                         'There is at least one unassigned listing')
+
+        self.assertEqual(len(Listing.objects.all()), 0,
+                         'Not all listings have been deleted')
+
+    def test_delete_view_deletes_only_associated_listings(self):
+        """
+        Test that other listings are not affected
+        """
+        product2 = Product.objects.create(name="product 2", description="product 2")
+        product2_listing = Listing.objects.create(title=product2.name, description=product2.description)
+        ListingSet.objects.create(listing=product2_listing, product=product2, quantity=1)
+
+        one_item_listing = Listing.objects.create(title=self.product.name, description=self.product.description)
+        ListingSet.objects.create(listing=one_item_listing, product=self.product, quantity=1)
+
+        product_listings_id = list(self.product.listings.values_list('id', flat=True))
+        product2_listings_id = list(product2.listings.values_list('id', flat=True))
+
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Check Product.DoesNotExist not thrown
+        Product.objects.get(id=self.product.id)
+
+        self.client.post(reverse('bazaar:product-delete', args=(self.product.pk, )))
+
+        # Check product has been deleted
+        self.assertRaises(Product.DoesNotExist, Product.objects.get, **{'id': self.product.id})
+
+        # Check that all associated listings have been deleted
+        self.assertEqual(len(Listing.objects.filter(id__in=product_listings_id)), 0)
+
+        # Check that other listings are not affected
+        self.assertNotEqual(len(product2.listings.all()), 0)
+        self.assertEqual(len(Listing.objects.filter(id__in=product2_listings_id)),
+                         len(product2_listings_id))
+
+        self.assertEqual(len(Listing.objects.annotate(Count('products')).filter(products__count=0)), 0,
+                         'There is at least one unassigned listing')

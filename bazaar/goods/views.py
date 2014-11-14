@@ -6,6 +6,7 @@ from django.utils.datastructures import SortedDict
 from django.views import generic
 
 from braces.views import LoginRequiredMixin
+from bazaar.listings.models import Publishing
 from .filters import ProductFilter
 from .forms import ProductForm
 from .models import Product
@@ -47,6 +48,18 @@ class ProductDetailView(LoginRequiredMixin, BazaarPrefixMixin, generic.DetailVie
     model = Product
     fields = ['photo', 'name', 'description', 'ean', 'quantity', 'price', 'cost']
 
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(ProductDetailView, self).get_context_data(**kwargs)
+
+        # Check if this product was ever published
+        product = context['product']
+        listings_id = product.listings.values_list('id', flat=True)
+        publishings = Publishing.objects.filter(listing__in=listings_id)
+        context['deletable'] = len(publishings) == 0
+
+        return context
+
 
 class ProductCreateView(LoginRequiredMixin, BazaarPrefixMixin, generic.CreateView):
     model = Product
@@ -61,6 +74,12 @@ class ProductCreateView(LoginRequiredMixin, BazaarPrefixMixin, generic.CreateVie
 class ProductDeleteView(LoginRequiredMixin, BazaarPrefixMixin, generic.DeleteView):
     model = Product
     success_url = reverse_lazy('bazaar:product-list')
+
+    def delete(self, request, *args, **kwargs):
+        # delete all associated listings
+        self.get_object().listings.all().delete()
+
+        return super(ProductDeleteView, self).delete(request, *args, **kwargs)
 
 
 class ProductUpdateView(LoginRequiredMixin, BazaarPrefixMixin, generic.UpdateView):

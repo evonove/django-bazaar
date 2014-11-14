@@ -1,7 +1,9 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
+from django.utils import timezone
 
 from django.utils.text import slugify
+from bazaar.listings.models import Publishing
 
 from bazaar.warehouse.models import Location
 
@@ -97,3 +99,16 @@ class ListingSetFactory(factory.django.DjangoModelFactory):
     listing = factory.SubFactory(ListingFactory)
 
     quantity = 1
+
+
+class StoreFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = 'listings.store'
+
+
+class PublishingFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = 'listings.Publishing'
+
+    status = Publishing.ACTIVE_PUBLISHING
+    store = factory.SubFactory(StoreFactory)
