@@ -82,7 +82,7 @@ class ProductDeleteView(LoginRequiredMixin, BazaarPrefixMixin, generic.DeleteVie
             return HttpResponseForbidden()
 
         # delete all associated listings
-        self.get_object().listings.all().delete()
+        product.listings.all().delete()
 
         return super(ProductDeleteView, self).delete(request, *args, **kwargs)
 
