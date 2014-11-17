@@ -12,7 +12,7 @@ from bazaar.listings.models import Listing, ListingSet
 from bazaar.warehouse import api
 from rest_framework import status
 from tests import factories as f
-from tests.factories import PublishingFactory
+from tests.factories import PublishingFactory, ListingFactory, ProductFactory, ListingSetFactory
 
 
 class TestBase(TestCase):
@@ -367,12 +367,42 @@ class TestDeleteView(TestBase):
         response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_delete_view_deletes_associated_listings(self):
+    def test_delete_view_can_only_be_called_if_product_is_deletable(self):
+        """
+        Test that the product has associated publishings
+        """
+        one_item_listing = ListingFactory(title=self.product.name, description=self.product.description)
+        ListingSetFactory(listing=one_item_listing, product=self.product, quantity=1)
+        publishing = PublishingFactory(listing=one_item_listing)
+
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get(reverse('bazaar:product-delete', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        publishing.delete()
+
+        response = self.client.get(reverse('bazaar:product-delete', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_view_deletes_also_listing_in_common_with_other_products(self):
         """
         Test that associated listings are deleted too when using the delete view
         """
-        one_item_listing = Listing.objects.create(title=self.product.name, description=self.product.description)
-        ListingSet.objects.create(listing=one_item_listing, product=self.product, quantity=1)
+        one_item_listing = ListingFactory(title=self.product.name, description=self.product.description)
+        ListingSetFactory(listing=one_item_listing, product=self.product, quantity=1)
+
+        product2 = ProductFactory(name="product 2", price=3, description="another product")
+        listing_for_product2 = ListingFactory(title=product2.name, description=product2.description)
+        ListingSetFactory(listing=listing_for_product2, product=product2, quantity=1)
+
+        product3 = ProductFactory(name="product 3", description="yet another product")
+        listing_for_product3 = ListingFactory(title=product3.name, description=product3.description)
+        ListingSetFactory(listing=listing_for_product3, product=product3, quantity=1)
+
+        multiple_item_listing = ListingFactory(title="product1 + product2 + product3", description="products bundle")
+        ListingSetFactory(listing=multiple_item_listing, product=self.product)
+        ListingSetFactory(listing=multiple_item_listing, product=product2)
+        ListingSetFactory(listing=multiple_item_listing, product=product3)
 
         self.client.login(username=self.user.username, password='test')
         response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
@@ -394,19 +424,23 @@ class TestDeleteView(TestBase):
         self.assertEqual(len(Listing.objects.annotate(Count('products')).filter(products__count=0)), 0,
                          'There is at least one unassigned listing')
 
-        self.assertEqual(len(Listing.objects.all()), 0,
-                         'Not all listings have been deleted')
+        # Check that common listing has been deleted
+        self.assertRaises(Listing.DoesNotExist, Listing.objects.get, **{'pk': multiple_item_listing.pk})
 
-    def test_delete_view_deletes_only_associated_listings(self):
+        # Check that product2 and product3 listings have not been deleted
+        Listing.objects.get(pk=listing_for_product2.pk)
+        Listing.objects.get(pk=listing_for_product3.pk)
+
+    def test_delete_view_deletes_only_listings_associated_to_the_product(self):
         """
         Test that other listings are not affected
         """
-        product2 = Product.objects.create(name="product 2", description="product 2")
-        product2_listing = Listing.objects.create(title=product2.name, description=product2.description)
-        ListingSet.objects.create(listing=product2_listing, product=product2, quantity=1)
+        product2 = ProductFactory(name="product 2", description="product 2")
+        product2_listing = ListingFactory(title=product2.name, description=product2.description)
+        ListingSetFactory(listing=product2_listing, product=product2, quantity=1)
 
-        one_item_listing = Listing.objects.create(title=self.product.name, description=self.product.description)
-        ListingSet.objects.create(listing=one_item_listing, product=self.product, quantity=1)
+        one_item_listing = ListingFactory(title=self.product.name, description=self.product.description)
+        ListingSetFactory(listing=one_item_listing, product=self.product, quantity=1)
 
         product_listings_id = list(self.product.listings.values_list('id', flat=True))
         product2_listings_id = list(product2.listings.values_list('id', flat=True))

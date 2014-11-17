@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from django.core.urlresolvers import reverse_lazy
+from django.http.response import HttpResponseForbidden
 from django.utils.datastructures import SortedDict
 from django.views import generic
 
@@ -73,6 +74,14 @@ class ProductCreateView(LoginRequiredMixin, BazaarPrefixMixin, generic.CreateVie
 class ProductDeleteView(LoginRequiredMixin, BazaarPrefixMixin, generic.DeleteView):
     model = Product
     success_url = reverse_lazy('bazaar:product-list')
+
+    def dispatch(self, request, *args, **kwargs):
+        # product can be deleted only if it has publishing
+        product = self.get_object()
+        has_publishings = Publishing.objects.filter(listing__products=product).exists()
+        if has_publishings:
+            return HttpResponseForbidden()
+        return super(ProductDeleteView, self).dispatch(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         # delete all associated listings
