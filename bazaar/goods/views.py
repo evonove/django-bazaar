@@ -53,10 +53,9 @@ class ProductDetailView(LoginRequiredMixin, BazaarPrefixMixin, generic.DetailVie
         context = super(ProductDetailView, self).get_context_data(**kwargs)
 
         # Check if this product was ever published
-        product = context['product']
-        listings_id = product.listings.values_list('id', flat=True)
-        publishings = Publishing.objects.filter(listing__in=listings_id)
-        context['deletable'] = len(publishings) == 0
+        product = self.get_object()
+        has_publishings = Publishing.objects.filter(listing__products=product).exists()
+        context['deletable'] = not has_publishings
 
         return context
 
