@@ -75,15 +75,12 @@ class ProductDeleteView(LoginRequiredMixin, BazaarPrefixMixin, generic.DeleteVie
     model = Product
     success_url = reverse_lazy('bazaar:product-list')
 
-    def dispatch(self, request, *args, **kwargs):
-        # product can be deleted only if it has publishing
+    def delete(self, request, *args, **kwargs):
         product = self.get_object()
         has_publishings = Publishing.objects.filter(listing__products=product).exists()
         if has_publishings:
             return HttpResponseForbidden()
-        return super(ProductDeleteView, self).dispatch(request, *args, **kwargs)
 
-    def delete(self, request, *args, **kwargs):
         # delete all associated listings
         self.get_object().listings.all().delete()
 

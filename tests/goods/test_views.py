@@ -376,13 +376,13 @@ class TestDeleteView(TestBase):
         publishing = PublishingFactory(listing=one_item_listing)
 
         self.client.login(username=self.user.username, password='test')
-        response = self.client.get(reverse('bazaar:product-delete', kwargs={'pk': self.product.pk}))
+        response = self.client.post(reverse('bazaar:product-delete', kwargs={'pk': self.product.pk}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         publishing.delete()
 
-        response = self.client.get(reverse('bazaar:product-delete', kwargs={'pk': self.product.pk}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.post(reverse('bazaar:product-delete', kwargs={'pk': self.product.pk}))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_delete_view_deletes_also_listing_in_common_with_other_products(self):
         """
