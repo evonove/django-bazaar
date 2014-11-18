@@ -90,6 +90,25 @@ class ListingFactory(factory.django.DjangoModelFactory):
 
     title = 'Listing test'
 
+    @factory.post_generation
+    def product(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            quantity = kwargs.get("quantity", 1)
+            ListingSetFactory(product=extracted, listing=self, quantity=quantity)
+
+    @factory.post_generation
+    def products(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            quantity = kwargs.get("quantity", 1)
+            for product in extracted:
+                ListingSetFactory(product=product, listing=self, quantity=quantity)
+
 
 class ListingSetFactory(factory.django.DjangoModelFactory):
     class Meta:

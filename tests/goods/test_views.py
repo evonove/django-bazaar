@@ -3,16 +3,15 @@ from __future__ import unicode_literals
 
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from django.db.models import Count
 from django.test import TestCase
 from bazaar.goods.models import Product
 from django.utils.translation import ugettext as _
-from bazaar.listings.models import Listing, ListingSet
+from bazaar.listings.models import Listing
 
 from bazaar.warehouse import api
 from rest_framework import status
 from tests import factories as f
-from tests.factories import PublishingFactory, ListingFactory, ProductFactory, ListingSetFactory
+from tests.factories import PublishingFactory, ListingFactory, ProductFactory
 
 
 class TestBase(TestCase):
@@ -285,8 +284,7 @@ class TestProductDetailView(TestBase):
         self.assertIn('<th>Code</th>'.encode(encoding='UTF-8'), response.content)
 
     def test_delete_button_disabled_if_there_is_a_publishing(self):
-        one_item_listing = Listing.objects.create(title=self.product.name, description=self.product.description)
-        ListingSet.objects.create(listing=one_item_listing, product=self.product, quantity=1)
+        one_item_listing = ListingFactory(product=self.product)
         PublishingFactory(listing=one_item_listing)
 
         self.client.login(username=self.user.username, password='test')
@@ -298,8 +296,7 @@ class TestProductDetailView(TestBase):
             response.content)
 
     def test_delete_button_enabled_if_no_publishing(self):
-        one_item_listing = Listing.objects.create(title=self.product.name, description=self.product.description)
-        ListingSet.objects.create(listing=one_item_listing, product=self.product, quantity=1)
+        ListingFactory(product=self.product)
 
         self.client.login(username=self.user.username, password='test')
         response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
@@ -321,12 +318,9 @@ class TestProductDetailView(TestBase):
         )
 
     def test_delete_button_disabled_if_there_is_at_least_one_published_listing(self):
-        product2 = Product.objects.create(name="another product", description="another description")
-        one_item_listing = Listing.objects.create(title=self.product.name, description=self.product.description)
-        two_item_listing = Listing.objects.create(title="2x1", description="buy 2 for 1")
-        ListingSet.objects.create(listing=one_item_listing, product=self.product, quantity=1)
-        ListingSet.objects.create(listing=two_item_listing, product=self.product, quantity=1)
-        ListingSet.objects.create(listing=two_item_listing, product=product2, quantity=4)
+        product2 = ProductFactory()
+        ListingFactory(product=self.product)
+        two_item_listing = ListingFactory(products=[self.product, product2])
 
         self.client.login(username=self.user.username, password='test')
         response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
@@ -368,11 +362,7 @@ class TestDeleteView(TestBase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_view_can_only_be_called_if_product_is_deletable(self):
-        """
-        Test that the product has associated publishings
-        """
-        one_item_listing = ListingFactory(title=self.product.name, description=self.product.description)
-        ListingSetFactory(listing=one_item_listing, product=self.product, quantity=1)
+        one_item_listing = ListingFactory(product=self.product)
         publishing = PublishingFactory(listing=one_item_listing)
 
         self.client.login(username=self.user.username, password='test')
@@ -388,82 +378,47 @@ class TestDeleteView(TestBase):
         """
         Test that associated listings are deleted too when using the delete view
         """
-        one_item_listing = ListingFactory(title=self.product.name, description=self.product.description)
-        ListingSetFactory(listing=one_item_listing, product=self.product, quantity=1)
+        product2 = ProductFactory()
+        product3 = ProductFactory()
 
-        product2 = ProductFactory(name="product 2", price=3, description="another product")
-        listing_for_product2 = ListingFactory(title=product2.name, description=product2.description)
-        ListingSetFactory(listing=listing_for_product2, product=product2, quantity=1)
-
-        product3 = ProductFactory(name="product 3", description="yet another product")
-        listing_for_product3 = ListingFactory(title=product3.name, description=product3.description)
-        ListingSetFactory(listing=listing_for_product3, product=product3, quantity=1)
-
-        multiple_item_listing = ListingFactory(title="product1 + product2 + product3", description="products bundle")
-        ListingSetFactory(listing=multiple_item_listing, product=self.product)
-        ListingSetFactory(listing=multiple_item_listing, product=product2)
-        ListingSetFactory(listing=multiple_item_listing, product=product3)
+        one_item_listing = ListingFactory(product=self.product)
+        listing_for_product2 = ListingFactory(product=product2)
+        listing_for_product3 = ListingFactory(product=product3)
+        multiple_item_listing = ListingFactory(products=[self.product, product2, product3])
 
         self.client.login(username=self.user.username, password='test')
-        response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        product_listings_id = list(self.product.listings.values_list('id', flat=True))
-
-        # Check Product.DoesNotExist not thrown
-        Product.objects.get(id=self.product.id)
-
-        self.client.post(reverse('bazaar:product-delete', args=(self.product.pk, )))
+        response = self.client.post(reverse('bazaar:product-delete', args=(self.product.pk, )))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
         # Check product has been deleted
-        self.assertRaises(Product.DoesNotExist, Product.objects.get, **{'id': self.product.id})
+        self.assertFalse(Product.objects.filter(pk=self.product.pk).exists())
 
         # Check that all associated listings have been deleted
-        self.assertEqual(len(Listing.objects.filter(id__in=product_listings_id)), 0)
-
-        self.assertEqual(len(Listing.objects.annotate(Count('products')).filter(products__count=0)), 0,
-                         'There is at least one unassigned listing')
-
-        # Check that common listing has been deleted
-        self.assertRaises(Listing.DoesNotExist, Listing.objects.get, **{'pk': multiple_item_listing.pk})
+        self.assertFalse(Listing.objects.filter(pk=one_item_listing.pk).exists())
+        self.assertFalse(Listing.objects.filter(pk=multiple_item_listing.pk).exists())
 
         # Check that product2 and product3 listings have not been deleted
-        Listing.objects.get(pk=listing_for_product2.pk)
-        Listing.objects.get(pk=listing_for_product3.pk)
+        self.assertTrue(Listing.objects.filter(pk=listing_for_product2.pk).exists())
+        self.assertTrue(Listing.objects.filter(pk=listing_for_product3.pk).exists())
 
     def test_delete_view_deletes_only_listings_associated_to_the_product(self):
         """
         Test that other listings are not affected
         """
-        product2 = ProductFactory(name="product 2", description="product 2")
-        product2_listing = ListingFactory(title=product2.name, description=product2.description)
-        ListingSetFactory(listing=product2_listing, product=product2, quantity=1)
+        product2 = ProductFactory()
 
-        one_item_listing = ListingFactory(title=self.product.name, description=self.product.description)
-        ListingSetFactory(listing=one_item_listing, product=self.product, quantity=1)
-
-        product_listings_id = list(self.product.listings.values_list('id', flat=True))
-        product2_listings_id = list(product2.listings.values_list('id', flat=True))
+        one_item_listing = ListingFactory(product=self.product)
+        product2_listing = ListingFactory(product=product2)
 
         self.client.login(username=self.user.username, password='test')
-        response = self.client.get(reverse('bazaar:product-detail', kwargs={'pk': self.product.pk}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        # Check Product.DoesNotExist not thrown
-        Product.objects.get(id=self.product.id)
-
-        self.client.post(reverse('bazaar:product-delete', args=(self.product.pk, )))
+        response = self.client.post(reverse('bazaar:product-delete', args=(self.product.pk, )))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
         # Check product has been deleted
-        self.assertRaises(Product.DoesNotExist, Product.objects.get, **{'id': self.product.id})
+        self.assertFalse(Product.objects.filter(pk=self.product.pk).exists())
 
         # Check that all associated listings have been deleted
-        self.assertEqual(len(Listing.objects.filter(id__in=product_listings_id)), 0)
+        self.assertFalse(Listing.objects.filter(pk=one_item_listing.pk).exists())
 
         # Check that other listings are not affected
-        self.assertNotEqual(len(product2.listings.all()), 0)
-        self.assertEqual(len(Listing.objects.filter(id__in=product2_listings_id)),
-                         len(product2_listings_id))
-
-        self.assertEqual(len(Listing.objects.annotate(Count('products')).filter(products__count=0)), 0,
-                         'There is at least one unassigned listing')
+        self.assertTrue(Listing.objects.filter(pk=product2_listing.pk).exists())
