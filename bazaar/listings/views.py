@@ -2,8 +2,12 @@ from __future__ import unicode_literals
 
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
+from django.db.models.query_utils import Q
+from django.forms.util import ErrorList
+from django.forms import forms
 from django.http import HttpResponseNotFound
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 from django.views import generic
 from rest_framework import permissions
 
@@ -11,9 +15,10 @@ from braces.views import LoginRequiredMixin
 from rest_framework import mixins
 from rest_framework.filters import SearchFilter
 from rest_framework.viewsets import GenericViewSet
-from bazaar.listings.seralizers import ListingSerializer
 
-from bazaar.settings import bazaar_settings
+from ..listings.models import Order
+from ..listings.seralizers import ListingSerializer
+from ..settings import bazaar_settings
 from .forms import ListingForm, PublishingForm
 from .models import Listing, ListingSet, Publishing
 from ..goods.models import Product
@@ -81,6 +86,20 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
         get_result = super(ListingUpdateView, self).get(request, *args, **kwargs)
         return self.error_response or get_result
 
+    def post(self, request, *args, **kwargs):
+        """
+        Handles POST requests, instantiating a form instance with the passed
+        POST variables and then checked for validity.
+
+        """
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
     def get_initial(self):
         # Populate ticks in BooleanFields
         initial = {}
@@ -101,10 +120,15 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
         return reverse_lazy("bazaar:listings-detail", kwargs={'pk': self.object.id})
 
     def form_valid(self, form):
-
+        """
+        Even if validity is checked, it's possible edit/update the listing only if There are associated or
+        all completed orders or none order
+        """
         try:
             product = Product.objects.get(id=form.cleaned_data.get("product").id)
         except Product.DoesNotExist:
+            errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
+            errors.append(_("Update is denied. Product does not exist."))
             return self.form_invalid(form)
 
         if self.listing_to_update:
@@ -115,6 +139,13 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
                 description=form.cleaned_data.get("description", None),
                 id=self.listing_to_update.id
             )
+            orders_exist = Order.objects.select_related('publishing').select_related('publishing__listing')\
+                .filter(publishing__listing__id=self.listing_to_update.id)\
+                .filter(~Q(status=Order.ORDER_COMPLETED)).exists()
+            if orders_exist:
+                errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
+                errors.append(_("Update is denied. There are status active orders bound this listing."))
+                return self.form_invalid(form)
         else:
             # Create listing
             listing = Listing.objects.create(
