@@ -125,10 +125,15 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
         all completed orders or none order
         """
         try:
-            product = Product.objects.get(id=form.cleaned_data.get("product").id)
+            product_id = form.cleaned_data.get("product")
+            product = Product.objects.get(id=int(product_id))
         except Product.DoesNotExist:
             errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
             errors.append(_("Update is denied. Product does not exist."))
+            return self.form_invalid(form)
+        except ValueError:
+            errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
+            errors.append(_("Update is denied. Product id is invalid."))
             return self.form_invalid(form)
 
         if self.listing_to_update:

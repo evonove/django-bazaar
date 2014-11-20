@@ -53,7 +53,7 @@ class DefaultStoreStrategy(object):
         raise NotImplementedError("You need to provide publishing-list template!")
 
     def get_store_extra(self, extra_name):
-        return self.extras[extra_name]
+        return self.extras[extra_name] if extra_name in self.extras else []
 
     def get_publishing_discounted_price(self, price):
         return price
