@@ -20,6 +20,8 @@ class TestBase(TestCase):
         self.user = get_user_model().objects.create_user(username='test', email='test@test.it', password='test')
         self.lost_and_found = f.LocationFactory(name='lost and found', slug='lost_and_found', type=4)
         self.storage = f.LocationFactory(name='storage', slug='storage', type=1)
+
+        # By default this operation will create a bound listing x1 of that product
         self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
 
         # Move products to the warehouse
@@ -44,22 +46,25 @@ class TestListingsListView(TestBase):
 
     def test_list_view_not_working_without_login(self):
         """
-        Test that trying to call the list view without beeing logged redirects to the login page
+        Test that trying to call the list view without being logged redirects to the login page
         """
-        response = self.client.get(reverse('bazaar:listing-list'))
+        response = self.client.get(reverse('bazaar:listings-list'))
         self.assertRedirects(response, '/accounts/login/?next=/listings/')
 
     def test_list_view_no_products(self):
         """
         Test that a void list view displays "no products"
         """
+        # Delete auto-generated listing by generating a product
+        Listing.objects.all().delete()
         self.client.login(username=self.user.username, password='test')
-        response = self.client.get(reverse('bazaar:listing-list'))
+        response = self.client.get(reverse('bazaar:listings-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         listings = response.context_data['listing_list']
+
         self.assertEqual(listings.count(), 0)
-        self.assertIn(_('No Listings found').encode(encoding='UTF-8'), response.content)
+        self.assertIn(_('There are 0 listings').encode(encoding='UTF-8'), response.content)
 
 
 class TestListingUpdateView(TestBase):
@@ -67,9 +72,11 @@ class TestListingUpdateView(TestBase):
         """
         Test that the update view redirects to the login page if the user is not logged
         """
-        response = self.client.get(reverse('bazaar:listing-update', kwargs={'pk': self.product.pk}))
-        self.assertRedirects(response, '/accounts/login/?next=%s' % reverse('bazaar:product-update',
-                                                                            kwargs={'pk': self.product.pk}))
+        response = self.client.get(reverse('bazaar:listings-update',
+                                           kwargs={'pk': self.product.listing_sets.all()[0].pk}))
+        self.assertRedirects(response,
+                             '/accounts/login/?next=%s' %
+                             reverse('bazaar:listings-update', kwargs={'pk': self.product.listing_sets.all()[0].pk}))
 
     def test_update_simple_list_view(self):
         """
@@ -86,9 +93,9 @@ class TestListingUpdateView(TestBase):
             'quantity': 2,
             'product': self.product.id,
         }
-        response = self.client.post(reverse('bazaar:listing-update', kwargs={'pk': self.product.pk}), data=data)
+        response = self.client.post(reverse('bazaar:listings-update', kwargs={'pk': self.product.pk}), data=data)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        listing = Listing.objects.get(products__id=self.product.pk)
+        listing = Listing.objects.get(products__id=self.product.pk, title='ModifiedTitle')
         self.assertEqual(listing.title, 'ModifiedTitle')
 
     def test_update_view_fails_with_incorrect_data(self):
@@ -103,13 +110,14 @@ class TestListingUpdateView(TestBase):
             'title': 'ModifiedTitle',
             'picture_url': 'http://myurl.com/myinage.jpg',
             'description': 'Description of ModifiedTitle',
-            'quantity': 'two',
+            'quantity': 'two'
         }
-        response = self.client.post(reverse('bazaar:listing-update', kwargs={'pk': self.product.pk}), data=data)
+        response = self.client.post(reverse('bazaar:listings-update',
+                                            kwargs={'pk': self.product.listing_sets.all()[0].pk}), data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertRaises(Listing.DoesNotExist, Listing.objects.get, **{'(products__id=self': self.product.pk})
-        Listing.objects.get(products__id=self.product.pk)
+        listing_exits = Listing.objects.filter(products__id=self.product.pk, title='ModifiedTitle').exists()
+        self.assertEqual(listing_exits, False)
 
 
 class TestListingCreateView(TestBase):
@@ -122,11 +130,12 @@ class TestListingCreateView(TestBase):
             'title': 'ModifiedTitle',
             'picture_url': 'http://myurl.com/myinage.jpg',
             'description': 'Description of ModifiedTitle',
-            'quantity': 2,
+            'quantity': '2',
             'product': self.product.id,
+            'save': u'Submit'
         }
-        response = self.client.post(reverse('bazaar:listing-create'), data=data)
-        listing = Listing.objects.get(products__id=self.product.pk)
+        response = self.client.post(reverse('bazaar:listings-create'), data=data)
+        listing = Listing.objects.get(products__id=self.product.pk, title='ModifiedTitle')
         self.assertRedirects(response, '/listings/%s/' % listing.pk)
 
     def test_create_view_not_working_without_login(self):
@@ -138,9 +147,9 @@ class TestListingCreateView(TestBase):
             'picture_url': 'http://myurl.com/myinage.jpg',
             'description': 'Description of ModifiedTitle',
             'quantity': 2,
-            'product': self.product.id,
+            'product': self.product.id
         }
-        response = self.client.post(reverse('bazaar:listing-create'), data=data)
+        response = self.client.post(reverse('bazaar:listings-create'), data=data)
         self.assertRedirects(response, '/accounts/login/?next=/listings/new/')
 
     def test_create_view_not_working_with_a_not_numeric_quantity(self):
@@ -153,11 +162,11 @@ class TestListingCreateView(TestBase):
             'picture_url': 'http://myurl.com/myinage.jpg',
             'description': 'Description of ModifiedTitle',
             'quantity': 'two',
-            'product': self.product.id,
+            'product': self.product.id
         }
-        response = self.client.post(reverse('bazaar:product-create'), data=data)
+        response = self.client.post(reverse('bazaar:listings-create'), data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(Listing.objects.get(products__id=self.product.pk).count(), 0)
+        self.assertEqual(Listing.objects.filter(products__id=self.product.pk, title='ModifiedTitle').count(), 0)
 
 
 class TestDeleteView(TestBase):
