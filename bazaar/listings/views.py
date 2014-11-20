@@ -6,6 +6,7 @@ from django.db.models.query_utils import Q
 from django.forms.util import ErrorList
 from django.forms import forms
 from django.http import HttpResponseNotFound
+from django.http.response import HttpResponseForbidden
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.views import generic
@@ -68,6 +69,15 @@ class ListingDetailView(LoginRequiredMixin, generic.DetailView):
 class ListingDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Listing
     success_url = reverse_lazy("bazaar:listings-list")
+
+    def delete(self, request, *args, **kwargs):
+
+        listing = self.get_object()
+        has_publishings = Publishing.objects.filter(listing=listing).exists()
+        if has_publishings:
+            return HttpResponseForbidden()
+
+        return super(ListingDeleteView, self).delete(request, *args, **kwargs)
 
 
 class ListingUpdateView(LoginRequiredMixin, generic.FormView):
@@ -147,12 +157,11 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
                 description=form.cleaned_data.get("description", None),
                 id=self.listing_to_update.id
             )
-            orders_exist = Order.objects.select_related('publishing').select_related('publishing__listing')\
-                .filter(publishing__listing__id=self.listing_to_update.id)\
-                .filter(~Q(status=Order.ORDER_COMPLETED)).exists()
-            if orders_exist:
+            publishings_exist = Publishing.objects.select_related('listing')\
+                .filter(listing__id=self.listing_to_update.id).exists()
+            if publishings_exist:
                 errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
-                errors.append(_("Update is denied. There are status active orders bound this listing."))
+                errors.append(_("Update is denied. There are status publishing bound this listing."))
                 return self.form_invalid(form)
         else:
             # Create listing
