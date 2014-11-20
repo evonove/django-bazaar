@@ -2,7 +2,6 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 from django.forms import IntegerField, CharField, Textarea
-from django.forms.widgets import TextInput
 from ..helpers import FormHelperMixin
 from .models import Publishing
 

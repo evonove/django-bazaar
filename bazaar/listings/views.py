@@ -119,14 +119,17 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
     def get_success_url(self):
         return reverse_lazy("bazaar:listings-detail", kwargs={'pk': self.object.id})
 
+    def _retrieve_product(self, form):
+        product_id = form.cleaned_data.get("product")
+        return Product.objects.get(id=int(product_id))
+
     def form_valid(self, form):
         """
         Even if validity is checked, it's possible edit/update the listing only if There are associated or
         all completed orders or none order
         """
         try:
-            product_id = form.cleaned_data.get("product")
-            product = Product.objects.get(id=int(product_id))
+            product = self._retrieve_product(form)
         except Product.DoesNotExist:
             errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
             errors.append(_("Update is denied. Product does not exist."))
