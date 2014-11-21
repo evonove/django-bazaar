@@ -3,16 +3,15 @@ from __future__ import unicode_literals
 
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from django.db.models import Count
+from django.forms import forms
 from django.test import TestCase
-from bazaar.goods.models import Product
-from django.utils.translation import ugettext as _
-from bazaar.listings.models import Listing, ListingSet
 
-from bazaar.warehouse import api
+from django.utils.translation import ugettext as _
+from bazaar.listings.models import Listing
+
 from rest_framework import status
 from tests import factories as f
-from tests.factories import PublishingFactory, ListingFactory, ProductFactory, ListingSetFactory
+from tests.factories import PublishingFactory, ListingFactory, ListingSetFactory
 
 
 class TestBase(TestCase):
@@ -117,6 +116,50 @@ class TestListingUpdateView(TestBase):
         listing_exits = Listing.objects.filter(products__id=self.product.pk, title='ModifiedTitle').exists()
         self.assertEqual(listing_exits, False)
 
+    def test_update_simple_view_fails_when_listingset_attrs_are_changed_in_a_listing_with_associated_publishing(self):
+        """
+        Test that the update view fails with incorrect input [quantity is not a number, product is None]
+        """
+        # By default this operation will create a bound listing x1 of that product
+        self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
+        self.listing = self.product.listing_sets.all()[0].listing
+        ListingSetFactory(listing=self.listing, product=self.product, quantity=2)
+
+        self.client.login(username=self.user.username, password='test')
+        data = {
+            'title': 'ModifiedTitle',
+            'picture_url': 'http://myurl.com/myinage.jpg',
+            'description': 'Description of ModifiedTitle',
+            'quantity': 1,
+            'product': self.product.id,
+        }
+        response = self.client.post(reverse('bazaar:listings-update',
+                                            kwargs={'pk': self.product.listing_sets.all()[0].pk}), data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('one listingset per listing', response.context_data['form'].errors[forms.NON_FIELD_ERRORS][0])
+
+    def test_update_simple_view_fails_when_there_are_mone_listingset_associated_to_listing(self):
+        """
+        Test that the update view fails with incorrect input [quantity is not a number, product is None]
+        """
+        # By default this operation will create a bound listing x1 of that product
+        self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
+        self.listing = self.product.listing_sets.all()[0].listing
+        PublishingFactory(listing=self.listing)
+
+        self.client.login(username=self.user.username, password='test')
+        data = {
+            'title': 'ModifiedTitle',
+            'picture_url': 'http://myurl.com/myinage.jpg',
+            'description': 'Description of ModifiedTitle',
+            'quantity': 2,
+            'product': self.product.id,
+        }
+        response = self.client.post(reverse('bazaar:listings-update',
+                                            kwargs={'pk': self.product.listing_sets.all()[0].pk}), data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('Updating listingset is denied', response.context_data['form'].errors[forms.NON_FIELD_ERRORS][0])
+
 
 class TestListingCreateView(TestBase):
     def test_create_simple_listing_view(self):
@@ -193,13 +236,13 @@ class TestDeleteView(TestBase):
         self.listing = self.product.listing_sets.all()[0].listing
 
         self.client.login(username=self.user.username, password='test')
-        response = self.client.get(reverse('bazaar:listings-delete', kwargs={'pk': self.listing.pk}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.post(reverse('bazaar:listings-delete', kwargs={'pk': self.listing.pk}))
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
         listing_exists = Listing.objects.filter(pk=self.listing.pk).exists()
         self.assertEqual(listing_exists, False)
 
-    def test_delete_view_can_only_be_called_if_listing_is_deletable(self):
+    def test_delete_view_let_delete_a_listing_only_if_it_has_not_publishing_associated(self):
         """
         Test that the product has associated publishings
         """
