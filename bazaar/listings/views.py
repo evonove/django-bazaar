@@ -104,8 +104,9 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
                 initial["title"] = self.listing_to_update.title
                 initial["picture_url"] = self.listing_to_update.picture_url
                 initial["description"] = self.listing_to_update.description
-                initial["quantity"] = int(self.listing_to_update.listing_sets.first().quantity)
-                initial["product"] = self.listing_to_update.listing_sets.first().product.id
+                if self.listing_to_update.listing_sets.exists():
+                    initial["quantity"] = int(self.listing_to_update.listing_sets.first().quantity)
+                    initial["product"] = self.listing_to_update.listing_sets.first().product.id
             except Listing.DoesNotExist:
                 self.error_response = HttpResponseNotFound()
         return initial
