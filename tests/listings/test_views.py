@@ -7,7 +7,7 @@ from django.forms import forms
 from django.test import TestCase
 
 from django.utils.translation import ugettext as _
-from bazaar.listings.models import Listing
+from bazaar.listings.models import Listing, ListingSet
 
 from rest_framework import status
 from tests import factories as f
@@ -262,3 +262,17 @@ class TestDeleteView(TestBase):
 
         listing_exists = Listing.objects.filter(pk=self.listing.pk).exists()
         self.assertEqual(listing_exists, False)
+
+
+class TestListingDetailView(TestBase):
+    def test_detail_view_when_missing_listing_set(self):
+        """
+        Test that the detail view works fine
+        """
+        self.client.login(username=self.user.username, password='test')
+        missing_listingset_listing = f.ListingFactory(title="No listingset in the listing")
+        response = self.client.get(reverse('bazaar:listings-detail', kwargs={'pk': missing_listingset_listing.pk}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('product' in response.context_data, False)
+        self.assertEqual('quantity' in response.context_data, False)
+        self.assertEqual(ListingSet.objects.filter(listing=missing_listingset_listing.id).exists(), False)
