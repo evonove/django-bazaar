@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.urlresolvers import reverse_lazy
-from django.db.models.query_utils import Q
 from django.forms.util import ErrorList
 from django.forms import forms
 from django.http import HttpResponseNotFound
@@ -17,7 +16,6 @@ from rest_framework import mixins
 from rest_framework.filters import SearchFilter
 from rest_framework.viewsets import GenericViewSet
 
-from ..listings.models import Order
 from ..listings.seralizers import ListingSerializer
 from ..settings import bazaar_settings
 from .forms import ListingForm, PublishingForm
@@ -133,11 +131,17 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
         product_id = form.cleaned_data.get("product")
         return Product.objects.get(id=int(product_id))
 
+    def _retrieve_listingset(self, form):
+        listing_id = self.kwargs.get("pk", None)
+        if listing_id:
+            return ListingSet.objects.get(listing_id=listing_id)
+        return None
+
     def form_valid(self, form):
         """
-        Even if validity is checked, it's possible edit/update the listing only if There are associated or
-        all completed orders or none order
+        Even if it's a valid form, it's not possible edit/update the listing set when there are associated publishings
         """
+        # TODO: WARNING: This valid form assumed that only one-type product and one listingset per listing.
         try:
             product = self._retrieve_product(form)
         except Product.DoesNotExist:
@@ -159,10 +163,6 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
             )
             publishings_exist = Publishing.objects.select_related('listing')\
                 .filter(listing__id=self.listing_to_update.id).exists()
-            if publishings_exist:
-                errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
-                errors.append(_("Update is denied. There are status publishing bound this listing."))
-                return self.form_invalid(form)
         else:
             # Create listing
             listing = Listing.objects.create(
@@ -170,13 +170,31 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
                 picture_url=form.cleaned_data.get("picture_url", None),
                 description=form.cleaned_data.get("description", None)
             )
+            publishings_exist = False
+        try:
+            listing_set = self._retrieve_listingset(form)
+        except ListingSet.DoesNotExist:
+            errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
+            errors.append(_("Update is denied. No associated ListingSet exists."))
+            return self.form_invalid(form)
+        except ListingSet.MultipleObjectsReturned:
+            errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
+            errors.append(_("Update is denied. Allowed only one-product and one listingset per listing."))
+            return self.form_invalid(form)
 
-        ListingSet.objects.filter(listing_id=listing.id).delete()
-        listing_set, is_created = ListingSet.objects.get_or_create(listing=listing,
-                                                                   product=product,
-                                                                   quantity=int(form.cleaned_data.get("quantity")))
+        if not listing_set:
+            listing_set, is_created = ListingSet.objects.get_or_create(listing=listing,
+                                                                       product=product,
+                                                                       quantity=int(form.cleaned_data.get("quantity")))
+
+        if publishings_exist and \
+                (listing_set.quantity != int(form.cleaned_data.get("quantity")) or listing_set.product != product):
+            errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
+            errors.append(_("Updating listingset is denied. It's not allowed update/edit listingset"
+                            " when listing is associated at least to one publishing."))
+            return self.form_invalid(form)
+
         self.object = listing
-        # TODO: Listing update work only with one product type
         listing.listing_sets = [listing_set]
         listing.save()
 
