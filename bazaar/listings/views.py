@@ -20,7 +20,6 @@ from ..listings.seralizers import ListingSerializer
 from ..settings import bazaar_settings
 from .forms import ListingForm, PublishingForm
 from .models import Listing, ListingSet, Publishing
-from ..goods.models import Product
 from .stores import stores_loader
 from ..mixins import BazaarPrefixMixin, FilterMixin, FilterSortableListView
 
@@ -94,20 +93,6 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
         get_result = super(ListingUpdateView, self).get(request, *args, **kwargs)
         return self.error_response or get_result
 
-    def post(self, request, *args, **kwargs):
-        """
-        Handles POST requests, instantiating a form instance with the passed
-        POST variables and then checked for validity.
-
-        """
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        if form.is_valid():
-
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
     def get_initial(self):
         # Populate ticks in BooleanFields
         initial = {}
@@ -127,10 +112,6 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
     def get_success_url(self):
         return reverse_lazy("bazaar:listings-detail", kwargs={'pk': self.object.id})
 
-    def _retrieve_product(self, form):
-        product_id = form.cleaned_data.get("product")
-        return Product.objects.get(id=int(product_id))
-
     def _retrieve_listingset(self, form):
         listing_id = self.kwargs.get("pk", None)
         if listing_id:
@@ -142,17 +123,6 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
         Even if it's a valid form, it's not possible edit/update the listing set when there are associated publishings
         """
         # TODO: WARNING: This valid form assumed that only one-type product and one listingset per listing.
-        try:
-            product = self._retrieve_product(form)
-        except Product.DoesNotExist:
-            errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
-            errors.append(_("Update is denied. Product does not exist."))
-            return self.form_invalid(form)
-        except ValueError:
-            errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
-            errors.append(_("Update is denied. Product id is invalid."))
-            return self.form_invalid(form)
-
         if self.listing_to_update:
             # Update Listing
             listing = Listing(
@@ -182,6 +152,7 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
             errors.append(_("Update is denied. Allowed only one-product and one listingset per listing."))
             return self.form_invalid(form)
 
+        product = form.get_product()
         if not listing_set:
             listing_set, is_created = ListingSet.objects.get_or_create(listing=listing,
                                                                        product=product,
