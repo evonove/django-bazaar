@@ -155,6 +155,9 @@ class Publishing(models.Model):
     def __str__(self):
         return "Publishing %s on %s" % (self.external_id, self.store)
 
+    class Meta:
+        unique_together = ("external_id", "store")
+
 
 @python_2_unicode_compatible
 class Order(models.Model):
