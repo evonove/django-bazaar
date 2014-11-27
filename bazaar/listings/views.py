@@ -16,6 +16,7 @@ from rest_framework import mixins
 from rest_framework.filters import SearchFilter
 from rest_framework.viewsets import GenericViewSet
 
+from ..goods.models import Product
 from ..listings.seralizers import ListingSerializer
 from ..settings import bazaar_settings
 from .forms import ListingForm, PublishingForm
@@ -118,6 +119,10 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
             return ListingSet.objects.get(listing_id=listing_id)
         return None
 
+    def _retrieve_product(self, form):
+        product_id = form.clean_product()
+        return Product.objects.get(id=product_id)
+
     def form_valid(self, form):
         """
         Even if it's a valid form, it's not possible edit/update the listing set when there are associated publishings
@@ -152,7 +157,7 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
             errors.append(_("Update is denied. Allowed only one-product and one listingset per listing."))
             return self.form_invalid(form)
 
-        product = form.get_product()
+        product = self._retrieve_product(form)
         if not listing_set:
             listing_set, is_created = ListingSet.objects.get_or_create(listing=listing,
                                                                        product=product,
