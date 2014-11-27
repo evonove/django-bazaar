@@ -181,6 +181,9 @@ class Order(models.Model):
     def __str__(self):
         return "Order %s from %s" % (self.external_id, self.store)
 
+    class Meta:
+        unique_together = ("external_id", "store")
+
 
 import django
 if django.VERSION < (1, 7):

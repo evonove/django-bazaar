@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from django.utils import timezone
 
 from django.utils.text import slugify
+from factory import fuzzy
 from bazaar.listings.models import Publishing
 
 from bazaar.warehouse.models import Location
@@ -129,5 +130,6 @@ class PublishingFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = 'listings.Publishing'
 
+    external_id = fuzzy.FuzzyText(length=10)
     status = Publishing.ACTIVE_PUBLISHING
     store = factory.SubFactory(StoreFactory)

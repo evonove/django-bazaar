@@ -31,16 +31,16 @@ class TestPublishingModelManager(TestCase):
     def test_publishing_manager_get_all_actives(self):
         publishing1 = Publishing.objects.create(status=Publishing.ACTIVE_PUBLISHING, pub_date=self.date1,
                                                 last_modified=self.date1, listing=self.listing_a,
-                                                store=self.small_store)
+                                                store=self.small_store, external_id='1')
         publishing2 = Publishing.objects.create(status=Publishing.ACTIVE_PUBLISHING, pub_date=self.date2,
                                                 last_modified=self.date2, listing=self.listing_a,
-                                                store=self.small_store)
+                                                store=self.small_store, external_id='2')
         publishing3 = Publishing.objects.create(status=Publishing.COMPLETED_PUBLISHING, pub_date=self.date3,
                                                 last_modified=self.date3, listing=self.listing_a,
-                                                store=self.small_store)
+                                                store=self.small_store, external_id='3')
         publishing4 = Publishing.objects.create(status=Publishing.ACTIVE_PUBLISHING, pub_date=self.date4,
                                                 last_modified=self.date4, listing=self.listing_a,
-                                                store=self.big_store)
+                                                store=self.big_store, external_id='4')
 
         self.assertEqual(publishing1.store.slug, "small")
         self.assertEqual(publishing2.store.slug, "small")
@@ -52,11 +52,11 @@ class TestPublishingModelManager(TestCase):
 
     def test_publishing_manager_get_only_last_completed_same_store(self):
         Publishing.objects.create(status=Publishing.COMPLETED_PUBLISHING, pub_date=self.date1, last_modified=self.date1,
-                                  listing=self.listing_a, store=self.small_store)
+                                  listing=self.listing_a, store=self.small_store, external_id='1')
         Publishing.objects.create(status=Publishing.COMPLETED_PUBLISHING, pub_date=self.date2, last_modified=self.date2,
-                                  listing=self.listing_a, store=self.small_store)
+                                  listing=self.listing_a, store=self.small_store, external_id='2')
         Publishing.objects.create(status=Publishing.COMPLETED_PUBLISHING, pub_date=self.date3, last_modified=self.date3,
-                                  listing=self.listing_a, store=self.small_store)
+                                  listing=self.listing_a, store=self.small_store, external_id='3')
 
         completed_pubs = Publishing.objects.main_publishings(self.listing_a)
         self.assertEqual(len(completed_pubs), 1)
@@ -64,13 +64,13 @@ class TestPublishingModelManager(TestCase):
 
     def test_publishing_manager_all_features(self):
         Publishing.objects.create(status=Publishing.COMPLETED_PUBLISHING, pub_date=self.date1, last_modified=self.date1,
-                                  listing=self.listing_a, store=self.small_store)
+                                  listing=self.listing_a, store=self.small_store, external_id='1')
         Publishing.objects.create(status=Publishing.ACTIVE_PUBLISHING, pub_date=self.date2, last_modified=self.date2,
-                                  listing=self.listing_a, store=self.small_store)
+                                  listing=self.listing_a, store=self.small_store, external_id='2')
         Publishing.objects.create(status=Publishing.COMPLETED_PUBLISHING, pub_date=self.date3, last_modified=self.date3,
-                                  listing=self.listing_a, store=self.small_store)
+                                  listing=self.listing_a, store=self.small_store, external_id='3')
         Publishing.objects.create(status=Publishing.COMPLETED_PUBLISHING, pub_date=self.date4, last_modified=self.date4,
-                                  listing=self.listing_a, store=self.big_store)
+                                  listing=self.listing_a, store=self.big_store, external_id='4')
 
         pubs = Publishing.objects.main_publishings(self.listing_a)
         self.assertEqual(len(pubs), 2)
