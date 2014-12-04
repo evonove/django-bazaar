@@ -47,10 +47,10 @@ class DefaultStoreStrategy(object):
         return None
 
     def get_store_publishing_template(self):
-        raise NotImplementedError("You need to listing-list publishing template!")
+        return None
 
     def get_store_publishing_list_template(self):
-        raise NotImplementedError("You need to provide publishing-list template!")
+        return None
 
     def get_store_extra(self, extra_name):
         return self.extras[extra_name] if extra_name in self.extras else []
