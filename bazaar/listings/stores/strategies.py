@@ -3,6 +3,8 @@ from ..models import Publishing
 
 from django_filters import FilterSet
 
+from ..forms import PublishingForm
+
 
 class DefaultStoreStrategy(object):
     """
@@ -35,7 +37,7 @@ class DefaultStoreStrategy(object):
         return Publishing
 
     def get_publishing_form(self):
-        return None
+        return PublishingForm
 
     def get_publishing_delete_action(self):
         return None
