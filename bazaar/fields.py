@@ -22,7 +22,6 @@ class SKUField(CharField):
     description = 'Field to store UUID values'
 
     def __init__(self, *args, **kwargs):
-        kwargs['editable'] = False
         kwargs['blank'] = True
         kwargs['unique'] = True
         kwargs['max_length'] = 50
