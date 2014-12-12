@@ -150,9 +150,7 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
         try:
             listing_set = self._retrieve_listingset(form)
         except ListingSet.DoesNotExist:
-            errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
-            errors.append(_("Update is denied. No associated ListingSet exists."))
-            return self.form_invalid(form)
+            listing_set = None
         except ListingSet.MultipleObjectsReturned:
             errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
             errors.append(_("Update is denied. Allowed only one-product and one listingset per listing."))
