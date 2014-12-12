@@ -15,17 +15,20 @@
                 <i class="glyphicon glyphicon-pencil"></i>&nbsp;{% trans "Modify" %}
             </a>
 
-            <div class="pull-right">
-                {% if listing.publishings.all %}
-                    <a data-toggle="tooltip" href="#" class="btn btn-danger disabled" data-placement="left" title="{% trans "Clear all Publishing First" %}">
-                        <i class="glyphicon glyphicon-trash"></i>&nbsp;{% trans "Delete Listing" %}
-                    </a>
-                {% else %}
-                    <a data-toggle="modal" href="#modalDelete" class="btn btn-danger">
-                        <i class="glyphicon glyphicon-trash"></i>&nbsp;{% trans "Delete Listing" %}
-                    </a>
-                {% endif %}
-            </div>
+            {% block delete_button %}
+                <div class="pull-right">
+                    {% if listing.publishings.all %}
+                        <a data-toggle="tooltip" href="#" class="btn btn-danger disabled" data-placement="left" title="{% trans "Clear all Publishing First" %}">
+                            <i class="glyphicon glyphicon-trash"></i>&nbsp;{% trans "Delete Listing" %}
+                        </a>
+                    {% else %}
+                        <a data-toggle="modal" href="#modalDelete" class="btn btn-danger">
+                            <i class="glyphicon glyphicon-trash"></i>&nbsp;{% trans "Delete Listing" %}
+                        </a>
+                    {% endif %}
+                </div>
+            {% endblock %}
+
         </div>
     </div>
 
