@@ -26,6 +26,8 @@ class Product(models.Model):
     code = models.CharField(max_length=20, db_index=True, blank=True)
     photo = models.ImageField(upload_to='products', null=True, blank=True)
     price = MoneyField(help_text=_("Base default price for product"), validators=[MinValueValidator(limit_value=0)])
+    market_price = MoneyField(help_text=_("Market price for product"), validators=[MinValueValidator(limit_value=0)],
+                              null=True, blank=True)
     price_lists = models.ManyToManyField("PriceList", through="ProductPrice",
                                          related_name="products")
 
