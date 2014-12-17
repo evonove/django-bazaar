@@ -160,6 +160,25 @@ class TestListingUpdateView(TestBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('Updating listingset is denied', response.context_data['form'].errors[forms.NON_FIELD_ERRORS][0])
 
+    def test_update_listing_does_not_change_sku(self):
+        self.client.login(username=self.user.username, password='test')
+
+        product = f.ProductFactory()
+        listing = product.listings.first()
+
+        self.client.login(username=self.user.username, password='test')
+        data = {
+            'title': 'new title',
+            'picture_url': 'http://myurl.com/myinage.jpg',
+            'description': 'desc',
+            'quantity': 1,
+            'product': product.pk,
+        }
+        response = self.client.post(reverse('bazaar:listings-update', kwargs={'pk': listing.pk}), data=data)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        modified_listing = Listing.objects.get(pk=listing.pk)
+        self.assertEqual(listing.sku, modified_listing.sku)
+
 
 class TestListingCreateView(TestBase):
     def test_create_simple_listing_view(self):

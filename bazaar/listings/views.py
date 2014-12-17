@@ -131,12 +131,11 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
         # TODO: WARNING: This valid form assumed that only one-type product and one listingset per listing.
         if self.listing_to_update:
             # Update Listing
-            listing = Listing(
-                title=form.cleaned_data.get("title"),
-                picture_url=form.cleaned_data.get("picture_url", None),
-                description=form.cleaned_data.get("description", None),
-                id=self.listing_to_update.id
-            )
+            listing = Listing.objects.get(pk=self.listing_to_update.id)
+            listing.title = form.cleaned_data.get("title")
+            listing.picture_url = form.cleaned_data.get("picture_url", None)
+            listing.description = form.cleaned_data.get("description", None)
+
             publishings_exist = Publishing.objects.select_related('listing')\
                 .filter(listing__id=self.listing_to_update.id).exists()
         else:

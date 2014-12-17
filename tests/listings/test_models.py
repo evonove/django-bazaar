@@ -100,3 +100,13 @@ class TestListingModel(TestCase):
 
     def test_sku_field_created_on_listing_creation(self):
         self.assertTrue(self.listing.sku)
+
+    def test_sku_field_not_updated_on_save(self):
+        listing = ListingFactory()
+        sku = listing.sku
+
+        listing.title = "Modified"
+        listing.save()
+
+        listing = Listing.objects.get(pk=listing.pk)
+        self.assertEqual(sku, listing.sku)
