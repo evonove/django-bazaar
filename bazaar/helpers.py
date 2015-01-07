@@ -58,6 +58,9 @@ class FormModelHelperMixin(FormHelperMixin):
         delete_html = '&nbsp;<a data-toggle="modal" href="#modalDelete" class="btn btn-danger pull-right" {}>' \
                       '<i class="glyphicon glyphicon-trash"></i>&nbsp;{}' \
                       '</a>'.format(disabled, _('Delete'.title()), ) if is_modelform else ''
+        back_html = '<a href="{}" class="btn btn-default" data-dismiss="modal">' \
+                    '<i class="glyphicon glyphicon-chevron-left"></i>&nbsp;{}' \
+                    '</a>&nbsp;'.format(list_url, _('back'.title())) if self.MetaHelper.has_back_button else ''
 
         if extended_fields:
             helper.layout = Layout(
@@ -68,16 +71,11 @@ class FormModelHelperMixin(FormHelperMixin):
                         extended_fields)
                 )
             )
-
         helper.layout.append(
             Div(
                 Div(
                     ButtonHolder(
-                        HTML('<a '
-                             'href="{}" '
-                             'class="btn btn-default" data-dismiss="modal">'
-                             '<i class="glyphicon glyphicon-chevron-left"></i>&nbsp;{}'
-                             '</a>&nbsp;'.format(list_url, _('back'.title()))),
+                        HTML(back_html),
                         Submit('save', _("Submit")),
                         HTML(delete_html)
                     ),
@@ -102,6 +100,7 @@ class FormModelHelperMixin(FormHelperMixin):
         readonly_fields = []
         extended_fields = []
         readonly_fields_if_not_empty = []
+        has_back_button = True
 
 
 class FormHelperMixinNoTag(FormHelperMixin):
