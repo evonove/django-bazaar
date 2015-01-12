@@ -138,7 +138,7 @@ class TestListingUpdateView(TestBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('one listingset per listing', response.context_data['form'].errors[forms.NON_FIELD_ERRORS][0])
 
-    def test_update_simple_view_fails_when_there_are_mone_listingset_associated_to_listing(self):
+    def test_update_simple_view_fails_when_there_are_none_listingset_associated_to_listing(self):
         """
         Test that the update view fails with incorrect input [quantity is not a number, product is None]
         """
@@ -178,6 +178,18 @@ class TestListingUpdateView(TestBase):
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         modified_listing = Listing.objects.get(pk=listing.pk)
         self.assertEqual(listing.sku, modified_listing.sku)
+
+    def test_new_simple_view_has_back_button(self):
+        """
+        Test that the new view has back and save button
+        """
+
+        self.client.login(username=self.user.username, password='test')
+        response = self.client.get(reverse('bazaar:listings-create'))
+        content = response.content.decode('utf-8')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('href="/listings/"', content)
+        self.assertIn('id="submit-id-save"', content)
 
 
 class TestListingCreateView(TestBase):
