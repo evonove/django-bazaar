@@ -105,7 +105,7 @@
                             <div class="col-md-12">
                                 {% block listing-detail-products %}
                                     <div class="col-md-11">
-                                        <input type="hidden" value="{{ ls.listing.id }}" name="listing_id">
+                                        <input type="hidden" value="{{ listing.id }}" name="listing_id">
 
                                         <table class="table table-condensed small">
                                         {% for ls in listing.listing_sets.all %}
