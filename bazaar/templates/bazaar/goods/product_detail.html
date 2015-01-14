@@ -23,9 +23,11 @@
                 </a>
                 <div class="pull-right">
                     {% if not deletable %}
-                    <a data-toggle="modal" href="#modalDelete" class="btn btn-danger disabled">
-                        <i class="glyphicon glyphicon-trash"></i>&nbsp;{% trans "Can't delete a product that was published at least once" %}
-                    </a>
+                    {% block disabled_delete_button %}
+                        <a data-toggle="modal" href="#modalDelete" class="btn btn-danger disabled">
+                            <i class="glyphicon glyphicon-trash"></i>&nbsp;{% trans "Can't delete a product that was published at least once" %}
+                        </a>
+                    {% endblock disabled_delete_button %}
                     {% else %}
                     <a data-toggle="modal" href="#modalDelete" class="btn btn-danger">
                         <i class="glyphicon glyphicon-trash"></i>&nbsp;{% trans "Delete" %}
