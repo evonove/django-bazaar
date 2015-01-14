@@ -40,13 +40,17 @@
         {% include "bazaar/paginator.html" %}
         </div>
         <div class="col-md-2">
+            {% block filter_column %}
             <div class="row margin-bottom-15">
+                <form method="get">
                 <div class="col-md-12">
                     <a href="{% url "bazaar:product-create" %}" class="btn btn-lg btn-primary">{% trans "Create" %}</a>
+                    {% block product_actions %}
+                    {% endblock %}
                 </div>
                 <div class="col-md-12">
                     <h4>{% trans "Filters" %}</h4>
-                    <form method="get">
+
                         <button type="submit" class="btn btn-primary">{% trans "Filter" %}</button>
                         <a href="{% url 'bazaar:product-list' %}" class="btn{% if query_filter %} btn-primary{% else %} btn-default{% endif %}"
                                 {% if not query_filter %} disabled="disabled" {% endif %}>{% trans "Reset" %}</a>
@@ -58,9 +62,11 @@
                         {% endblock sidebar-elements %}
                         {% block sidebar-extras %}
                         {% endblock sidebar-extras %}
-                    </form>
-                </div>
+
+                    </div>
+                </form>
             </div>
+            {% endblock filter_column %}
         </div>
     </div>
 
