@@ -27,7 +27,7 @@ class Location(models.Model):
 
     name = models.CharField(max_length=50)
     slug = models.SlugField(unique=True)
-    type = models.IntegerField(choices=LOCATION_TYPE_CHOICES)
+    type = models.IntegerField(choices=LOCATION_TYPE_CHOICES, db_index=True)
 
     def __str__(self):
         return _("Location %s (%s)") % (self.name, self.get_type_display())
