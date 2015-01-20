@@ -11,6 +11,8 @@ class ListingSetInline(admin.TabularInline):
 
 
 class ListingAdmin(admin.ModelAdmin):
+    list_display = ('id', 'sku', 'title')
+    search_fields = ('sku', 'title')
     inlines = [ListingSetInline]
     model = Listing
 
