@@ -74,9 +74,23 @@ class Listing(models.Model):
                 product_quantity = get_storage_quantity(ls.product)
             except models.ObjectDoesNotExist:
                 product_quantity = 0
+            for publishing in self.publishings.all():
+                if product_quantity < publishing.available_units * ls.quantity:
+                    return True
+        return False
 
-            if product_quantity < self.available_units * ls.quantity:
-                return True
+    def is_highly_available(self):
+        """
+        Return True when products stock has more elements than published one
+        """
+        for ls in self.listing_sets.all():
+            try:
+                product_quantity = get_storage_quantity(ls.product)
+            except models.ObjectDoesNotExist:
+                product_quantity = 0
+            for publishing in self.publishings.all():
+                if (product_quantity - (publishing.available_units * ls.quantity)) / ls.quantity > 2:
+                    return True
         return False
 
     def is_low_cost(self):
