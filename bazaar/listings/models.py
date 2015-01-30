@@ -75,8 +75,9 @@ class Listing(models.Model):
             except models.ObjectDoesNotExist:
                 product_quantity = 0
             for publishing in self.publishings.all():
-                if product_quantity < publishing.available_units * ls.quantity:
-                    return True
+                if publishing.is_active():
+                    if product_quantity < publishing.available_units * ls.quantity:
+                        return True
         return False
 
     def is_highly_available(self):
@@ -89,8 +90,9 @@ class Listing(models.Model):
             except models.ObjectDoesNotExist:
                 product_quantity = 0
             for publishing in self.publishings.all():
-                if (product_quantity - (publishing.available_units * ls.quantity)) / ls.quantity > 2:
-                    return True
+                if publishing.is_active():
+                    if (product_quantity - (publishing.available_units * ls.quantity)) / ls.quantity > 2:
+                        return True
         return False
 
     def is_low_cost(self):
