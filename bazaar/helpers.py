@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext as _
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Div, ButtonHolder, HTML, Submit, Layout
+from crispy_forms.layout import Div, ButtonHolder, HTML, Layout
 from crispy_forms.bootstrap import TabHolder, Tab, StrictButton
 
 
@@ -38,6 +38,11 @@ class FormHelperMixin(object):
 
 
 class FormModelHelperMixin(FormHelperMixin):
+    def disable_save(self):
+        return False
+
+    def disable_delete(self):
+        return False
 
     def get_form_helper(self):
         helper = FormHelper(self)
@@ -50,17 +55,17 @@ class FormModelHelperMixin(FormHelperMixin):
 
         is_modelform = hasattr(self, 'instance')
         has_instance = is_modelform and hasattr(self.instance, 'pk') and self.instance.pk is not None
-        disabled = 'disabled="disabled"' if is_modelform and not has_instance else ''
-        from bazaar.listings.stores import stores_loader
 
-        if is_modelform and hasattr(self.instance, 'store') and \
-                not stores_loader.get_store_strategy(self.instance.store.slug).get_publishing_delete_action():
-            disabled = 'disabled="disabled"'
+        submit_disabled = 'disabled="disabled"' if is_modelform and self.disable_save() else ''
+        delete_disabled = 'disabled="disabled"' if is_modelform and (self.disable_delete() or not has_instance) else ''
 
         has_back_button = getattr(self.MetaHelper, 'has_back_button', FormModelHelperMixin.MetaHelper.has_back_button)
+
+        save_html = '<input type="submit" name="save" value="{}" class="btn btn-primary" ' \
+                    'id="submit-id-save" {}>'.format(_("submit").title(), submit_disabled)
         delete_html = '&nbsp;<a data-toggle="modal" href="#modalDelete" class="btn btn-danger pull-right" {}>' \
                       '<i class="glyphicon glyphicon-trash"></i>&nbsp;{}' \
-                      '</a>'.format(disabled, _('Delete'.title()), ) if is_modelform else ''
+                      '</a>'.format(delete_disabled, _('Delete'.title()), ) if is_modelform else ''
         back_html = '<a href="{}" class="btn btn-default" data-dismiss="modal">' \
                     '<i class="glyphicon glyphicon-chevron-left"></i>&nbsp;{}' \
                     '</a>&nbsp;'.format(list_url, _('back'.title())) if has_back_button else ''
@@ -79,7 +84,7 @@ class FormModelHelperMixin(FormHelperMixin):
                 Div(
                     ButtonHolder(
                         HTML(back_html),
-                        Submit('save', _("Submit")),
+                        HTML(save_html),
                         HTML(delete_html)
                     ),
                     css_class="col-md-offset-3 col-md-8",
