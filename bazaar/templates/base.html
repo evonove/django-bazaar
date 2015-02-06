@@ -73,6 +73,7 @@
                 if (!csrfSafeMethod(settings.type)) {
                     xhr.setRequestHeader("X-CSRFToken", csrftoken);
                 }
+                xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XmlHttpRequest")
             }
         });
     </script>
