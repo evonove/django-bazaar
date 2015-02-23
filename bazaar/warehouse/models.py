@@ -1,6 +1,7 @@
 from __future__ import division
 from __future__ import unicode_literals
 
+import django
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
@@ -83,9 +84,6 @@ class Stock(models.Model):
 
     def __str__(self):
         return _("Stock '%s' at '%s': %s") % (self.product, self.location.slug, self.value)
-
-
-import django
 
 if django.VERSION < (1, 7):
     # import stock module to attach handlers to signals

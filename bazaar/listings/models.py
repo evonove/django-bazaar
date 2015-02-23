@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import django
+
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -201,6 +203,5 @@ class Order(models.Model):
         unique_together = ("external_id", "store")
 
 
-import django
 if django.VERSION < (1, 7):
     from . import signals  # noqa
