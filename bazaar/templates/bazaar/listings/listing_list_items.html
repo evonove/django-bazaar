@@ -10,7 +10,7 @@
                     <div class="row">
 
                         {% block listing-header-elements %}
-                            <div class="col-md-1 no-wrap">
+                            <div class="col-md-1">
                                 {% if listing.picture_url %}
                                     {% block listing-header-picture %}
                                         <img src="" data-echo="{{ listing.picture_url }}" class="img-thumbnail img-responsive">
@@ -18,111 +18,132 @@
                                 {% endif %}
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-11">
+                                <div class="row">
 
-                                {% block listing-header-info %}
-                                    <!-- <a data-toggle="collapse"> removed, TODO fix it with logic based on nr of products -->
-                                    <h5><a href="{% url 'bazaar:listings-detail' listing.id %}"> {{ listing.title }}</a> </h5>
-                                    {% if listing.description|length > 30 %}
-                                        <a data-toggle="modal" data-target="#modalListing{{ listing.id }}">
-                                            {% trans "See full description" %}
-                                        </a>
+                                    {% block listing-header-info %}
+                                            <div class="col-md-12">
+                                                <div class="row">
+                                                    <div class="col-md-9">
+                                                        <!-- <a data-toggle="collapse"> removed, TODO fix it with logic based on nr of products -->
+                                                        <h5><a href="{% url 'bazaar:listings-detail' listing.id %}"> {{ listing.title }}</a> </h5>
+                                                        {% block listing-header-description %}
+                                                            {% if listing.description|length > 30 %}
+                                                                <a data-toggle="modal" data-target="#modalListing{{ listing.id }}">
+                                                                    {% trans "See full description" %}
+                                                                </a>
 
-                                        <div id="modalListing{{ listing.id }}" class="modal fade">
-                                            <div class="modal-dialog modal-large">
-                                                <div class="modal-content">
-                                                    <div class="modal-body">
-                                                        {% autoescape off %}{{ listing.description }}{% endautoescape %}
+                                                                <div id="modalListing{{ listing.id }}" class="modal fade">
+                                                                    <div class="modal-dialog modal-large">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-body">
+                                                                                {% autoescape off %}{{ listing.description }}{% endautoescape %}
+                                                                            </div>
+                                                                            <div class="modal-footer">
+                                                                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                                            </div>
+                                                                        </div><!-- /.modal-content -->
+                                                                    </div><!-- /.modal-dialog -->
+                                                                </div><!-- /.modal -->
+                                                            {% else %}
+                                                                <p>{{ listing.description }}</p>
+                                                            {% endif %}
+                                                        {% endblock %}
                                                     </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+                                                    <div class="col-md-2">
+                                                        {% block listing-header-messages %}
+                                                            {% if listing.is_unavailable %}
+                                                                <div class="alert alert-warning alert-small">
+                                                                    <small>
+                                                                        {% trans "Availability is low" %}
+                                                                    </small>
+                                                                </div>
+                                                            {% endif %}
+                                                            {% if listing.is_low_cost %}
+                                                                <div class="alert alert-warning alert-small">
+                                                                    <small>
+                                                                        {% blocktrans with cost=listing.cost %}
+                                                                            Price low! Should be greater than {{ cost }}
+                                                                        {% endblocktrans %}
+                                                                    </small>
+                                                                </div>
+                                                            {% endif %}
+                                                        {% endblock listing-header-messages %}
                                                     </div>
-                                                </div><!-- /.modal-content -->
-                                            </div><!-- /.modal-dialog -->
-                                        </div><!-- /.modal -->
-                                    {% else %}
-                                        <p>{{ listing.description }}</p>
-                                    {% endif %}
-                                {% endblock listing-header-info %}
-                            </div>
 
-                            <div class="col-md-6">
-                                {% block listing-header-publishings %}
-                                    <table class="table table-condensed">
-                                        <thead>
-                                        <tr>
-                                            <th>{% trans "Published on" %}</th>
-                                            <th>{% trans "Price" %}</th>
-                                            <th>{% trans "Available units" %}</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {% for publishing in listing.publishings.main_publishings %}
-                                            <tr>
-                                                <td>{{ publishing.store }}</td>
-                                                <td class="no-wrap">{{ publishing.price }}</td>
-                                                <td>{{ publishing.available_units }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                        </tbody>
-                                    </table>
-                                {% endblock listing-header-publishings %}
-                            </div>
+                                                    <div class="col-md-1">
+                                                        <button type="submit" name="shelve-btn" class="btn btn-sm btn-default">{% trans "Shelve" %}</button>
+                                                    </div>
 
-                            <div class="col-md-2">
-                                {% block listing-header-messages %}
-                                    {% if listing.is_unavailable %}
-                                        <div class="alert alert-warning alert-small">
-                                            <small>
-                                                {% trans "Availability is low" %}
-                                            </small>
+                                                </div>
+                                            </div>
+                                    {% endblock listing-header-info %}
+
+                                    {% block listing-header-publishings %}
+                                        <div class="col-md-12">
+                                            <div id="listing{{ listing.id }}" class="col-md-12 listing-detail">
+                                                <div class="row">
+                                                    {% trans "Publishings:" %}
+                                                    <div class="col-md-12">
+                                                        <table class="table table-condensed">
+                                                            <thead>
+                                                            <tr>
+                                                                <th>{% trans "On" %}</th>
+                                                                <th>{% trans "Price" %}</th>
+                                                                <th>{% trans "Available units" %}</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            {% for publishing in listing.publishings.main_publishings %}
+                                                                <tr>
+                                                                    <td>{{ publishing.store }}</td>
+                                                                    <td class="no-wrap">{{ publishing.price }}</td>
+                                                                    <td>{{ publishing.available_units }}</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    {% endif %}
-                                    {% if listing.is_low_cost %}
-                                        <div class="alert alert-warning alert-small">
-                                            <small>
-                                                {% blocktrans with cost=listing.cost %}
-                                                    Price low! Should be greater than {{ cost }}
-                                                {% endblocktrans %}
-                                            </small>
-                                        </div>
-                                    {% endif %}
-                                {% endblock listing-header-messages %}
+                                    {% endblock listing-header-publishings %}
+
+                                    {% block listing-detail %}
+                                            {% block listing-detail-elements %}
+                                                <div id="listing{{ listing.id }}" class="col-md-12 listing-detail">
+                                                    {% block listing-detail-products %}
+                                                            <input type="hidden" value="{{ listing.id }}" name="listing_id">
+
+                                                            <table class="table table-condensed small">
+                                                            <thead>
+                                                            <tr>
+                                                                <th>{% trans "Products" %}</th>
+                                                                <th></th>
+                                                                <th></th>
+                                                                <th></th>
+                                                                <th></th>
+                                                            </tr>
+                                                            </thead>
+                                                            {% for ls in listing.listing_sets.all %}
+                                                                {% include "bazaar/listings/listing_list_product.html" %}
+                                                                {% if not forloop.last %} - {% endif %}
+                                                            {% endfor %}
+                                                            </table>
+                                                    {% endblock listing-detail-products %}
+                                                </div>
+                                            {% endblock listing-detail-elements %}
+                                    {% endblock listing-detail %}
+
+                                    {% block listing-header-extra %}{% endblock listing-header-extra %}
+
+                                </div>
                             </div>
-
-                            {% block listing-header-extra %}{% endblock listing-header-extra %}
-
                         {% endblock listing-header-elements %}
                     </div>
                 </div>
             {% endblock listing-header %}
-
-            {% block listing-detail %}
-                <div id="listing{{ listing.id }}" class="col-md-12 listing-detail">
-                    <div class="row">
-                        {% block listing-detail-elements %}
-                            {% trans "Products:" %}
-                            <div class="col-md-12">
-                                {% block listing-detail-products %}
-                                    <div class="col-md-11">
-                                        <input type="hidden" value="{{ listing.id }}" name="listing_id">
-
-                                        <table class="table table-condensed small">
-                                        {% for ls in listing.listing_sets.all %}
-                                            {% include "bazaar/listings/listing_list_product.html" %}
-                                            {% if not forloop.last %} - {% endif %}
-                                        {% endfor %}
-                                        </table>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <button type="submit" name="shelve-btn" class="btn btn-sm btn-default">{% trans "Shelve" %}</button>
-                                    </div>
-                                {% endblock listing-detail-products %}
-                            </div>
-                        {% endblock listing-detail-elements %}
-                    </div>
-                </div>
-            {% endblock listing-detail %}
 
         </div>
     {% endblock listing-item %}
