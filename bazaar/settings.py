@@ -43,6 +43,9 @@ IMPORT_STRINGS = (
     'LISTING_FILTER',
 )
 
+PT_GENERIC = 0
+PRODUCT_TYPE_CHOICES = ((PT_GENERIC, 'Generic'), )
+
 
 def perform_import(val, setting_name):
     """

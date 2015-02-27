@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
+from django.conf import settings
 from django.core.validators import MinValueValidator
 
 from django.db import models
@@ -28,6 +29,8 @@ class Product(models.Model):
     price = MoneyField(help_text=_("Base default price for product"), validators=[MinValueValidator(limit_value=0)])
     price_lists = models.ManyToManyField("PriceList", through="ProductPrice",
                                          related_name="products")
+    product_type = models.IntegerField(choices=settings.PRODUCT_TYPE_CHOICES, null=True)
+
 
     objects = ProductsQuerySet.as_manager()
 
