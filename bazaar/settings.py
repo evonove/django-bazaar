@@ -29,6 +29,9 @@ DEFAULTS = {
     'LOGIN_REDIRECT_URL': "bazaar:home",
     'STORES': {},
     'LISTING_FILTER': 'bazaar.listings.filters.ListingFilter',
+    'PT_GENERIC': 0,
+    'PRODUCT_TYPE_CHOICES': ((0, 'Generic'), ),
+
 }
 
 # List of settings that cannot be empty
@@ -42,9 +45,6 @@ IMPORT_STRINGS = (
     'DEFAULT_AVAILABILITY_BACKEND',
     'LISTING_FILTER',
 )
-
-PT_GENERIC = 0
-PRODUCT_TYPE_CHOICES = ((PT_GENERIC, 'Generic'), )
 
 
 def perform_import(val, setting_name):
