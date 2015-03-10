@@ -27,7 +27,10 @@ class Listing(models.Model):
     description = models.TextField(blank=True)
 
     picture_url = models.URLField(blank=True)
+
+    # DELETE in future
     products = models.ManyToManyField(Product, related_name="listings", through="ListingSet")
+    product = models.OneToOneField(Product, related_name="listing", null=True)
     sku = SKUField(default=create_sku)
 
     objects = ListingManager()

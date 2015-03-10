@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 from django.test import TestCase
 
-from bazaar.goods.models import Product, PriceList, ProductPrice
+from bazaar.goods.models import Product, PriceList, ProductPrice, CompositeProduct
 
 from moneyed import Money
 
@@ -122,3 +122,16 @@ class TestProductPrice(BaseTestCase):
 
     def test_model(self):
         self.assertEqual("%s" % self.product_price, "'a product' foo 10.00 €")
+
+
+class TestCompositeProduct(TestCase):
+    def setUp(self):
+        self.product1 = Product.objects.create(name='Product1')
+        self.product2 = Product.objects.create(name='Product2')
+        self.composite_product = CompositeProduct.objects.create(name='Composite')
+        self.composite_product.products.add(self.product1)
+        self.composite_product.products.add(self.product2)
+
+    def test_products_added_to_composite_product(self):
+        self.assertIn(self.product1, self.composite_product.products.all())
+        self.assertIn(self.product2, self.composite_product.products.all())

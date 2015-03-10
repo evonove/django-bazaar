@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
-from django.utils import timezone
 
 from django.utils.text import slugify
 from factory import fuzzy

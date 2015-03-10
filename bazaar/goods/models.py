@@ -28,8 +28,10 @@ class Product(models.Model):
     code = models.CharField(max_length=20, db_index=True, blank=True)
     photo = models.ImageField(upload_to='products', null=True, blank=True)
     price = MoneyField(help_text=_("Base default price for product"), validators=[MinValueValidator(limit_value=0)])
-    price_lists = models.ManyToManyField("PriceList", through="ProductPrice",
-                                         related_name="products")
+
+    # DELETE in future
+    price_lists = models.ManyToManyField("PriceList", through="ProductPrice", related_name="products")
+
     product_type = models.IntegerField(choices=bazaar_settings.PRODUCT_TYPE_CHOICES, null=True, blank=True)
 
     objects = ProductsQuerySet.as_manager()
@@ -49,6 +51,10 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class CompositeProduct(Product):
+    products = models.ManyToManyField("Product", related_name='composites')
 
 
 @python_2_unicode_compatible
