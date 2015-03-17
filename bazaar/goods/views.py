@@ -55,7 +55,7 @@ class ProductDetailView(LoginRequiredMixin, BazaarPrefixMixin, generic.DetailVie
 
         # Check if this product was ever published
         product = self.get_object()
-        has_publishings = Publishing.objects.filter(listing__products=product).exists()
+        has_publishings = Publishing.objects.filter(listing__product=product).exists()
         context['deletable'] = not has_publishings
 
         return context
@@ -77,12 +77,15 @@ class ProductDeleteView(LoginRequiredMixin, BazaarPrefixMixin, generic.DeleteVie
 
     def delete(self, request, *args, **kwargs):
         product = self.get_object()
-        has_publishings = Publishing.objects.filter(listing__products=product).exists()
+        has_publishings = Publishing.objects.filter(listing__product=product).exists()
         if has_publishings:
             return HttpResponseForbidden()
 
         # delete all associated listings
         product.listings.all().delete()
+
+        # FIX refactoring: remove this when removing products from listing model
+        product.listings_old.all().delete()
 
         return super(ProductDeleteView, self).delete(request, *args, **kwargs)
 

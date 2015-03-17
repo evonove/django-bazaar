@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
+from bazaar.warehouse import api
 
 from django.core.validators import MinValueValidator
 
@@ -36,6 +37,23 @@ class Product(models.Model):
 
     objects = ProductsQuerySet.as_manager()
 
+    def move(self, from_location, to_location, **kwargs):
+        quantity = kwargs.get('quantity', 1)
+        price_multiplier = kwargs.get('price_multiplier', 1)
+        price = self.price * price_multiplier
+        agent = kwargs.get('agent', 'merchant')
+        note = kwargs.get('note', '')
+
+        api.move(
+            from_location,
+            to_location,
+            self,
+            quantity,
+            price,
+            agent=agent,
+            note=note
+        )
+
     @property
     def cost(self):
         """
@@ -54,7 +72,27 @@ class Product(models.Model):
 
 
 class CompositeProduct(Product):
-    products = models.ManyToManyField("Product", related_name='composites')
+    products = models.ManyToManyField("Product", related_name='composites', through='ProductSet')
+
+    def move(self, from_location, to_location, **kwargs):
+        quantity = kwargs.pop('quantity', 1)
+        price_multiplier = kwargs.pop('price_multiplier', 1)
+
+        for product_set in self.product_sets.all():
+            # FIXME price not needed, just the multiplier
+            product = product_set.product
+            price = product.price * price_multiplier
+            product_quantity = product_set.quantity * quantity
+            product.move(from_location, to_location, quantity=product_quantity, price=price, **kwargs)
+
+
+class ProductSet(models.Model):
+    composite = models.ForeignKey(CompositeProduct, related_name='product_sets')
+    product = models.ForeignKey(Product, related_name='sets')
+    quantity = models.IntegerField()
+
+    class Meta:
+        unique_together = ('composite', 'product')
 
 
 @python_2_unicode_compatible
