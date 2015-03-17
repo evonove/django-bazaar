@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
+from bazaar.goods.mixins import MoveableProductMixin
 from bazaar.warehouse import api
 
 from django.core.validators import MinValueValidator
@@ -22,7 +23,7 @@ class PriceList(models.Model):
 
 
 @python_2_unicode_compatible
-class Product(models.Model):
+class Product(models.Model, MoveableProductMixin):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     ean = models.CharField(max_length=20, db_index=True)
@@ -36,23 +37,6 @@ class Product(models.Model):
     product_type = models.IntegerField(choices=bazaar_settings.PRODUCT_TYPE_CHOICES, null=True, blank=True)
 
     objects = ProductsQuerySet.as_manager()
-
-    def move(self, from_location, to_location, **kwargs):
-        quantity = kwargs.get('quantity', 1)
-        price_multiplier = kwargs.get('price_multiplier', 1)
-        price = self.price * price_multiplier
-        agent = kwargs.get('agent', 'merchant')
-        note = kwargs.get('note', '')
-
-        api.move(
-            from_location,
-            to_location,
-            self,
-            quantity,
-            price,
-            agent=agent,
-            note=note
-        )
 
     @property
     def cost(self):
@@ -71,19 +55,8 @@ class Product(models.Model):
         return self.name
 
 
-class CompositeProduct(Product):
+class CompositeProduct(Product, MoveableProductMixin):
     products = models.ManyToManyField("Product", related_name='composites', through='ProductSet')
-
-    def move(self, from_location, to_location, **kwargs):
-        quantity = kwargs.pop('quantity', 1)
-        price_multiplier = kwargs.pop('price_multiplier', 1)
-
-        for product_set in self.product_sets.all():
-            # FIXME price not needed, just the multiplier
-            product = product_set.product
-            price = product.price * price_multiplier
-            product_quantity = product_set.quantity * quantity
-            product.move(from_location, to_location, quantity=product_quantity, price=price, **kwargs)
 
 
 class ProductSet(models.Model):
