@@ -49,7 +49,7 @@ class TestApi(BaseTestCase):
         listing_bulk_creation(Product.objects.all())
 
         self.assertEqual(Listing.objects.all().count(), 1)
-        self.assertEqual(Listing.objects.all()[0].listing_sets.all()[0].product, product)
+        self.assertEqual(Listing.objects.first().product, product)
 
         bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = old_setting_value
 

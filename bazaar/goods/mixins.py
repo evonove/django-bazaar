@@ -21,7 +21,7 @@ class MoveableProductMixin(object):
                 agent=agent,
                 note=note
             )
-        else:    
+        else:
             for product_set in self.compositeproduct.product_sets.all():
                 product = product_set.product
                 product_quantity = product_set.quantity * quantity

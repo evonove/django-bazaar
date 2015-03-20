@@ -28,6 +28,16 @@ class ProductFactory(factory.django.DjangoModelFactory):
     price = Money(1, "EUR")
 
 
+class CompositeProductFactory(ProductFactory):
+    class Meta:
+        model = 'goods.CompositeProduct'
+
+
+class ProductSetFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = 'goods.ProductSet'
+
+
 class LocationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = 'warehouse.Location'
@@ -89,15 +99,7 @@ class ListingFactory(factory.django.DjangoModelFactory):
         model = 'listings.Listing'
 
     title = 'Listing test'
-
-    @factory.post_generation
-    def product(self, create, extracted, **kwargs):
-        if not create:
-            return
-
-        if extracted:
-            quantity = kwargs.get("quantity", 1)
-            ListingSetFactory(product=extracted, listing=self, quantity=quantity)
+    product = factory.SubFactory(ProductFactory)
 
     @factory.post_generation
     def products(self, create, extracted, **kwargs):
@@ -106,8 +108,10 @@ class ListingFactory(factory.django.DjangoModelFactory):
 
         if extracted:
             quantity = kwargs.get("quantity", 1)
+            composite = CompositeProductFactory()
+            self.product = composite
             for product in extracted:
-                ListingSetFactory(product=product, listing=self, quantity=quantity)
+                ProductSetFactory(product=product, composite=composite, quantity=quantity)
 
 
 class ListingSetFactory(factory.django.DjangoModelFactory):

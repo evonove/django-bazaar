@@ -12,7 +12,7 @@ from moneyed import Money
 from ..base import BaseTestCase
 from bazaar.listings.models import Listing
 from bazaar.settings import bazaar_settings
-from ..factories import ProductFactory, StockFactory
+from ..factories import ProductFactory, StockFactory, ProductSetFactory
 
 
 class TestProduct(TestCase):
@@ -64,14 +64,9 @@ class TestProduct(TestCase):
         self.assertFalse(Listing.objects.all().exists())
 
         product = ProductFactory()
-        listings = Listing.objects.filter(listing_sets__product=product,
-                                          listing_sets__quantity=1)
+        listings = Listing.objects.filter(product=product)
 
         self.assertEqual(listings.count(), 1)
-
-        listing = listings.get()
-
-        self.assertEqual(listing.listing_sets.count(), 1)
 
     def test_that_a_listing_is_created_only_during_product_creation(self):
         """
@@ -81,16 +76,14 @@ class TestProduct(TestCase):
         self.assertFalse(Listing.objects.all().exists())
 
         product = ProductFactory()
-        listings = Listing.objects.filter(listing_sets__product=product,
-                                          listing_sets__quantity=1)
+        listings = Listing.objects.filter(product=product)
 
         self.assertEqual(listings.count(), 1)
 
         product.name = "test"
         product.save()
 
-        listings = Listing.objects.filter(listing_sets__product=product,
-                                          listing_sets__quantity=1)
+        listings = Listing.objects.filter(product=product)
         self.assertEqual(listings.count(), 1)
 
     def tearDown(self):
@@ -129,8 +122,8 @@ class TestCompositeProduct(TestCase):
         self.product1 = Product.objects.create(name='Product1')
         self.product2 = Product.objects.create(name='Product2')
         self.composite_product = CompositeProduct.objects.create(name='Composite')
-        self.composite_product.products.add(self.product1)
-        self.composite_product.products.add(self.product2)
+        ProductSetFactory(composite=self.composite_product, product=self.product1, quantity=1)
+        ProductSetFactory(composite=self.composite_product, product=self.product2, quantity=1)
 
     def test_products_added_to_composite_product(self):
         self.assertIn(self.product1, self.composite_product.products.all())

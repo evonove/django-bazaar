@@ -26,7 +26,7 @@ class TestListingsListView(TestBase):
         """
         # By default this operation will create a bound listing x1 of that product
         self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
-        self.listing = self.product.listing_sets.all()[0].listing
+        self.listing = self.product.listings.first()
 
         self.client.login(username=self.user.username, password='test')
         response = self.client.get(reverse('bazaar:listings-list'))
@@ -73,7 +73,7 @@ class TestListingUpdateView(TestBase):
         """
         # By default this operation will create a bound listing x1 of that product
         self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
-        self.listing = self.product.listing_sets.all()[0].listing
+        self.listing = self.product.listings.first()
 
         one_item_listing = ListingFactory(title=self.product.name, description=self.product.description)
         ListingSetFactory(listing=one_item_listing, product=self.product, quantity=1)
@@ -97,7 +97,7 @@ class TestListingUpdateView(TestBase):
         """
         # By default this operation will create a bound listing x1 of that product
         self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
-        self.listing = self.product.listing_sets.all()[0].listing
+        self.listing = self.product.listings.first()
 
         one_item_listing = ListingFactory(title=self.product.name, description=self.product.description)
         ListingSetFactory(listing=one_item_listing, product=self.product, quantity=1)
@@ -115,50 +115,6 @@ class TestListingUpdateView(TestBase):
 
         listing_exits = Listing.objects.filter(products__id=self.product.pk, title='ModifiedTitle').exists()
         self.assertEqual(listing_exits, False)
-
-    def test_update_simple_view_fails_when_listingset_attrs_are_changed_in_a_listing_with_associated_publishing(self):
-        """
-        Test that the update view fails with incorrect input [quantity is not a number, product is None]
-        """
-        # By default this operation will create a bound listing x1 of that product
-        self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
-        self.listing = self.product.listing_sets.all()[0].listing
-        ListingSetFactory(listing=self.listing, product=self.product, quantity=2)
-
-        self.client.login(username=self.user.username, password='test')
-        data = {
-            'title': 'ModifiedTitle',
-            'picture_url': 'http://myurl.com/myinage.jpg',
-            'description': 'Description of ModifiedTitle',
-            'quantity': 1,
-            'product': self.product.id,
-        }
-        response = self.client.post(reverse('bazaar:listings-update',
-                                            kwargs={'pk': self.product.listing_sets.all()[0].pk}), data=data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('one listingset per listing', response.context_data['form'].errors[forms.NON_FIELD_ERRORS][0])
-
-    def test_update_simple_view_fails_when_there_are_none_listingset_associated_to_listing(self):
-        """
-        Test that the update view fails with incorrect input [quantity is not a number, product is None]
-        """
-        # By default this operation will create a bound listing x1 of that product
-        self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
-        self.listing = self.product.listing_sets.all()[0].listing
-        PublishingFactory(listing=self.listing)
-
-        self.client.login(username=self.user.username, password='test')
-        data = {
-            'title': 'ModifiedTitle',
-            'picture_url': 'http://myurl.com/myinage.jpg',
-            'description': 'Description of ModifiedTitle',
-            'quantity': 2,
-            'product': self.product.id,
-        }
-        response = self.client.post(reverse('bazaar:listings-update',
-                                            kwargs={'pk': self.product.listing_sets.all()[0].pk}), data=data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('Updating listingset is denied', response.context_data['form'].errors[forms.NON_FIELD_ERRORS][0])
 
     def test_update_listing_does_not_change_sku(self):
         self.client.login(username=self.user.username, password='test')
@@ -199,7 +155,7 @@ class TestListingCreateView(TestBase):
         """
         # By default this operation will create a bound listing x1 of that product
         self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
-        self.listing = self.product.listing_sets.all()[0].listing
+        self.listing = self.product.listings.first()
 
         self.client.login(username=self.user.username, password='test')
         data = {
@@ -219,7 +175,7 @@ class TestListingCreateView(TestBase):
         """
         # By default this operation will create a bound listing x1 of that product
         self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
-        self.listing = self.product.listing_sets.all()[0].listing
+        self.listing = self.product.listings.first()
         data = {
             'title': 'ModifiedTitle',
             'picture_url': 'http://myurl.com/myinage.jpg',
@@ -236,7 +192,7 @@ class TestListingCreateView(TestBase):
         """
         # By default this operation will create a bound listing x1 of that product
         self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
-        self.listing = self.product.listing_sets.all()[0].listing
+        self.listing = self.product.listings.first()
         self.client.login(username=self.user.username, password='test')
         data = {
             'title': 'ModifiedTitle',
@@ -264,7 +220,7 @@ class TestDeleteView(TestBase):
         """
         # By default this operation will create a bound listing x1 of that product
         self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
-        self.listing = self.product.listing_sets.all()[0].listing
+        self.listing = self.product.listings.first()
 
         self.client.login(username=self.user.username, password='test')
         response = self.client.post(reverse('bazaar:listings-delete', kwargs={'pk': self.listing.pk}))
@@ -279,7 +235,7 @@ class TestDeleteView(TestBase):
         """
         # By default this operation will create a bound listing x1 of that product
         self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
-        self.listing = self.product.listing_sets.all()[0].listing
+        self.listing = self.product.listings.first()
         publishing = PublishingFactory(listing=self.listing)
 
         self.client.login(username=self.user.username, password='test')

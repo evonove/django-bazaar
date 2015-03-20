@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 from bazaar.goods.mixins import MoveableProductMixin
-from bazaar.warehouse import api
 
 from django.core.validators import MinValueValidator
 

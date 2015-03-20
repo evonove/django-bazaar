@@ -16,7 +16,36 @@ __all__ = [
 ]
 
 
+def get_single_product_stock_quantity(product, location_type=None, **kwargs):
+    from ..models import Stock
+
+    qs = Stock.objects.filter(product=product, **kwargs)
+
+    if location_type:
+        if isinstance(location_type, collections.Sequence):
+            qs = qs.filter(location__type__in=location_type)
+        else:
+            qs = qs.filter(location__type=location_type)
+
+    result = qs.aggregate(Sum("quantity"))
+
+    return result["quantity__sum"] or 0
+
+
 def get_stock_quantity(product, location_type=None, **kwargs):
+    is_composite = hasattr(product, 'compositeproduct')
+    if is_composite:
+        quantities = []
+        for product_set in product.compositeproduct.product_sets.all():
+            quantity = get_single_product_stock_quantity(product_set.product, location_type=location_type, **kwargs)
+            quantity = quantity // product_set.quantity
+            quantities.append(quantity)
+        return min(quantities)
+    else:
+        return get_single_product_stock_quantity(product, location_type=location_type, **kwargs)
+
+
+def get_stock_quantity_old(product, location_type=None, **kwargs):
     from ..models import Stock
 
     qs = Stock.objects.filter(product=product, **kwargs)

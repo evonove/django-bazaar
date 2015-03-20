@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 from django.dispatch import receiver
 
 from django.test import TestCase
-from bazaar.fields import MoneyField
 from bazaar.settings import bazaar_settings
 
 from bazaar.warehouse.exceptions import MovementException
@@ -14,7 +13,7 @@ from bazaar.warehouse.signals import lost_and_found_changed, supplier_changed, s
 
 from ..base import BaseTestCase
 from ..factories import (ProductFactory, StorageFactory, SupplierFactory, StockFactory,
-                         CustomerFactory, OutputFactory, LostFoundFactory)
+                         CustomerFactory, OutputFactory, LostFoundFactory, CompositeProductFactory, ProductSetFactory)
 
 
 class TestMovementApi(BaseTestCase):
@@ -248,6 +247,41 @@ class TestStock(TestCase):
         self.assertEqual(storage_stock.unit_price, Money(0.575, "EUR"))
         self.assertEqual(output_stock.unit_price, Money(1.75, "EUR"))
 
+#
+# class TestStockApi(TestCase):
+#     def setUp(self):
+#         self.product_a = ProductFactory()
+#         self.stock_a = StockFactory(product=self.product_a, unit_price=2.0, quantity=30)
+#         self.stock_b = StockFactory(product=self.product_a, unit_price=4.0, quantity=10)
+#         self.stock_c = StockFactory(product=self.product_a, unit_price=3.0, quantity=10)
+#
+#     def test_get_stock_quantity(self):
+#         quantity = get_stock_quantity(self.product_a, Location.LOCATION_STORAGE)
+#         self.assertEqual(quantity, 50)
+#
+#     def test_get_stock_quantity_from_empty_stock(self):
+#         quantity = get_stock_quantity(ProductFactory(), Location.LOCATION_STORAGE)
+#         self.assertEqual(quantity, 0)
+#
+#     def test_get_stock_price(self):
+#         price = get_stock_price(self.product_a, Location.LOCATION_STORAGE)
+#         self.assertEqual(price, Money(2.6, "EUR"))
+#
+#     def test_get_stock_price_no_stocks(self):
+#         price = get_stock_price(ProductFactory(), Location.LOCATION_STORAGE)
+#         self.assertEqual(price, Money(0, "EUR"))
+#
+#     def test_get_stock_price_empty_stocks(self):
+#         product = ProductFactory()
+#         StockFactory(product=product, unit_price=2.0, quantity=0)
+#         StockFactory(product=product, unit_price=4.0, quantity=0)
+#         StockFactory(product=product, unit_price=3.0, quantity=0)
+#
+#         with self.assertNumQueries(1):
+#             price = get_stock_price(product, Location.LOCATION_STORAGE)
+#
+#         self.assertEqual(price, Money(3.0, "EUR"))
+
 
 class TestStockApi(TestCase):
     def setUp(self):
@@ -256,9 +290,20 @@ class TestStockApi(TestCase):
         self.stock_b = StockFactory(product=self.product_a, unit_price=4.0, quantity=10)
         self.stock_c = StockFactory(product=self.product_a, unit_price=3.0, quantity=10)
 
-    def test_get_stock_quantity(self):
+        self.product_b = ProductFactory()
+        self.stock_d = StockFactory(product=self.product_b, unit_price=1.0, quantity=10)
+
+        self.composite_product = CompositeProductFactory()
+        self.product_set_a = ProductSetFactory(product=self.product_a, composite=self.composite_product, quantity=2)
+        self.product_set_b = ProductSetFactory(product=self.product_b, composite=self.composite_product, quantity=1)
+
+    def test_get_stock_quantity_for_single_product(self):
         quantity = get_stock_quantity(self.product_a, Location.LOCATION_STORAGE)
         self.assertEqual(quantity, 50)
+
+    def test_get_stock_quantity_for_composite_product(self):
+        quantity = get_stock_quantity(self.composite_product, Location.LOCATION_STORAGE)
+        self.assertEqual(quantity, 10)
 
     def test_get_stock_quantity_from_empty_stock(self):
         quantity = get_stock_quantity(ProductFactory(), Location.LOCATION_STORAGE)
