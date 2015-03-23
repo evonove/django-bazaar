@@ -88,9 +88,8 @@ class TestPublishingModelManager(TestCase):
 class TestListingModel(TestCase):
     def setUp(self):
         self.product = ProductFactory()
-        self.listing = ListingFactory()
+        self.listing = ListingFactory(product=self.product)
         self.stock_a = StockFactory(product=self.product, unit_price=2.0, quantity=30)
-        self.listing_set = ListingSetFactory(product=self.product, listing=self.listing)
 
     def tearDown(self):
         pass
