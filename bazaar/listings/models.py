@@ -8,11 +8,9 @@ from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
-from moneyed import Money
 from bazaar.listings.managers import PublishingsManager
 from bazaar.listings.querysets import PublishingsQuerySet
 from bazaar.warehouse import api
-from ..warehouse.api import get_storage_price, get_storage_quantity
 
 from ..fields import MoneyField, SKUField, create_sku
 from ..goods.models import Product
@@ -43,60 +41,40 @@ class Listing(models.Model):
         """
         Returns available units of the whole listing in the storage
         """
-        availabilities = []
-        min_available = 0
-        for listing_set in self.listing_sets.all():
-            product = listing_set.product
-            quantity = listing_set.quantity
-            if quantity and product:
-                availabilities.append(api.get_storage_quantity(product) // quantity)
-        if availabilities:
-            min_available = min(availabilities)
-        return min_available
+        return api.get_storage_quantity(self.product)
 
     @property
     def cost(self):
         """
         Returns global cost for the listing
         """
-        cost = Money(0, bazaar_settings.DEFAULT_CURRENCY)
-        for ls in self.listing_sets.all():
-            try:
-                avg_cost = get_storage_price(ls.product)
-            except models.ObjectDoesNotExist:
-                avg_cost = 0
-
-            cost += avg_cost * float(ls.quantity)
-
-        return cost
+        return api.get_storage_price(self.product)
 
     def is_unavailable(self):
         """
         Returns True when products stock cannot satisfy published listings
         """
-        for ls in self.listing_sets.all():
-            try:
-                product_quantity = get_storage_quantity(ls.product)
-            except models.ObjectDoesNotExist:
-                product_quantity = 0
-            for publishing in self.publishings.all():
-                if publishing.is_active():
-                    if product_quantity < publishing.available_units * ls.quantity:
-                        return True
+        try:
+            product_quantity = api.get_storage_quantity(self.product)
+        except models.ObjectDoesNotExist:
+            product_quantity = 0
+        for publishing in self.publishings.all():
+            if publishing.is_active():
+                if product_quantity < publishing.available_units:
+                    return True
         return False
 
     def is_highly_available(self):
         """
         Return True when products stock has more elements than published one
         """
-        for ls in self.listing_sets.all():
-            try:
-                product_quantity = get_storage_quantity(ls.product)
-            except models.ObjectDoesNotExist:
-                product_quantity = 0
-            for publishing in self.publishings.all():
-                if publishing.is_active():
-                    if (product_quantity - (publishing.available_units * ls.quantity)) / ls.quantity > 2:
+        try:
+            product_quantity = api.get_storage_quantity(self.product)
+        except models.ObjectDoesNotExist:
+            product_quantity = 0
+        for publishing in self.publishings.all():
+            if publishing.is_active():
+                if product_quantity - publishing.available_units > 2:
                         return True
         return False
 
