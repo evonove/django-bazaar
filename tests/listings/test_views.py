@@ -88,7 +88,7 @@ class TestListingUpdateView(TestBase):
         }
         response = self.client.post(reverse('bazaar:listings-update', kwargs={'pk': self.product.pk}), data=data)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        listing = Listing.objects.get(products__id=self.product.pk, title='ModifiedTitle')
+        listing = Listing.objects.get(product__id=self.product.pk, title='ModifiedTitle')
         self.assertEqual(listing.title, 'ModifiedTitle')
 
     def test_update_view_fails_with_incorrect_data(self):
@@ -166,7 +166,7 @@ class TestListingCreateView(TestBase):
             'product': self.product.id
         }
         response = self.client.post(reverse('bazaar:listings-create'), data=data)
-        new_listing = Listing.objects.get(products__id=self.product.pk, title='ModifiedTitle')
+        new_listing = Listing.objects.get(product=self.product, title='ModifiedTitle')
         self.assertRedirects(response, '/listings/%s/' % new_listing.pk)
 
     def test_create_view_not_working_without_login(self):
