@@ -120,6 +120,9 @@ def create_listing_for_product(sender, instance, **kwargs):
     if not kwargs['created']:
         return
 
+    if hasattr(instance, 'compositeproduct'):
+        return
+
     from bazaar.goods.api import listing_bulk_creation
     listing_bulk_creation(Product.objects.filter(pk=instance.id).all())
 

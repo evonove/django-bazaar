@@ -6,7 +6,7 @@ from bazaar.listings.models import Listing
 from bazaar.settings import bazaar_settings
 
 from ..base import BaseTestCase
-from ..factories import ProductFactory, ListingFactory, ListingSetFactory
+from ..factories import ProductFactory, ListingFactory, CompositeProductFactory, ProductSetFactory
 
 
 class TestApi(BaseTestCase):
@@ -67,9 +67,10 @@ class TestApi(BaseTestCase):
         self.assertEqual(Listing.objects.all().count(), 0)
 
         # create a listing with 2 products
-        listing = ListingFactory()
-        ListingSetFactory(product=ProductFactory(), listing=listing)
-        ListingSetFactory(product=ProductFactory(), listing=listing)
+        composite = CompositeProductFactory()
+        ProductSetFactory(product=ProductFactory(), composite=composite, quantity=1)
+        ProductSetFactory(product=ProductFactory(), composite=composite, quantity=1)
+        ListingFactory(product=composite)
 
         self.assertEqual(Listing.objects.all().count(), 1)
 
@@ -113,9 +114,9 @@ class TestApi(BaseTestCase):
         product = ProductFactory()
 
         # create a listing with 2 products
-        listing = ListingFactory()
-        ListingSetFactory(product=product, listing=listing)
-        ListingSetFactory(product=ProductFactory(), listing=listing)
+        composite = CompositeProductFactory()
+        ProductSetFactory(product=product, composite=composite, quantity=1)
+        ProductSetFactory(product=ProductFactory(), composite=composite, quantity=1)
 
         self.assertIsNotNone(get_oneper_listing_by_product(product))
 

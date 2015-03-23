@@ -28,9 +28,11 @@ class ProductFactory(factory.django.DjangoModelFactory):
     price = Money(1, "EUR")
 
 
-class CompositeProductFactory(ProductFactory):
+class CompositeProductFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = 'goods.CompositeProduct'
+
+    name = 'a composite product'
 
 
 class ProductSetFactory(factory.django.DjangoModelFactory):

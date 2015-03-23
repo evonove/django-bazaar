@@ -1,19 +1,12 @@
 from __future__ import unicode_literals
 from django.contrib import admin
 
-from .models import Listing, ListingSet, Publishing, Store
-
-
-class ListingSetInline(admin.TabularInline):
-    model = ListingSet
-    extra = 1
-    raw_id_fields = ('product',)
+from .models import Listing, Publishing, Store
 
 
 class ListingAdmin(admin.ModelAdmin):
     list_display = ('id', 'sku', 'title')
     search_fields = ('sku', 'title')
-    inlines = [ListingSetInline]
     model = Listing
 
 
