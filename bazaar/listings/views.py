@@ -128,7 +128,6 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
         """
         Even if it's a valid form, it's not possible edit/update the listing set when there are associated publishings
         """
-        # TODO: WARNING: This valid form assumed that only one-type product and one listingset per listing.
         if self.listing_to_update:
             # Update Listing
             listing = Listing.objects.get(pk=self.listing_to_update.id)
@@ -146,30 +145,20 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
                 description=form.cleaned_data.get("description", None)
             )
             publishings_exist = False
-        try:
-            listing_set = self._retrieve_listingset(form)
-        except ListingSet.DoesNotExist:
-            listing_set = None
-        except ListingSet.MultipleObjectsReturned:
-            errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
-            errors.append(_("Update is denied. Allowed only one-product and one listingset per listing."))
-            return self.form_invalid(form)
 
         product = self._retrieve_product(form)
-        if not listing_set:
-            listing_set, is_created = ListingSet.objects.get_or_create(listing=listing,
-                                                                       product=product,
-                                                                       quantity=int(form.cleaned_data.get("quantity")))
+        # TODO: Fix this to work with compositeproducts
+        # if hasattr(product, 'compositeproduct'):
+        #
+        # quantity = int(form.cleaned_data.get("quantity"))
 
-        if publishings_exist and \
-                (listing_set.quantity != int(form.cleaned_data.get("quantity")) or listing_set.product != product):
+        if publishings_exist and listing.product != product:
             errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
-            errors.append(_("Updating listingset is denied. It's not allowed update/edit listingset"
-                            " when listing is associated at least to one publishing."))
+            errors.append(_("Updating listingset is denied. It's not allowed update/edit listings"
+                            " when it is associated at least to one publishing."))
             return self.form_invalid(form)
-
+        listing.product = product
         self.object = listing
-        listing.listing_sets = [listing_set]
         listing.save()
 
         return super(ListingUpdateView, self).form_valid(form)
