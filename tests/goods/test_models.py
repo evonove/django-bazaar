@@ -4,12 +4,9 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from django.test import TestCase
-
-from bazaar.goods.models import Product, PriceList, ProductPrice, CompositeProduct
-
 from moneyed import Money
 
-from ..base import BaseTestCase
+from bazaar.goods.models import Product, CompositeProduct
 from bazaar.listings.models import Listing
 from bazaar.settings import bazaar_settings
 from ..factories import ProductFactory, StockFactory, ProductSetFactory
@@ -88,33 +85,6 @@ class TestProduct(TestCase):
 
     def tearDown(self):
         bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = self.old_setting_value
-
-
-class TestPriceList(BaseTestCase):
-    def setUp(self):
-        self.price_list = PriceList.objects.create(name="foo")
-
-    def tearDown(self):
-        self.price_list.delete()
-
-    def test_model(self):
-        self.assertEqual("%s" % self.price_list, "foo")
-
-
-class TestProductPrice(BaseTestCase):
-    def setUp(self):
-        self.product = Product.objects.create(name="a product")
-        self.price_list = PriceList.objects.create(name="foo")
-        self.product_price = ProductPrice.objects.create(
-            price=10, product=self.product, price_list=self.price_list)
-
-    def tearDown(self):
-        self.product.delete()
-        self.product_price.delete()
-        self.price_list.delete()
-
-    def test_model(self):
-        self.assertEqual("%s" % self.product_price, "'a product' foo 10.00 €")
 
 
 class TestCompositeProduct(TestCase):
