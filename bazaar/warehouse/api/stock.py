@@ -45,23 +45,7 @@ def get_stock_quantity(product, location_type=None, **kwargs):
         return get_single_product_stock_quantity(product, location_type=location_type, **kwargs)
 
 
-def get_stock_quantity_old(product, location_type=None, **kwargs):
-    from ..models import Stock
-
-    qs = Stock.objects.filter(product=product, **kwargs)
-
-    if location_type:
-        if isinstance(location_type, collections.Sequence):
-            qs = qs.filter(location__type__in=location_type)
-        else:
-            qs = qs.filter(location__type=location_type)
-
-    result = qs.aggregate(Sum("quantity"))
-
-    return result["quantity__sum"] or 0
-
-
-def get_stock_price(product, location_type=None, **kwargs):
+def get_stock_price_for_single_product(product, location_type=None, **kwargs):
     from ..models import Stock
 
     qs = Stock.objects.filter(product=product, **kwargs)
@@ -85,6 +69,20 @@ def get_stock_price(product, location_type=None, **kwargs):
         value = 0
 
     return money_to_default(value)
+
+
+def get_stock_price(product, location_type=None, **kwargs):
+    is_composite = hasattr(product, 'compositeproduct')
+    cost = 0
+    sets = 0
+    if is_composite:
+        for product_set in product.compositeproduct.product_sets.all():
+            cost += get_stock_price_for_single_product(product_set.product, location_type=location_type, **kwargs)
+            sets += 1
+        cost = cost / sets
+    else:
+        cost = get_stock_price_for_single_product(product, location_type=location_type, **kwargs)
+    return cost
 
 
 def get_supplier_quantity(product, **kwargs):
