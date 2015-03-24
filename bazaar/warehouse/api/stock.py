@@ -16,7 +16,7 @@ __all__ = [
 ]
 
 
-def get_single_product_stock_quantity(product, location_type=None, **kwargs):
+def get_stock_quantity(product, location_type=None, **kwargs):
     from ..models import Stock
 
     qs = Stock.objects.filter(product=product, **kwargs)
@@ -32,20 +32,7 @@ def get_single_product_stock_quantity(product, location_type=None, **kwargs):
     return result["quantity__sum"] or 0
 
 
-def get_stock_quantity(product, location_type=None, **kwargs):
-    is_composite = hasattr(product, 'compositeproduct')
-    if is_composite:
-        quantities = []
-        for product_set in product.compositeproduct.product_sets.all():
-            quantity = get_single_product_stock_quantity(product_set.product, location_type=location_type, **kwargs)
-            quantity = quantity // product_set.quantity
-            quantities.append(quantity)
-        return min(quantities)
-    else:
-        return get_single_product_stock_quantity(product, location_type=location_type, **kwargs)
-
-
-def get_stock_price_for_single_product(product, location_type=None, **kwargs):
+def get_stock_price(product, location_type=None, **kwargs):
     from ..models import Stock
 
     qs = Stock.objects.filter(product=product, **kwargs)
@@ -69,20 +56,6 @@ def get_stock_price_for_single_product(product, location_type=None, **kwargs):
         value = 0
 
     return money_to_default(value)
-
-
-def get_stock_price(product, location_type=None, **kwargs):
-    is_composite = hasattr(product, 'compositeproduct')
-    cost = 0
-    sets = 0
-    if is_composite:
-        for product_set in product.compositeproduct.product_sets.all():
-            cost += get_stock_price_for_single_product(product_set.product, location_type=location_type, **kwargs)
-            sets += 1
-        cost = cost / sets
-    else:
-        cost = get_stock_price_for_single_product(product, location_type=location_type, **kwargs)
-    return cost
 
 
 def get_supplier_quantity(product, **kwargs):
