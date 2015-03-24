@@ -4,9 +4,12 @@ from __future__ import unicode_literals
 from django.core.validators import MinValueValidator
 
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-from .mixins import MoveableProductMixin
+from bazaar.warehouse import api
+from .mixins import MovableProductMixin, MovableCompositeProductMixin
 from .querysets import ProductsQuerySet
 from bazaar.settings import bazaar_settings
 
@@ -14,7 +17,7 @@ from ..fields import MoneyField
 
 
 @python_2_unicode_compatible
-class Product(models.Model, MoveableProductMixin):
+class Product(MovableProductMixin, models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     ean = models.CharField(max_length=20, db_index=True)
@@ -43,7 +46,7 @@ class Product(models.Model, MoveableProductMixin):
         return self.name
 
 
-class CompositeProduct(Product, MoveableProductMixin):
+class CompositeProduct(MovableCompositeProductMixin, Product):
     products = models.ManyToManyField("Product", related_name='composites', through='ProductSet')
 
 
@@ -55,3 +58,39 @@ class ProductSet(models.Model):
     class Meta:
         unique_together = ('composite', 'product')
 
+
+# FIXME: please, handle locations better than this
+# For me in the future: i'm sorry
+@receiver(post_save, sender=ProductSet)
+def create_stock_and_set_price(sender, instance, *args, **kwargs):
+    composite = instance.composite
+    from ..warehouse.models import Stock, Location
+    try:
+        location = Location.objects.get(type=Location.LOCATION_STORAGE)
+    except Location.MultipleObjectsReturned:
+        location = Location.objects.filter(type=Location.LOCATION_STORAGE).first()
+    except Location.DoesNotExist:
+        location = Location.objects.create(type=Location.LOCATION_STORAGE)
+    stock, created = Stock.objects.get_or_create(product=composite, location=location)
+    if created:
+        product_quantity = api.get_storage_quantity(instance.product)
+        product_price = api.get_storage_price(instance.product)
+        composite_quantity = product_quantity // instance.quantity
+        composite_price = product_price * instance.quantity
+        stock.quantity = composite_quantity
+        stock.unit_price = composite_price
+        stock.save()
+    else:
+        quantities = []
+        prices = []
+        for ps in composite.product_sets.all():
+            product_quantity = api.get_storage_quantity(ps.product)
+            product_price = api.get_storage_price(ps.product)
+            quantities.append(product_quantity // ps.quantity)
+            prices.append(product_price.amount * ps.quantity)
+        unit_price = sum(prices) / composite.product_sets.count()
+        if stock.unit_price != unit_price:
+            stock.unit_price = unit_price
+        if min(quantities) != api.get_storage_quantity(composite):
+            stock.quantity = min(quantities)
+        stock.save()
