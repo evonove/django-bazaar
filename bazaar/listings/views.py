@@ -20,7 +20,7 @@ from ..goods.models import Product
 from ..listings.seralizers import ListingSerializer
 from ..settings import bazaar_settings
 from .forms import ListingForm, PublishingForm
-from .models import Listing, ListingSet, Publishing
+from .models import Listing, Publishing
 from .stores import stores_loader
 from ..mixins import BazaarPrefixMixin, FilterMixin, FilterSortableListView
 
@@ -114,12 +114,6 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
     def get_success_url(self):
         return reverse_lazy("bazaar:listings-detail", kwargs={'pk': self.object.id})
 
-    def _retrieve_listingset(self, form):
-        listing_id = self.kwargs.get("pk", None)
-        if listing_id:
-            return ListingSet.objects.get(listing_id=listing_id)
-        return None
-
     def _retrieve_product(self, form):
         product_id = form.clean_product()
         return Product.objects.get(id=product_id)
@@ -147,14 +141,10 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
             publishings_exist = False
 
         product = self._retrieve_product(form)
-        # TODO: Fix this to work with compositeproducts
-        # if hasattr(product, 'compositeproduct'):
-        #
-        # quantity = int(form.cleaned_data.get("quantity"))
 
         if publishings_exist and listing.product != product:
             errors = form._errors.setdefault(forms.NON_FIELD_ERRORS, ErrorList())
-            errors.append(_("Updating listingset is denied. It's not allowed update/edit listings"
+            errors.append(_("Updating listing is denied. It's not allowed update/edit listings"
                             " when it is associated at least to one publishing."))
             return self.form_invalid(form)
         listing.product = product
