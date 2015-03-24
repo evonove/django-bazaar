@@ -10,7 +10,7 @@ import pytz
 
 from bazaar.listings.models import Store, Listing, Publishing
 from moneyed import Money
-from ..factories import (ProductFactory, StockFactory, ListingFactory, ListingSetFactory)
+from ..factories import (ProductFactory, StockFactory, ListingFactory)
 
 
 class TestPublishingModelManager(TestCase):

@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from django.forms import forms
 from django.test import TestCase
 
 from django.utils.translation import ugettext as _
@@ -75,8 +74,8 @@ class TestListingUpdateView(TestBase):
         self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
         self.listing = self.product.listings.first()
 
-        one_item_listing = ListingFactory(title=self.product.name, description=self.product.description)
-        ListingSetFactory(listing=one_item_listing, product=self.product, quantity=1)
+        ListingFactory(title=self.product.name, description=self.product.description,
+                       product=self.product)
 
         self.client.login(username=self.user.username, password='test')
         data = {
@@ -86,7 +85,7 @@ class TestListingUpdateView(TestBase):
             'quantity': 2,
             'product': self.product.id,
         }
-        response = self.client.post(reverse('bazaar:listings-update', kwargs={'pk': self.product.pk}), data=data)
+        response = self.client.post(reverse('bazaar:listings-update', kwargs={'pk': self.listing.pk}), data=data)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         listing = Listing.objects.get(product__id=self.product.pk, title='ModifiedTitle')
         self.assertEqual(listing.title, 'ModifiedTitle')
@@ -99,8 +98,8 @@ class TestListingUpdateView(TestBase):
         self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
         self.listing = self.product.listings.first()
 
-        one_item_listing = ListingFactory(title=self.product.name, description=self.product.description)
-        ListingSetFactory(listing=one_item_listing, product=self.product, quantity=1)
+        one_item_listing = ListingFactory(title=self.product.name, description=self.product.description,
+                                          product=self.product)
 
         self.client.login(username=self.user.username, password='test')
         data = {
@@ -110,10 +109,10 @@ class TestListingUpdateView(TestBase):
             'quantity': 'two'
         }
         response = self.client.post(reverse('bazaar:listings-update',
-                                            kwargs={'pk': self.product.listing_sets.all()[0].pk}), data=data)
+                                            kwargs={'pk': self.listing.pk}), data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        listing_exits = Listing.objects.filter(products__id=self.product.pk, title='ModifiedTitle').exists()
+        listing_exits = Listing.objects.filter(product__id=self.product.pk, title='ModifiedTitle').exists()
         self.assertEqual(listing_exits, False)
 
     def test_update_listing_does_not_change_sku(self):

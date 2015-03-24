@@ -9,7 +9,10 @@ from moneyed import Money
 from bazaar.goods.models import Product, CompositeProduct
 from bazaar.listings.models import Listing
 from bazaar.settings import bazaar_settings
-from ..factories import ProductFactory, StockFactory, ProductSetFactory
+from bazaar.warehouse.api import get_storage_quantity
+from ..factories import ProductFactory, StockFactory, ProductSetFactory, CompositeProductFactory, LocationFactory, \
+    StorageFactory, LostFoundFactory, OutputFactory
+from market.locations import get_lost_and_found, get_storage
 
 
 class TestProduct(TestCase):
@@ -98,3 +101,75 @@ class TestCompositeProduct(TestCase):
     def test_products_added_to_composite_product(self):
         self.assertIn(self.product1, self.composite_product.products.all())
         self.assertIn(self.product2, self.composite_product.products.all())
+
+
+class TestProductMovements(TestCase):
+    def setUp(self):
+        self.storage = StorageFactory()
+        self.lost_and_found = LostFoundFactory()
+        self.output = OutputFactory()
+
+        self.product_1 = ProductFactory()
+        self.product_2 = ProductFactory()
+
+        self.composite_1 = CompositeProductFactory()
+        self.composite_2 = CompositeProductFactory()
+
+        self.ps_1 = ProductSetFactory(product=self.product_1, composite=self.composite_1, quantity=1)
+        self.ps_2 = ProductSetFactory(product=self.product_1, composite=self.composite_2, quantity=2)
+        self.ps_3 = ProductSetFactory(product=self.product_2, composite=self.composite_2, quantity=3)
+
+    def test_add_one_product_creates_stock_only_for_composite_1(self):
+        self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=1)
+
+        self.assertEqual(get_storage_quantity(product=self.composite_1), 1)
+        self.assertEqual(get_storage_quantity(product=self.composite_2), 0)
+        self.assertEqual(get_storage_quantity(product=self.product_1), 1)
+
+    def test_add_more_products_creates_correct_stocks(self):
+        self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=2)
+        self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, quantity=3)
+
+        self.assertEqual(get_storage_quantity(product=self.composite_1), 2)
+        self.assertEqual(get_storage_quantity(product=self.composite_2), 1)
+        self.assertEqual(get_storage_quantity(product=self.product_1), 2)
+        self.assertEqual(get_storage_quantity(product=self.product_2), 3)
+
+    def test_remove_products_update_composite_quantity_correctly(self):
+        self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=2)
+        self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, quantity=3)
+
+        self.assertEqual(get_storage_quantity(product=self.composite_1), 2)
+        self.assertEqual(get_storage_quantity(product=self.composite_2), 1)
+
+        self.product_1.move(from_location=self.storage, to_location=self.output)
+
+        self.assertEqual(get_storage_quantity(product=self.composite_1), 1)
+        self.assertEqual(get_storage_quantity(product=self.composite_2), 0)
+
+    def test_move_composite_products(self):
+        self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=2)
+        self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, quantity=3)
+
+        self.assertEqual(get_storage_quantity(product=self.composite_1), 2)
+        self.assertEqual(get_storage_quantity(product=self.composite_2), 1)
+
+        self.composite_1.move(from_location=self.storage, to_location=self.output)
+
+        self.assertEqual(get_storage_quantity(product=self.composite_1), 1)
+        self.assertEqual(get_storage_quantity(product=self.composite_2), 0)
+        self.assertEqual(get_storage_quantity(product=self.product_1), 1)
+
+    def test_move_composite_products_negative_quantities(self):
+        self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=2)
+        self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, quantity=3)
+
+        self.assertEqual(get_storage_quantity(product=self.composite_1), 2)
+        self.assertEqual(get_storage_quantity(product=self.composite_2), 1)
+
+        self.composite_1.move(from_location=self.storage, to_location=self.output, quantity=3)
+
+        # FIXME: Should composite product stocks go under 0??
+        self.assertEqual(get_storage_quantity(product=self.composite_1), -1)
+        self.assertEqual(get_storage_quantity(product=self.composite_2), -1)
+        self.assertEqual(get_storage_quantity(product=self.product_1), -1)
