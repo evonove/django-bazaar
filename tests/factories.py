@@ -116,19 +116,15 @@ class ListingFactory(factory.django.DjangoModelFactory):
                 ProductSetFactory(product=product, composite=composite, quantity=quantity)
 
 
-class ListingSetFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = 'listings.ListingSet'
-
-    product = factory.SubFactory(ProductFactory)
-    listing = factory.SubFactory(ListingFactory)
-
-    quantity = 1
-
-
 class StoreFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = 'listings.store'
+
+    name = factory.Sequence(lambda n: 'Store{0}'.format(n))
+
+    @factory.lazy_attribute_sequence
+    def slug(self, n):
+        return "%s%d" % (slugify(self.name), n)
 
 
 class PublishingFactory(factory.django.DjangoModelFactory):

@@ -31,6 +31,9 @@ class MovableProductMixin(MovableMixin):
         note = kwargs.get('note', '')
         api.move(from_location, to_location, self, quantity, price, agent=agent, note=note)
         quantities = []
+        # FIXME: unit price should be unit_cost
+        unit_price = 0
+
         # FIXME: please, handle locations better than this
         # For me in the future: i'm sorry (again)
         from ..warehouse.models import Location
@@ -44,12 +47,16 @@ class MovableProductMixin(MovableMixin):
             composite = ps.composite
             for cps in composite.product_sets.all():
                 quantity = api.get_storage_quantity(cps.product)
+                product_price = api.get_storage_price(ps.product)
                 quantities.append(quantity // cps.quantity)
+                unit_price = unit_price + (product_price.amount * cps.quantity)
+            from ..warehouse.models import Stock
+            stock, created = Stock.objects.get_or_create(product=composite, location=location)
+            if stock.unit_price != unit_price:
+                stock.unit_price = unit_price
             if min(quantities) != api.get_storage_quantity(composite):
-                from ..warehouse.models import Stock
-                stock, created = Stock.objects.get_or_create(product=composite, location=location)
                 stock.quantity = min(quantities)
-                stock.save()
+            stock.save()
 
 
 class MovableCompositeProductMixin(MovableMixin):
@@ -66,7 +73,6 @@ class MovableCompositeProductMixin(MovableMixin):
         LOCATION_PIPELINE = {
             Location.LOCATION_STORAGE: (Location.LOCATION_CUSTOMER, Location.LOCATION_OUTPUT),
             Location.LOCATION_OUTPUT: (Location.LOCATION_CUSTOMER, Location.LOCATION_STORAGE),
-            Location.LOCATION_CUSTOMER: (Location.LOCATION_STORAGE, ),
         }
 
         price = self.price * price_multiplier

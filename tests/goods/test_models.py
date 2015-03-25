@@ -9,10 +9,8 @@ from moneyed import Money
 from bazaar.goods.models import Product, CompositeProduct
 from bazaar.listings.models import Listing
 from bazaar.settings import bazaar_settings
-from bazaar.warehouse.api import get_storage_quantity
-from ..factories import ProductFactory, StockFactory, ProductSetFactory, CompositeProductFactory, LocationFactory, \
-    StorageFactory, LostFoundFactory, OutputFactory
-from market.locations import get_lost_and_found, get_storage
+from bazaar.warehouse.api import get_storage_quantity, get_storage_price
+from .. import factories as f
 
 
 class TestProduct(TestCase):
@@ -22,13 +20,13 @@ class TestProduct(TestCase):
         bazaar_settings.AUTOMATIC_LISTING_CREATION_ON_PRODUCT_CREATION = True
 
     def test_model(self):
-        self.product = ProductFactory(ean="12345678")
+        self.product = f.ProductFactory(ean="12345678")
         self.assertEqual("%s" % self.product, "a product")
 
     def test_product_cost_property(self):
-        self.product = ProductFactory(ean="12345678")
-        StockFactory(product=self.product, unit_price=10, quantity=10)
-        StockFactory(product=self.product, unit_price=5, quantity=30)
+        self.product = f.ProductFactory(ean="12345678")
+        f.StockFactory(product=self.product, unit_price=10, quantity=10)
+        f.StockFactory(product=self.product, unit_price=5, quantity=30)
 
         self.assertEqual(self.product.cost, Money(6.25, "EUR"))
 
@@ -36,22 +34,22 @@ class TestProduct(TestCase):
         """
         Checks that the ean property is set
         """
-        self.product = ProductFactory(ean="12345678")
+        self.product = f.ProductFactory(ean="12345678")
         self.assertEqual(self.product.ean, "12345678")
 
     def test_product_code_property(self):
         """
         Checks that the ean property is set
         """
-        self.product = ProductFactory(code="thisisacode")
+        self.product = f.ProductFactory(code="thisisacode")
         self.assertEqual(self.product.code, "thisisacode")
 
     def test_ean_should_not_be_none(self):
-        self.product = ProductFactory(ean="12345678")
-        self.assertRaises(Exception, ProductFactory, ean=None)
+        self.product = f.ProductFactory(ean="12345678")
+        self.assertRaises(Exception, f.ProductFactory, ean=None)
 
     def test_product_photo_property(self):
-        self.product = ProductFactory(ean="12345678")
+        self.product = f.ProductFactory(ean="12345678")
         self.product.photo = 'test.jpg'
         self.product.save()
 
@@ -63,7 +61,7 @@ class TestProduct(TestCase):
         """
         self.assertFalse(Listing.objects.all().exists())
 
-        product = ProductFactory()
+        product = f.ProductFactory()
         listings = Listing.objects.filter(product=product)
 
         self.assertEqual(listings.count(), 1)
@@ -75,7 +73,7 @@ class TestProduct(TestCase):
         """
         self.assertFalse(Listing.objects.all().exists())
 
-        product = ProductFactory()
+        product = f.ProductFactory()
         listings = Listing.objects.filter(product=product)
 
         self.assertEqual(listings.count(), 1)
@@ -95,8 +93,8 @@ class TestCompositeProduct(TestCase):
         self.product1 = Product.objects.create(name='Product1')
         self.product2 = Product.objects.create(name='Product2')
         self.composite_product = CompositeProduct.objects.create(name='Composite')
-        ProductSetFactory(composite=self.composite_product, product=self.product1, quantity=1)
-        ProductSetFactory(composite=self.composite_product, product=self.product2, quantity=1)
+        f.ProductSetFactory(composite=self.composite_product, product=self.product1, quantity=1)
+        f.ProductSetFactory(composite=self.composite_product, product=self.product2, quantity=1)
 
     def test_products_added_to_composite_product(self):
         self.assertIn(self.product1, self.composite_product.products.all())
@@ -105,24 +103,25 @@ class TestCompositeProduct(TestCase):
 
 class TestProductMovements(TestCase):
     def setUp(self):
-        self.storage = StorageFactory()
-        self.lost_and_found = LostFoundFactory()
-        self.output = OutputFactory()
+        self.storage = f.StorageFactory()
+        self.lost_and_found = f.LostFoundFactory()
+        self.output = f.OutputFactory()
 
-        self.product_1 = ProductFactory()
-        self.product_2 = ProductFactory()
+        self.product_1 = f.ProductFactory()
+        self.product_2 = f.ProductFactory()
 
-        self.composite_1 = CompositeProductFactory()
-        self.composite_2 = CompositeProductFactory()
+        self.composite_1 = f.CompositeProductFactory()
+        self.composite_2 = f.CompositeProductFactory()
 
-        self.ps_1 = ProductSetFactory(product=self.product_1, composite=self.composite_1, quantity=1)
-        self.ps_2 = ProductSetFactory(product=self.product_1, composite=self.composite_2, quantity=2)
-        self.ps_3 = ProductSetFactory(product=self.product_2, composite=self.composite_2, quantity=3)
+        self.ps_1 = f.ProductSetFactory(product=self.product_1, composite=self.composite_1, quantity=1)
+        self.ps_2 = f.ProductSetFactory(product=self.product_1, composite=self.composite_2, quantity=2)
+        self.ps_3 = f.ProductSetFactory(product=self.product_2, composite=self.composite_2, quantity=3)
 
     def test_add_one_product_creates_stock_only_for_composite_1(self):
-        self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=1)
+        self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=1, price_multiplier=2)
 
         self.assertEqual(get_storage_quantity(product=self.composite_1), 1)
+        self.assertEqual(get_storage_price(product=self.composite_1).amount, 2)
         self.assertEqual(get_storage_quantity(product=self.composite_2), 0)
         self.assertEqual(get_storage_quantity(product=self.product_1), 1)
 
@@ -132,6 +131,10 @@ class TestProductMovements(TestCase):
 
         self.assertEqual(get_storage_quantity(product=self.composite_1), 2)
         self.assertEqual(get_storage_quantity(product=self.composite_2), 1)
+
+        self.assertEqual(get_storage_price(product=self.composite_1).amount, 1)
+        self.assertEqual(get_storage_price(product=self.composite_2).amount, 5)
+
         self.assertEqual(get_storage_quantity(product=self.product_1), 2)
         self.assertEqual(get_storage_quantity(product=self.product_2), 3)
 
@@ -147,7 +150,7 @@ class TestProductMovements(TestCase):
         self.assertEqual(get_storage_quantity(product=self.composite_1), 1)
         self.assertEqual(get_storage_quantity(product=self.composite_2), 0)
 
-    def test_move_composite_products(self):
+    def test_move_composite_products_from_storage_to_output(self):
         self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=2)
         self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, quantity=3)
 

@@ -59,11 +59,12 @@ class ProductSet(models.Model):
         unique_together = ('composite', 'product')
 
 
-# FIXME: please, handle locations better than this
-# For me in the future: i'm sorry
 @receiver(post_save, sender=ProductSet)
 def create_stock_and_set_price(sender, instance, *args, **kwargs):
     composite = instance.composite
+
+    # FIXME: please, handle locations better than this
+    # For me in the future: i'm sorry
     from ..warehouse.models import Stock, Location
     try:
         location = Location.objects.get(type=Location.LOCATION_STORAGE)
@@ -71,6 +72,7 @@ def create_stock_and_set_price(sender, instance, *args, **kwargs):
         location = Location.objects.filter(type=Location.LOCATION_STORAGE).first()
     except Location.DoesNotExist:
         location = Location.objects.create(type=Location.LOCATION_STORAGE)
+
     stock, created = Stock.objects.get_or_create(product=composite, location=location)
     if created:
         product_quantity = api.get_storage_quantity(instance.product)
@@ -82,13 +84,12 @@ def create_stock_and_set_price(sender, instance, *args, **kwargs):
         stock.save()
     else:
         quantities = []
-        prices = []
+        unit_price = 0
         for ps in composite.product_sets.all():
             product_quantity = api.get_storage_quantity(ps.product)
             product_price = api.get_storage_price(ps.product)
             quantities.append(product_quantity // ps.quantity)
-            prices.append(product_price.amount * ps.quantity)
-        unit_price = sum(prices) / composite.product_sets.count()
+            unit_price = unit_price + (product_price.amount * ps.quantity)
         if stock.unit_price != unit_price:
             stock.unit_price = unit_price
         if min(quantities) != api.get_storage_quantity(composite):
