@@ -9,11 +9,12 @@ class BaseAvailabilityBackend(object):
 
 
 class AvailabilityBackend(object):
+    # TODO: TEST THIS ONE
     def available(self, stock):
         pending = Order.objects.filter(
-            publishing__listing__listing_sets__product=stock.product
+            publishing__listing__product=stock.product
         ).filter(status=Order.ORDER_PENDING).extra(
-            select={"pending": "SUM(listings_listingset.quantity * listings_order.quantity)"}
+            select={"pending": "SUM(COALESCE(products.quantity, 1) * listings_order.quantity)"}
         ).values("pending")[0]["pending"]
 
         return stock.quantity - (pending or 0)
