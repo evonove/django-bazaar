@@ -11,4 +11,4 @@ class ProductFilter(BaseFilterSet):
 
     class Meta:
         model = Product
-        exclude = ('price', 'price_lists', 'price_currency')
+        exclude = ('price', 'price_currency')

@@ -5,8 +5,6 @@ def listing_bulk_creation(products):
     """
     Create a 1x listing for every product that doesn't have it yet
     """
-    # import ipdb
-    # ipdb.set_trace()
     one_item_listings = Listing.objects.filter(product__compositeproduct__isnull=True)
 
     products = products.exclude(listings__in=one_item_listings)

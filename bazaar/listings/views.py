@@ -36,7 +36,7 @@ class ListingListView(LoginRequiredMixin, BazaarPrefixMixin, FilterMixin, generi
     def get_queryset(self):
         qs = super(ListingListView, self).get_queryset()
         # prefetch list of values, populated by inherit items, plus items from each store
-        prefetch_list = ["listing_sets__product", "publishings__store"]
+        prefetch_list = ["publishings__store"]
         for manager in stores_loader.get_all_store_managers():
             prefetch_list.extend(manager.get_store_extra("prefetch_list"))
         return qs.prefetch_related(*prefetch_list)
@@ -104,9 +104,10 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
                 initial["title"] = self.listing_to_update.title
                 initial["picture_url"] = self.listing_to_update.picture_url
                 initial["description"] = self.listing_to_update.description
-                if self.listing_to_update.listing_sets.exists():
-                    initial["quantity"] = int(self.listing_to_update.listing_sets.first().quantity)
-                    initial["product"] = self.listing_to_update.listing_sets.first().product.id
+                if self.listing_to_update.product is not None:
+                    initial["product"] = self.listing_to_update.product.id
+                    if self.listing_to_update.product.sets.exists():
+                        initial["quantity"] = int(self.listing_to_update.product.sets.first().quantity)
             except Listing.DoesNotExist:
                 self.error_response = HttpResponseNotFound()
         return initial
