@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.test import TestCase
 from .. import factories as f
+from bazaar.listings.filters import LowPriceListingFilter, UnavailableListingFilter, HighAvailabilityListingFilter, \
+    AvailableUnitsFilter
 from bazaar.listings.models import Listing
 
 
@@ -24,16 +26,28 @@ class TestListingManager(TestCase):
         self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=1)
         self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, quantity=2)
 
-        listings = Listing.objects.high_availability()
+        filter = HighAvailabilityListingFilter()
+        listings = filter.filter(Listing.objects.all(), True)
 
         self.assertEqual(listings.count(), 1)
         self.assertEqual(listings.first(), self.listing_2)
+
+    def test_available_units(self):
+        self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=1)
+        self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, quantity=2)
+
+        filter = AvailableUnitsFilter(value=2)
+        listings = filter.filter(Listing.objects.all(), True)
+
+        self.assertEqual(listings.count(), 1)
+        self.assertEqual(listings.first(), self.listing_1)
 
     def test_low_availability(self):
         self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=4)
         self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, quantity=2)
 
-        listings = Listing.objects.low_availability()
+        filter = UnavailableListingFilter()
+        listings = filter.filter(Listing.objects.all(), True)
 
         self.assertEqual(listings.count(), 1)
         self.assertEqual(listings.first(), self.listing_1)
@@ -42,7 +56,8 @@ class TestListingManager(TestCase):
         self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, price_multiplier=2)
         self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, price_multiplier=0.1)
 
-        listings = Listing.objects.low_cost()
+        filter = LowPriceListingFilter()
+        listings = filter.filter(Listing.objects.all(), True)
 
         self.assertEqual(listings.count(), 1)
         self.assertEqual(listings.first(), self.listing_1)

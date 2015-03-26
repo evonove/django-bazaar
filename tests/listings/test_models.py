@@ -10,7 +10,7 @@ import pytz
 
 from bazaar.listings.models import Store, Listing, Publishing
 from moneyed import Money
-from ..factories import (ProductFactory, StockFactory, ListingFactory)
+from ..factories import (ProductFactory, StockFactory, ListingFactory, PublishingFactory)
 
 
 class TestPublishingModelManager(TestCase):
@@ -91,9 +91,6 @@ class TestListingModel(TestCase):
         self.listing = ListingFactory(product=self.product)
         self.stock_a = StockFactory(product=self.product, unit_price=2.0, quantity=30)
 
-    def tearDown(self):
-        pass
-
     def test_retrieve_cost_attribute(self):
         self.assertEqual(self.listing.cost, Money(2, 'EUR'))
 
@@ -109,3 +106,15 @@ class TestListingModel(TestCase):
 
         listing = Listing.objects.get(pk=listing.pk)
         self.assertEqual(sku, listing.sku)
+
+    def test_listing_unavailable(self):
+        PublishingFactory(listing=self.listing, available_units=35)
+        self.assertTrue(self.listing.is_unavailable())
+
+    def test_listing_is_highly_available(self):
+        PublishingFactory(listing=self.listing, available_units=25)
+        self.assertTrue(self.listing.is_highly_available())
+
+    def test_is_low_cost(self):
+        PublishingFactory(listing=self.listing, available_units=25, price=1)
+        self.assertTrue(self.listing.is_low_cost())

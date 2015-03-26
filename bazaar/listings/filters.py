@@ -23,7 +23,7 @@ class UnavailableListingFilter(django_filters.Filter):
 
     def filter(self, qs, value):
         if value:
-            qs = qs.filter(pk__in=Listing.objects.unavailable_ids())
+            qs = qs.filter(pk__in=Listing.objects.low_availability())
 
         return qs
 
@@ -44,7 +44,7 @@ class LowPriceListingFilter(django_filters.Filter):
 
     def filter(self, qs, value):
         if value:
-            qs = qs.filter(pk__in=Listing.objects.low_cost_ids())
+            qs = qs.filter(pk__in=Listing.objects.low_price())
         return qs
 
 

@@ -17,7 +17,7 @@ class ListingManager(models.Manager):
         listings = self.filter(publishings__status=Publishing.ACTIVE_PUBLISHING,
                                product__stocks__location__type=Location.LOCATION_STORAGE,
                                product__stocks__quantity__lt=F('publishings__available_units'))
-        return listings
+        return listings.values_list('id')
 
     def low_availability(self):
         """
@@ -30,9 +30,9 @@ class ListingManager(models.Manager):
         listings = self.filter(publishings__status=Publishing.ACTIVE_PUBLISHING,
                                product__stocks__location__type=Location.LOCATION_STORAGE,
                                product__stocks__quantity__gt=F('publishings__available_units') + 2)
-        return listings
+        return listings.values_list('id')
 
-    def low_cost(self):
+    def low_price(self):
         """
         Returns a list of ids of the listings for which the quantity of a product in stock
         is less then the amount needed to satisfy it
@@ -44,7 +44,7 @@ class ListingManager(models.Manager):
         listings = self.filter(publishings__status=Publishing.ACTIVE_PUBLISHING,
                                product__stocks__location__type=Location.LOCATION_STORAGE,
                                product__stocks__unit_price__gt=F('publishings'))
-        return listings
+        return listings.values_list('id')
 
 
 class PublishingsManager(models.Manager):
