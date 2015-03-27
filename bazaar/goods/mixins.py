@@ -30,33 +30,30 @@ class MovableProductMixin(MovableMixin):
         agent = kwargs.get('agent', 'bazaar')
         note = kwargs.get('note', '')
         api.move(from_location, to_location, self, quantity, price, agent=agent, note=note)
-        quantities = []
         # FIXME: unit price should be unit_cost
         unit_price = 0
 
-        # FIXME: please, handle locations better than this
-        # For me in the future: i'm sorry (again)
-        from ..warehouse.models import Location
-        try:
-            location = Location.objects.get(type=Location.LOCATION_STORAGE)
-        except Location.MultipleObjectsReturned:
-            location = Location.objects.filter(type=Location.LOCATION_STORAGE).first()
-        except Location.DoesNotExist:
-            location = Location.objects.create(type=Location.LOCATION_STORAGE)
         for ps in self.sets.all():
+            quantities = []
             composite = ps.composite
             for cps in composite.product_sets.all():
                 quantity = api.get_storage_quantity(cps.product)
-                product_price = api.get_storage_price(ps.product)
+                product_price = api.get_storage_price(cps.product)
                 quantities.append(quantity // cps.quantity)
                 unit_price = unit_price + (product_price.amount * cps.quantity)
             from ..warehouse.models import Stock
-            stock, created = Stock.objects.get_or_create(product=composite, location=location)
-            if stock.unit_price != unit_price:
-                stock.unit_price = unit_price
-            if min(quantities) != api.get_storage_quantity(composite):
-                stock.quantity = min(quantities)
-            stock.save()
+
+            stock_outgoing, created = Stock.objects.get_or_create(product=composite, location=to_location)
+            stock_incoming, created = Stock.objects.get_or_create(product=composite, location=from_location)
+
+            movement_quantity = abs(stock_incoming.quantity - min(quantities))
+
+            stock_incoming.quantity -= movement_quantity
+            stock_incoming.save()
+
+            stock_outgoing.unit_price = unit_price
+            stock_outgoing.quantity += movement_quantity
+            stock_outgoing.save()
 
 
 class MovableCompositeProductMixin(MovableMixin):
@@ -82,8 +79,7 @@ class MovableCompositeProductMixin(MovableMixin):
         if to_location.type in LOCATION_PIPELINE.get(from_location.type):
 
             # If the composite is going out of the storage, we actually move it
-            if from_location.type == Location.LOCATION_STORAGE:
-                api.move(from_location, to_location, self, quantity, price, agent=agent, note=note)
+            api.move(from_location, to_location, self, quantity, price, agent=agent, note=note)
 
             for product_set in self.compositeproduct.product_sets.all():
                 product = product_set.product

@@ -172,7 +172,6 @@ class TestProductMovements(TestCase):
 
         self.composite_1.move(from_location=self.storage, to_location=self.output, quantity=3)
 
-        # FIXME: Should composite product stocks go under 0??
         self.assertEqual(get_storage_quantity(product=self.composite_1), -1)
-        self.assertEqual(get_storage_quantity(product=self.composite_2), -1)
+        self.assertEqual(get_storage_quantity(product=self.composite_2), 0)
         self.assertEqual(get_storage_quantity(product=self.product_1), -1)

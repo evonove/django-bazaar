@@ -53,7 +53,7 @@ class CompositeProduct(MovableCompositeProductMixin, Product):
 class ProductSet(models.Model):
     composite = models.ForeignKey(CompositeProduct, related_name='product_sets')
     product = models.ForeignKey(Product, related_name='sets')
-    quantity = models.IntegerField()
+    quantity = models.IntegerField(validators=[MinValueValidator(1)])
 
     class Meta:
         unique_together = ('composite', 'product')
