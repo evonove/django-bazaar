@@ -85,3 +85,26 @@ class ProductsQuerySet(InheritanceQuerySetMixin, models.QuerySet):
                 FORCED_LOWER, location_customer_id, present, time_ago
             )
         )
+
+    def with_net_price_and_delta(self, reference, location_ids):
+        if not isinstance(location_ids, collections.Sequence):
+            location_ids = [location_ids]
+        dynamic_quantity = ', '.join(['%s'] * len(location_ids))
+        qs = self.extra(
+            select={
+                "net_price": "goods_product.price - GREATEST({}, goods_product.price * {}) - goods_product.price * {}"
+                .format(reference.lower_fixed_store_fee, reference.store_fee / 100, reference.vat / 100)
+            })
+        return qs.extra(
+            select=SortedDict([
+                ("avr_price_delta",
+                 "SELECT goods_product.price - GREATEST({}, goods_product.price * {}) - "
+                 "SUM(unit_price*quantity)/SUM(quantity) "
+                 "FROM warehouse_stock "
+                 "WHERE warehouse_stock.product_id = goods_product.id "
+                 "AND warehouse_stock.location_id IN ({}) "
+                 "AND quantity > 0"
+                 .format(reference.lower_fixed_store_fee, reference.store_fee / 100, dynamic_quantity)),
+            ]),
+            select_params=(location_ids)
+        )
