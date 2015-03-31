@@ -9,11 +9,7 @@ from .models import Publishing
 
 
 class ListingForm(FormHelperMixin, forms.Form):
-    title = CharField()
-    description = CharField(required=False, widget=Textarea)
-    picture_url = CharField(required=False)
     product = IntegerField()
-    quantity = IntegerField()
 
     def get_form_helper(self):
         helper = FormHelper(self)

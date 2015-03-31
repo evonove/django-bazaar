@@ -1,5 +1,3 @@
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from bazaar.listings.models import Listing
@@ -65,8 +63,6 @@ class TestListingApi(APITestCase):
         self.assertTrue(authenticated)
         self.assertEqual(Listing.objects.count(), 0)
         ProductFactory(name='test name')
-        listing = Listing.objects.all()[0]
-        listing.title = 'toast name'
 
         response = self.client.get(reverse('bazaar:listing-list'), {'search': 'test'})
         self.assertEqual(response.status_code, 200)

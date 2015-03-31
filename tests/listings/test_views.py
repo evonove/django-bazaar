@@ -66,55 +66,6 @@ class TestListingUpdateView(TestBase):
         response = self.client.get(reverse('bazaar:listings-update', kwargs={'pk': 1}))
         self.assertRedirects(response, '/accounts/login/?next=%s' % reverse('bazaar:listings-update', kwargs={'pk': 1}))
 
-    def test_update_simple_list_view(self):
-        """
-        Test that the update view works fine
-        """
-        # By default this operation will create a bound listing x1 of that product
-        self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
-        self.listing = self.product.listings.first()
-
-        ListingFactory(title=self.product.name, description=self.product.description,
-                       product=self.product)
-
-        self.client.login(username=self.user.username, password='test')
-        data = {
-            'title': 'ModifiedTitle',
-            'picture_url': 'http://myurl.com/myinage.jpg',
-            'description': 'Description of ModifiedTitle',
-            'quantity': 2,
-            'product': self.product.id,
-        }
-        response = self.client.post(reverse('bazaar:listings-update', kwargs={'pk': self.listing.pk}), data=data)
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        listing = Listing.objects.get(product__id=self.product.pk, title='ModifiedTitle')
-        self.assertEqual(listing.title, 'ModifiedTitle')
-
-    def test_update_view_fails_with_incorrect_data(self):
-        """
-        Test that the update view fails with incorrect input [quantity is not a number, product is None]
-        """
-        # By default this operation will create a bound listing x1 of that product
-        self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
-        self.listing = self.product.listings.first()
-
-        one_item_listing = ListingFactory(title=self.product.name, description=self.product.description,
-                                          product=self.product)
-
-        self.client.login(username=self.user.username, password='test')
-        data = {
-            'title': 'ModifiedTitle',
-            'picture_url': 'http://myurl.com/myinage.jpg',
-            'description': 'Description of ModifiedTitle',
-            'quantity': 'two'
-        }
-        response = self.client.post(reverse('bazaar:listings-update',
-                                            kwargs={'pk': self.listing.pk}), data=data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        listing_exits = Listing.objects.filter(product__id=self.product.pk, title='ModifiedTitle').exists()
-        self.assertEqual(listing_exits, False)
-
     def test_update_listing_does_not_change_sku(self):
         self.client.login(username=self.user.username, password='test')
 
@@ -122,13 +73,7 @@ class TestListingUpdateView(TestBase):
         listing = product.listings.first()
 
         self.client.login(username=self.user.username, password='test')
-        data = {
-            'title': 'new title',
-            'picture_url': 'http://myurl.com/myinage.jpg',
-            'description': 'desc',
-            'quantity': 1,
-            'product': product.pk,
-        }
+        data = {'product': product.pk}
         response = self.client.post(reverse('bazaar:listings-update', kwargs={'pk': listing.pk}), data=data)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         modified_listing = Listing.objects.get(pk=listing.pk)
@@ -157,15 +102,9 @@ class TestListingCreateView(TestBase):
         self.listing = self.product.listings.first()
 
         self.client.login(username=self.user.username, password='test')
-        data = {
-            'title': 'ModifiedTitle',
-            'picture_url': 'http://myurl.com/myinage.jpg',
-            'description': 'Description of ModifiedTitle',
-            'quantity': '2',
-            'product': self.product.id
-        }
+        data = {'product': self.product.id}
         response = self.client.post(reverse('bazaar:listings-create'), data=data)
-        new_listing = Listing.objects.get(product=self.product, title='ModifiedTitle')
+        new_listing = Listing.objects.exclude(sku=self.listing.sku).first()
         self.assertRedirects(response, '/listings/%s/' % new_listing.pk)
 
     def test_create_view_not_working_without_login(self):
@@ -175,34 +114,9 @@ class TestListingCreateView(TestBase):
         # By default this operation will create a bound listing x1 of that product
         self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
         self.listing = self.product.listings.first()
-        data = {
-            'title': 'ModifiedTitle',
-            'picture_url': 'http://myurl.com/myinage.jpg',
-            'description': 'Description of ModifiedTitle',
-            'quantity': 2,
-            'product': self.product.id
-        }
+        data = {'product': self.product.id}
         response = self.client.post(reverse('bazaar:listings-create'), data=data)
         self.assertRedirects(response, '/accounts/login/?next=/listings/new/')
-
-    def test_create_view_not_working_with_a_not_numeric_quantity(self):
-        """
-        Test that the create view doesn't work with negative price
-        """
-        # By default this operation will create a bound listing x1 of that product
-        self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
-        self.listing = self.product.listings.first()
-        self.client.login(username=self.user.username, password='test')
-        data = {
-            'title': 'ModifiedTitle',
-            'picture_url': 'http://myurl.com/myinage.jpg',
-            'description': 'Description of ModifiedTitle',
-            'quantity': 'two',
-            'product': self.product.id
-        }
-        response = self.client.post(reverse('bazaar:listings-create'), data=data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(Listing.objects.filter(products__id=self.product.pk, title='ModifiedTitle').count(), 0)
 
 
 class TestDeleteView(TestBase):

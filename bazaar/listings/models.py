@@ -21,20 +21,49 @@ from .managers import ListingManager
 
 @python_2_unicode_compatible
 class Listing(models.Model):
-    title = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
-
-    picture_url = models.URLField(blank=True)
 
     # DELETE in future
     products = models.ManyToManyField(Product, related_name="listings_old", through="ListingSet")
+    title = models.CharField(max_length=100, blank=True)
+    picture_url = models.URLField(blank=True)
+    description = models.TextField(blank=True)
+    # END of delete section
+
     product = models.ForeignKey(Product, related_name="listings", null=True)
     sku = SKUField(default=create_sku)
 
     objects = ListingManager()
 
     class Meta:
-        ordering = ["title"]
+        ordering = ["product__name"]
+
+    @property
+    def title(self):
+        """
+        Returns product's name
+        """
+        if self.product:
+            return self.product.name
+        return 'No product'
+
+    @property
+    def description(self):
+        """
+        Returns product's description
+        """
+        if self.product:
+            return self.product.description
+        return 'No product'
+
+    @property
+    def picture_url(self):
+        """
+        Returns product picture's url
+        """
+        if self.product:
+            if hasattr(self.product, 'photo') and hasattr(self.product.photo, 'url'):
+                return self.product.photo.url
+        return ''
 
     @property
     def available_units(self):
@@ -131,8 +160,13 @@ class Publishing(models.Model):
         (COMPLETED_PUBLISHING, _("Completed")),
     )
     external_id = models.CharField(max_length=128, db_index=True)
+    title = models.CharField(max_length=100, blank=True, null=True)
+    picture_url = models.URLField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+
     # Effective purchase cost, with purchase currency
     original_price = MoneyField()
+
     # Current selling price, with selling currency
     price = MoneyField()
 

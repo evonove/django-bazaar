@@ -23,34 +23,34 @@ class TestListingManager(TestCase):
         self.publishing_2 = f.PublishingFactory(listing=self.listing_2, available_units=4)
 
     def test_high_availability(self):
-        self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=1)
+        self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=4)
         self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, quantity=2)
 
-        filter = HighAvailabilityListingFilter()
-        listings = filter.filter(Listing.objects.all(), True)
+        highly_available_filter = HighAvailabilityListingFilter()
+        listings = highly_available_filter.filter(Listing.objects.all(), True)
 
         self.assertEqual(listings.count(), 1)
-        self.assertEqual(listings.first(), self.listing_2)
+        self.assertEqual(listings.first(), self.listing_1)
 
     def test_available_units(self):
         self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=1)
         self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, quantity=2)
 
-        filter = AvailableUnitsFilter(value=2)
-        listings = filter.filter(Listing.objects.all(), True)
+        available_filter = AvailableUnitsFilter(value=2)
+        listings = available_filter.filter(Listing.objects.all(), True)
 
         self.assertEqual(listings.count(), 1)
         self.assertEqual(listings.first(), self.listing_1)
 
     def test_low_availability(self):
-        self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=4)
+        self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=1)
         self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, quantity=2)
 
-        filter = UnavailableListingFilter()
-        listings = filter.filter(Listing.objects.all(), True)
+        unavailable_filter = UnavailableListingFilter()
+        listings = unavailable_filter.filter(Listing.objects.all(), True)
 
         self.assertEqual(listings.count(), 1)
-        self.assertEqual(listings.first(), self.listing_1)
+        self.assertEqual(listings.first(), self.listing_2)
 
     def test_low_cost(self):
         self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, price_multiplier=2)

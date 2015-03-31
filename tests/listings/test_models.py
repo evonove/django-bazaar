@@ -101,7 +101,6 @@ class TestListingModel(TestCase):
         listing = ListingFactory()
         sku = listing.sku
 
-        listing.title = "Modified"
         listing.save()
 
         listing = Listing.objects.get(pk=listing.pk)

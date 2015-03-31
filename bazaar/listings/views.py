@@ -101,13 +101,8 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
         if listing_id:
             try:
                 self.listing_to_update = Listing.objects.get(pk=listing_id)
-                initial["title"] = self.listing_to_update.title
-                initial["picture_url"] = self.listing_to_update.picture_url
-                initial["description"] = self.listing_to_update.description
                 if self.listing_to_update.product is not None:
                     initial["product"] = self.listing_to_update.product.id
-                    if self.listing_to_update.product.sets.exists():
-                        initial["quantity"] = int(self.listing_to_update.product.sets.first().quantity)
             except Listing.DoesNotExist:
                 self.error_response = HttpResponseNotFound()
         return initial
@@ -126,19 +121,12 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
         if self.listing_to_update:
             # Update Listing
             listing = Listing.objects.get(pk=self.listing_to_update.id)
-            listing.title = form.cleaned_data.get("title")
-            listing.picture_url = form.cleaned_data.get("picture_url", None)
-            listing.description = form.cleaned_data.get("description", None)
 
             publishings_exist = Publishing.objects.select_related('listing')\
                 .filter(listing__id=self.listing_to_update.id).exists()
         else:
             # Create listing
-            listing = Listing.objects.create(
-                title=form.cleaned_data.get("title"),
-                picture_url=form.cleaned_data.get("picture_url", None),
-                description=form.cleaned_data.get("description", None)
-            )
+            listing = Listing.objects.create()
             publishings_exist = False
 
         product = self._retrieve_product(form)
@@ -169,7 +157,7 @@ class PublishingListView(LoginRequiredMixin, PublishingTagsMixin, FilterSortable
     paginate_by = 100
     sort_fields = (
         'external_id', 'id', 'last_modified',
-        'pub_date', 'status', 'store__name', 'is_active', 'listing__title'
+        'pub_date', 'status', 'store__name', 'is_active', 'title'
     )
 
 
@@ -207,4 +195,4 @@ class ListingViewSet(mixins.ListModelMixin, GenericViewSet):
     paginate_by = 10
     permission_classes = (permissions.IsAuthenticated,)
     filter_backends = (SearchFilter,)
-    search_fields = ('title', 'products__name')
+    search_fields = ('product__name', )

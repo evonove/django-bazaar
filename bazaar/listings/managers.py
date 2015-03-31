@@ -6,7 +6,7 @@ FORCED_LOWER = -999999
 
 
 class ListingManager(models.Manager):
-    def high_availability(self):
+    def low_availability(self):
         """
         Returns a list of ids of the listings for which the quantity of a product in stock
         is less then the amount needed to satisfy it
@@ -19,7 +19,7 @@ class ListingManager(models.Manager):
                                product__stocks__quantity__lt=F('publishings__available_units'))
         return listings.values_list('id')
 
-    def low_availability(self):
+    def high_availability(self):
         """
         Returns a list of ids of the listings for which the quantity of a product in stock
         is more then the amount needed to satisfy it
