@@ -11,8 +11,7 @@ def listing_bulk_creation(products):
 
     for product in products:
         if not hasattr(product, 'compositeproduct'):
-            Listing.objects.create(title=product.name, description=product.description,
-                                   picture_url=product.photo, product=product)
+            Listing.objects.create(product=product)
 
 
 def get_oneper_listing_by_product(product):

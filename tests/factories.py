@@ -100,7 +100,6 @@ class ListingFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = 'listings.Listing'
 
-    title = 'Listing test'
     product = factory.SubFactory(ProductFactory)
 
     @factory.post_generation

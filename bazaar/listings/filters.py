@@ -57,4 +57,4 @@ class ListingFilter(BaseFilterSet):
 
     class Meta:
         model = Listing
-        fields = ["title", "publishings__store", "available_units"]
+        fields = ["publishings__title", "publishings__store", "available_units"]

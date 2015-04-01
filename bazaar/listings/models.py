@@ -24,10 +24,10 @@ from .managers import ListingManager
 class Listing(models.Model):
 
     # DELETE in future
-    products = models.ManyToManyField(Product, related_name="listings_old", through="ListingSet")
-    title = models.CharField(max_length=100, blank=True)
-    picture_url = models.URLField(blank=True)
-    description = models.TextField(blank=True)
+    # products = models.ManyToManyField(Product, related_name="listings_old", through="ListingSet")
+    # title = models.CharField(max_length=100)
+    # picture_url = models.URLField(blank=True)
+    # description = models.TextField(blank=True)
     # END of delete section
 
     product = models.ForeignKey(Product, related_name="listings", null=True)
@@ -36,7 +36,7 @@ class Listing(models.Model):
     objects = ListingManager()
 
     class Meta:
-        ordering = ["title"]
+        ordering = ["product__name"]
 
     @property
     def _title(self):
@@ -117,7 +117,11 @@ class Listing(models.Model):
         return False
 
     def __str__(self):
-        return ' '.join(filter(None, (self.title, '({})'.format(self.sku))))
+        name = ''
+        has_product_name = hasattr(self.product, 'name')
+        if has_product_name:
+            name = self.product.name
+        return ' '.join(filter(None, (name, '({})'.format(self.sku))))
 
 
 @receiver(post_save, sender=Product)

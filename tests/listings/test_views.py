@@ -32,9 +32,6 @@ class TestListingsListView(TestBase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         listings = response.context_data['listing_list']
         self.assertEqual(listings.count(), 1)
-        self.assertEqual(listings[0].title, self.listing.title)
-        self.assertEqual(listings[0].description, self.listing.description)
-        self.assertEqual(listings[0].picture_url, self.listing.picture_url)
         self.assertEqual(listings[0].sku, self.listing.sku)
 
     def test_list_view_not_working_without_login(self):

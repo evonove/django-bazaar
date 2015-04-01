@@ -5,8 +5,8 @@ from .models import Listing, Publishing, Store
 
 
 class ListingAdmin(admin.ModelAdmin):
-    list_display = ('id', 'sku', 'title')
-    search_fields = ('sku', 'title')
+    list_display = ('id', 'sku', )
+    search_fields = ('sku', )
     model = Listing
 
 

@@ -19,7 +19,7 @@ class TestPublishingModelManager(TestCase):
         self.date2 = datetime.datetime(2011, 1, 1, 0, 0, tzinfo=pytz.UTC)
         self.date3 = datetime.datetime(2012, 1, 1, 0, 0, tzinfo=pytz.UTC)
         self.date4 = datetime.datetime(2013, 1, 1, 0, 0, tzinfo=pytz.UTC)
-        self.listing_a = Listing.objects.create(title="listing_a")
+        self.listing_a = Listing.objects.create()
         self.big_store = Store.objects.create(slug="big", name="big_store")
         self.small_store = Store.objects.create(slug="small", name="small_store")
 
