@@ -126,10 +126,7 @@
                                                                 <th></th>
                                                             </tr>
                                                             </thead>
-                                                            {% for ls in listing.listing_sets.all %}
-                                                                {% include "bazaar/listings/listing_list_product.html" %}
-                                                                {% if not forloop.last %} - {% endif %}
-                                                            {% endfor %}
+                                                            {% include "bazaar/listings/listing_detail_product_row.html" %}
                                                             </table>
                                                     {% endblock listing-detail-products %}
                                                 </div>

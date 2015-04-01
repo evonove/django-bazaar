@@ -1,0 +1,4 @@
+{% load i18n %}
+<tr><td><a href="{% url "bazaar:product-detail" listing.product.pk %}">
+    {{ listing.product }}{% if listing.product.compositeproduct %} ({% trans 'composite' %}) {% endif %}{%  trans 'availability' %} {{ ls.product.stock.available|floatformat:0 }}
+</a></td></tr>

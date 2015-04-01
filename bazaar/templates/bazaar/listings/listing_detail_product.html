@@ -15,19 +15,38 @@
     </tr>
     </thead>
     <tbody>
-        {% for listing_set in listing.listing_sets.all %}
+    {% for product_set in listing.product.product_sets.all %}
             <tr>
                 <td>
-                    {{ listing_set.product.name }}
+                    {{ listing.product.name }}
+                    <table>
+                    {%  if listing.product.compositeproduct %}
+                        {% for product_set in listing.product.compositeproduct.product_sets.all %}
+                            <tr>
+                                <td>
+                                    {{ product_set.product.name }}
+                                </td>
+                                <td>
+                                    {{ product_set.quantity|floatformat:0 }}
+                                </td>
+                                <td>
+                                    {{  product_set.product.price|floatformat:2 }}
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+                    {% endif %}
+                    </table>
                 </td>
                 <td>
-                    {{ listing_set.quantity|floatformat:0 }}
+                    {{ listing.quantity|floatformat:0 }}
                 </td>
                 <td>
-                    {{  listing_set.product.price|floatformat:2 }}
+                    {{  listing.product.price|floatformat:2 }}
                 </td>
             </tr>
 
         {% endfor %}
+
     </tbody>
 </table>

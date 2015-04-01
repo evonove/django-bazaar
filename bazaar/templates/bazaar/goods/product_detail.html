@@ -129,9 +129,7 @@
                                     {% block listing-detail-products %}
                                         <input type="hidden" value="{{ ls.listing.id }}" name="listing_id">
                                         <table class="table-condensed small listing-detail-products-table">
-                                        {% for ls in listing.listing_sets.all %}
-                                            {% include "bazaar/listings/listing_list_product.html" %}
-                                        {% endfor %}
+                                            {% include "bazaar/listings/listing_detail_product_row.html" %}
                                         </table>
                                     {% endblock listing-detail-products %}
                                 </div>
