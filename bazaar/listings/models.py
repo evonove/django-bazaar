@@ -35,10 +35,10 @@ class Listing(models.Model):
     objects = ListingManager()
 
     class Meta:
-        ordering = ["product__name"]
+        ordering = ["title"]
 
     @property
-    def title(self):
+    def _title(self):
         """
         Returns product's name
         """
@@ -47,7 +47,7 @@ class Listing(models.Model):
         return 'No product'
 
     @property
-    def description(self):
+    def _description(self):
         """
         Returns product's description
         """
@@ -56,7 +56,7 @@ class Listing(models.Model):
         return 'No product'
 
     @property
-    def picture_url(self):
+    def _picture_url(self):
         """
         Returns product picture's url
         """

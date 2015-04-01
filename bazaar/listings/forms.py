@@ -1,7 +1,7 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
-from django.forms import IntegerField, CharField, Textarea
+from django.forms import IntegerField
 from django.utils.translation import ugettext as _
 from bazaar.goods.models import Product
 from ..helpers import FormHelperMixin

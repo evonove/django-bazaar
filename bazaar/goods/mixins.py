@@ -59,7 +59,7 @@ class MovableProductMixin(MovableMixin):
 class MovableCompositeProductMixin(MovableMixin):
 
     @transaction.atomic
-    def move(self, from_location, to_location, quantity=1, price_multiplier=1,  **kwargs):
+    def move(self, from_location, to_location, quantity=1, price_multiplier=1, **kwargs):
         """
         Here we implement the strategy for products composed by more products in different quantities.
         Here we assume that composite products' availability is given by the number of single products
