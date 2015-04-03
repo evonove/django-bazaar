@@ -63,16 +63,10 @@ class ProductSet(models.Model):
 def create_stock_and_set_price(sender, instance, *args, **kwargs):
     composite = instance.composite
 
-    # FIXME: please, handle locations better than this
-    # For me in the future: i'm sorry
-    from ..warehouse.models import Stock, Location
-    try:
-        location = Location.objects.get(type=Location.LOCATION_STORAGE)
-    except Location.MultipleObjectsReturned:
-        location = Location.objects.filter(type=Location.LOCATION_STORAGE).first()
-    except Location.DoesNotExist:
-        location = Location.objects.create(type=Location.LOCATION_STORAGE)
+    from bazaar.warehouse.locations import get_storage
+    from bazaar.warehouse.models import Stock
 
+    location = get_storage()
     stock, created = Stock.objects.get_or_create(product=composite, location=location)
     if created:
         product_quantity = api.get_storage_quantity(instance.product)

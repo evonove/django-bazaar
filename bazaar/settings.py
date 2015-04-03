@@ -1,4 +1,6 @@
 from __future__ import unicode_literals
+from collections import namedtuple
+
 """
 This module is largely inspired by django-rest-framework settings.
 
@@ -21,6 +23,9 @@ import moneyed
 
 USER_SETTINGS = getattr(settings, 'DJANGO_BAZAAR', None)
 
+LocationSetting = namedtuple('LocationSetting', ['name', 'slug', 'type'])
+
+
 DEFAULTS = {
     'CURRENCIES': (),
     'DEFAULT_CURRENCY': moneyed.EUR.code,
@@ -31,8 +36,18 @@ DEFAULTS = {
     'LISTING_FILTER': 'bazaar.listings.filters.ListingFilter',
     'PT_GENERIC': 0,
     'PRODUCT_TYPE_CHOICES': ((0, 'Generic'), ),
-
+    'STORAGE': 'storage',
+    'OUTPUT': 'output',
+    'SUPPLIER': 'supplier',
+    'CUSTOMER': 'customer',
+    'LOST_AND_FOUND': 'lost_and_found',
+    'STORAGE_NAME': 'bazaar storage',
+    'OUTPUT_NAME': 'bazaar output',
+    'SUPPLIER_NAME': 'bazaar supplier',
+    'CUSTOMER_NAME': 'bazaar customer',
+    'LOST_AND_FOUND_NAME': 'bazaar lost and found'
 }
+
 
 # List of settings that cannot be empty
 MANDATORY = (

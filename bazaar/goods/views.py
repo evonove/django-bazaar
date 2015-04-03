@@ -8,10 +8,10 @@ from django.views import generic
 
 from braces.views import LoginRequiredMixin
 from bazaar.listings.models import Publishing
+from bazaar.warehouse.locations import get_storage
 from .filters import ProductFilter
 from .forms import ProductForm
 from .models import Product, ProductSet
-from ..warehouse.models import Location
 from ..mixins import BazaarPrefixMixin, FilterSortableListView
 
 
@@ -23,7 +23,7 @@ class ProductListView(LoginRequiredMixin, BazaarPrefixMixin, FilterSortableListV
 
     def get_queryset(self):
         qs = super(ProductListView, self).get_queryset()
-        location_storage = Location.objects.get_or_create(type=Location.LOCATION_STORAGE)[0]
+        location_storage = get_storage()
         qs = qs.extra(
             select=SortedDict([
                 ("stock",
