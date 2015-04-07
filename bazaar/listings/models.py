@@ -131,6 +131,7 @@ def create_listing_for_product(sender, instance, **kwargs):
     if hasattr(instance, 'compositeproduct'):
         return
 
+    # TODO: Is needed here?
     from bazaar.goods.api import listing_bulk_creation
     listing_bulk_creation(Product.objects.filter(pk=instance.id).all())
 
