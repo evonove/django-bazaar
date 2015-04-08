@@ -113,7 +113,6 @@
                  <thead>
                     <tr>
                      <th>{% trans "listing title"|title %}</th>
-                     <th>{% trans "all products in listing"|title %}</th>
                      <th>{% trans "SKU" %}</th>
                     </tr>
                  </thead>
@@ -122,18 +121,6 @@
                      <tr>
                          <td>
                             <a href="{% url "bazaar:listings-detail" listing.pk %}" class="ellipsify-content" title="{{ listing.title }}">{{ listing.title }}</a>
-                         </td>
-                         <td>
-                            {% block listing-detail %}
-                                <div id="listing{{ listing.id }}" class="col-md-12">
-                                    {% block listing-detail-products %}
-                                        <input type="hidden" value="{{ ls.listing.id }}" name="listing_id">
-                                        <table class="table-condensed small listing-detail-products-table">
-                                            {% include "bazaar/listings/listing_detail_product_row.html" %}
-                                        </table>
-                                    {% endblock listing-detail-products %}
-                                </div>
-                            {% endblock listing-detail %}
                          </td>
                          <td>
                              <span class="ellipsify-content" title="{{ listing.sku }}">{{ listing.sku }}</span>

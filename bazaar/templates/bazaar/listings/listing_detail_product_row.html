@@ -1,4 +1,28 @@
 {% load i18n %}
-<tr><td><a href="{% url "bazaar:product-detail" listing.product.pk %}">
-    {{ listing.product }}{% if listing.product.compositeproduct %} ({% trans 'composite' %}) {% endif %}{%  trans 'availability' %} {{ ls.product.stock.available|floatformat:0 }}
-</a></td></tr>
+
+{% block stylesheets %}
+    <style>
+    .text-red-muted {
+        color: #F39191;
+    }
+    </style>
+
+{% endblock stylesheets %}
+
+<tr>
+    <th class="text-muted">
+        <a href="{% url "bazaar:product-detail" listing.product.pk %}">{{ listing.product }}</a>
+    </th>
+    <th class="text-muted">
+
+    </th>
+    <th class="{% if listing.available_units < 0 %}text-red-muted{% else %}text-muted{% endif %}">
+        {% trans "Available" %}:{% if listing.available_units or listing.available_units == 0 %}{{ listing.available_units|floatformat:0}}{% else %}--{% endif %}
+    </th>
+    <th class="text-muted">
+        {% trans "Avg. Cost" %}: {% if listing.product__total_avr_cost %}{{ listing.product__total_avr_cost|floatformat:2 }} &euro;{% else %}--{% endif %}
+    </th>
+    <th class="text-muted">
+        {% trans "Sell Price" %}: {% if listing.product.price.amount %}<span data-card-id="{{ listing.product.pk }}">{{ listing.product.price.amount|floatformat:2 }} &euro;{% else %}--{% endif %}</span>
+    </th>
+</tr>

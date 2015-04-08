@@ -15,7 +15,6 @@
     </tr>
     </thead>
     <tbody>
-    {% for product_set in listing.product.product_sets.all %}
             <tr>
                 <td>
                     {{ listing.product.name }}
@@ -39,14 +38,11 @@
                     </table>
                 </td>
                 <td>
-                    {{ listing.quantity|floatformat:0 }}
+                    {{ listing.available_units|floatformat:0 }}
                 </td>
                 <td>
                     {{  listing.product.price|floatformat:2 }}
                 </td>
             </tr>
-
-        {% endfor %}
-
     </tbody>
 </table>
