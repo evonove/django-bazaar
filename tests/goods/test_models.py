@@ -92,13 +92,13 @@ class TestCompositeProduct(TestCase):
     def setUp(self):
         self.product1 = Product.objects.create(name='Product1')
         self.product2 = Product.objects.create(name='Product2')
-        self.composite_product = CompositeProduct.objects.create(name='Composite')
-        f.ProductSetFactory(composite=self.composite_product, product=self.product1, quantity=1)
-        f.ProductSetFactory(composite=self.composite_product, product=self.product2, quantity=1)
+        self.composite = CompositeProduct.objects.create(name='Composite')
+        f.ProductSetFactory(composite=self.composite, product=self.product1, quantity=1)
+        f.ProductSetFactory(composite=self.composite, product=self.product2, quantity=1)
 
-    def test_products_added_to_composite_product(self):
-        self.assertIn(self.product1, self.composite_product.products.all())
-        self.assertIn(self.product2, self.composite_product.products.all())
+    def test_products_added_to_composite(self):
+        self.assertIn(self.product1, self.composite.products.all())
+        self.assertIn(self.product2, self.composite.products.all())
 
 
 class TestProductMovements(TestCase):
@@ -150,7 +150,7 @@ class TestProductMovements(TestCase):
         self.assertEqual(get_storage_quantity(product=self.composite_1), 1)
         self.assertEqual(get_storage_quantity(product=self.composite_2), 0)
 
-    def test_move_composite_products_from_storage_to_output(self):
+    def test_move_composites_from_storage_to_output(self):
         self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=2)
         self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, quantity=3)
 
@@ -163,7 +163,7 @@ class TestProductMovements(TestCase):
         self.assertEqual(get_storage_quantity(product=self.composite_2), 0)
         self.assertEqual(get_storage_quantity(product=self.product_1), 1)
 
-    def test_move_composite_products_negative_quantities(self):
+    def test_move_composites_negative_quantities(self):
         self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=2)
         self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, quantity=3)
 

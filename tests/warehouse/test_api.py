@@ -293,16 +293,16 @@ class TestStockApi(TestCase):
         self.product_b = ProductFactory()
         self.stock_d = StockFactory(product=self.product_b, unit_price=1.0, quantity=10)
 
-        self.composite_product = CompositeProductFactory()
-        self.product_set_a = ProductSetFactory(product=self.product_a, composite=self.composite_product, quantity=2)
-        self.product_set_b = ProductSetFactory(product=self.product_b, composite=self.composite_product, quantity=1)
+        self.composite = CompositeProductFactory()
+        self.product_set_a = ProductSetFactory(product=self.product_a, composite=self.composite, quantity=2)
+        self.product_set_b = ProductSetFactory(product=self.product_b, composite=self.composite, quantity=1)
 
     def test_get_stock_quantity_for_single_product(self):
         quantity = get_stock_quantity(self.product_a, Location.LOCATION_STORAGE)
         self.assertEqual(quantity, 50)
 
-    def test_get_stock_quantity_for_composite_product(self):
-        quantity = get_stock_quantity(self.composite_product, Location.LOCATION_STORAGE)
+    def test_get_stock_quantity_for_composite(self):
+        quantity = get_stock_quantity(self.composite, Location.LOCATION_STORAGE)
         self.assertEqual(quantity, 10)
 
     def test_get_stock_quantity_from_empty_stock(self):
