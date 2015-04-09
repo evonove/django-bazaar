@@ -14,7 +14,7 @@ class PublishingAdmin(admin.ModelAdmin):
     list_display = ('id', 'external_id', 'listing', 'price', 'available_units',
                     'pub_date', 'last_modified', 'status', 'store', )
     list_filter = ('status', 'pub_date', 'last_modified', )
-    search_fields = ('external_id', 'listing__title')
+    search_fields = ('external_id', 'title')
 
 
 admin.site.register(Store)

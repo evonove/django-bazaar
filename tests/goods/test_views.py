@@ -10,6 +10,7 @@ from bazaar.listings.models import Listing
 
 from bazaar.warehouse import api
 from rest_framework import status
+from bazaar.warehouse.locations import get_storage, get_lost_and_found
 from tests import factories as f
 from tests.factories import PublishingFactory, ListingFactory, ProductFactory
 
@@ -17,13 +18,11 @@ from tests.factories import PublishingFactory, ListingFactory, ProductFactory
 class TestBase(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(username='test', email='test@test.it', password='test')
-        self.lost_and_found = f.LocationFactory(name='lost and found', slug='lost_and_found', type=4)
-        self.storage = f.LocationFactory(name='storage', slug='storage', type=1)
         self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
 
         # Move products to the warehouse
-        api.move(self.lost_and_found, self.storage, self.product, 1, 5)
-        api.move(self.lost_and_found, self.storage, self.product, 1, 10)
+        self.product.move(get_lost_and_found(), get_storage(), quantity=5)
+        self.product.move(get_lost_and_found(), get_storage(), quantity=10)
 
 
 class TestProductListView(TestBase):
@@ -90,7 +89,7 @@ class TestProductListView(TestBase):
         Test that sort by stock quantity works correctly
         """
         product2 = f.ProductFactory(name='product2', price=1, description='the best you can have!')
-        api.move(self.lost_and_found, self.storage, product2, 1, 5)
+        product2.move(get_lost_and_found(), get_storage(), quantity=5)
         self.client.login(username=self.user.username, password='test')
         response = self.client.get("/products/?&order_by=stock")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -103,7 +102,7 @@ class TestProductListView(TestBase):
         Test that sort by cost works correctly
         """
         product2 = f.ProductFactory(name='product2', price=1, description='the best you can have!')
-        api.move(self.lost_and_found, self.storage, product2, 1, 5000)
+        api.move(get_lost_and_found(), get_storage(), product2, 1, 5000)
         self.client.login(username=self.user.username, password='test')
         response = self.client.get("/products/?&order_by=purchase_price")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
