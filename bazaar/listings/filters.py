@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from __future__ import absolute_import
 
 from django import forms
 
@@ -57,4 +58,4 @@ class ListingFilter(BaseFilterSet):
 
     class Meta:
         model = Listing
-        fields = ["publishings__title", "publishings__store", "available_units"]
+        fields = ["product__name", "publishings__title", "publishings__store", "available_units"]

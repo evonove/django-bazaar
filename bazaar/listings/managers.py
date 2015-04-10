@@ -6,6 +6,15 @@ FORCED_LOWER = -999999
 
 
 class ListingManager(models.Manager):
+    def available(self):
+        """
+        Return a list of ids of listings with an available product
+        """
+        from ..warehouse.models import Location
+        listings = self.filter(product__stocks__location__type=Location.LOCATION_STORAGE,
+                               product__stocks__quantity__gt=0)
+        return listings.values_list('id')
+
     def low_availability(self):
         """
         Returns a list of ids of the listings for which the quantity of a product in stock
