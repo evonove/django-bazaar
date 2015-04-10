@@ -48,6 +48,7 @@ class Product(MovableProductMixin, models.Model):
 
 class CompositeProduct(MovableCompositeProductMixin, Product):
     products = models.ManyToManyField("Product", related_name='composites', through='ProductSet')
+    objects = ProductsQuerySet.as_manager()
 
 
 class ProductSet(models.Model):

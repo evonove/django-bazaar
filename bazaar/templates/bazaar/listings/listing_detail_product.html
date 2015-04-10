@@ -17,7 +17,7 @@
     <tbody>
             <tr>
                 <td>
-                    {{ listing.product.name }}
+                    <a href="{% url 'product-update' listing.product.id %}">{{ listing.product.name }}</a>
                     <table>
                     {%  if listing.product.compositeproduct %}
                         {% for product_set in listing.product.compositeproduct.product_sets.all %}

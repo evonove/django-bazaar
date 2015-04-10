@@ -10,12 +10,6 @@
 {% endblock stylesheets %}
 
 <tr>
-    <th class="text-muted">
-        <a href="{% url "bazaar:product-detail" listing.product.pk %}">{{ listing.product }}</a>
-    </th>
-    <th class="text-muted">
-
-    </th>
     <th class="{% if listing.available_units < 0 %}text-red-muted{% else %}text-muted{% endif %}">
         {% trans "Available" %}:{% if listing.available_units or listing.available_units == 0 %}{{ listing.available_units|floatformat:0}}{% else %}--{% endif %}
     </th>

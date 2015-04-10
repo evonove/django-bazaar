@@ -112,7 +112,7 @@
              <table class="table table-striped table-bordered">
                  <thead>
                     <tr>
-                     <th>{% trans "listing title"|title %}</th>
+                     <th>{% trans "listing"|title %}</th>
                      <th>{% trans "SKU" %}</th>
                     </tr>
                  </thead>
@@ -120,7 +120,7 @@
                  {% for listing in product.listings.all %}
                      <tr>
                          <td>
-                            <a href="{% url "bazaar:listings-detail" listing.pk %}" class="ellipsify-content" title="{{ listing.title }}">{{ listing.title }}</a>
+                            <a href="{% url "bazaar:listings-detail" listing.pk %}" class="ellipsify-content" title="{{ product.name }}">{{ product.name }}</a>
                          </td>
                          <td>
                              <span class="ellipsify-content" title="{{ listing.sku }}">{{ listing.sku }}</span>
