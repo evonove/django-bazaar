@@ -80,7 +80,7 @@ class CompositeProductForm(EanValidationMixin, FormHelperMixin, forms.ModelForm)
         exclude = ("products", )
 
 
-class ProductSetForm(forms.ModelForm):
+class ProductSetForm(FormHelperMixin, forms.ModelForm):
     class Meta:
         model = ProductSet
         exclude = ("composite",)
