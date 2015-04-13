@@ -1,0 +1,37 @@
+{% extends "bazaar/goods/base.html" %}
+
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8">
+            <h1>{% trans "Create a Composite Product" %}</h1>
+
+            <form method="POST" action="." class="form-horizontal">
+                {% csrf_token %}
+                {% crispy form %}
+                {{ formset.management_form }}
+                {% for form in formset.forms %}
+                    {% crispy form %}
+                {% endfor %}
+                <div class="form-group">
+                    <div class="col-md-8 col-md-offset-3">
+                        <a class="btn btn-default" href="/products/"><i class="glyphicon glyphicon-chevron-left"></i>&nbsp;Back</a>&nbsp;
+                        <input type="submit" name="save" value="Submit" class="btn btn-primary" id="submit-id-save">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block javascript %}
+    <script src="{% static 'js/jquery.formset.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(function() {
+            $('.formset').formset({});
+        })
+    </script>
+{% endblock javascript %}

@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.core.urlresolvers import reverse_lazy
 from django.http.response import HttpResponseForbidden
+from django.shortcuts import render_to_response
+from django.template import RequestContext
 from django.utils.datastructures import SortedDict
 from django.views import generic
 
@@ -10,7 +12,7 @@ from braces.views import LoginRequiredMixin
 from bazaar.listings.models import Publishing
 from bazaar.warehouse.locations import get_storage
 from .filters import ProductFilter
-from .forms import ProductForm
+from .forms import ProductForm, ProductSetFormSet, CompositeProductForm
 from .models import Product, ProductSet
 from ..mixins import BazaarPrefixMixin, FilterSortableListView
 
@@ -99,3 +101,38 @@ class ProductUpdateView(LoginRequiredMixin, BazaarPrefixMixin, generic.UpdateVie
 
     def get_success_url(self):
         return reverse_lazy("bazaar:product-detail", kwargs={'pk': self.object.id})
+
+
+# class CompositeProductCreateView(LoginRequiredMixin, BazaarPrefixMixin, generic.CreateView):
+#     model = CompositeProduct
+#     form_class = CompositeProductForm
+#
+#     fields = ['name', 'description', 'photo', 'price']
+#     template_name = "goods/compositeproduct_form.html"
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(CompositeProductCreateView, self).get_context_data(**kwargs)
+#         context['formset'] = ProductSetFormSet()
+#         return context
+#
+#     def get_success_url(self):
+#         return reverse_lazy("bazaar:product-detail", kwargs={'pk': self.object.id})
+
+
+def CompositeProductView(request):
+    if request.method == 'POST':
+        form = CompositeProductForm(request.POST)
+        formset = ProductSetFormSet(request.POST)
+        if form.is_valid() and formset.is_valid():
+            new_composite = form.save()
+            instances = formset.save(commit=False)
+            for instance in instances:
+                instance.composite = new_composite
+                instance.save()
+            formset.save_m2m()
+    else:
+        form = CompositeProductForm()
+        formset = ProductSetFormSet(queryset=ProductSet.objects.none())
+    return render_to_response('bazaar/goods/compositeproduct_form.html',
+                              {'form': form, 'formset': formset},
+                              context_instance=RequestContext(request))

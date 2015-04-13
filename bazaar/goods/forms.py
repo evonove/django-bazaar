@@ -6,7 +6,8 @@ from crispy_forms.layout import Layout, Fieldset, Submit, HTML, Div
 
 from django import forms
 from django.core.exceptions import ValidationError
-from bazaar.goods.models import Product
+from django.forms import modelformset_factory
+from bazaar.goods.models import Product, ProductSet, CompositeProduct
 from bazaar.helpers import FormHelperMixin
 
 
@@ -57,3 +58,45 @@ class ProductForm(EanValidationMixin, FormHelperMixin, forms.ModelForm):
     class Meta:
         model = Product
         exclude = ("price_lists", )
+
+
+class CompositeProductForm(EanValidationMixin, FormHelperMixin, forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(CompositeProductForm, self).__init__(*args, **kwargs)
+        self.helper.layout = Layout(
+            Fieldset(
+                '',
+                'name',
+                'description',
+                'photo',
+                'price'
+            )
+        )
+        self.helper.form_tag = False
+        self.helper.disable_csrf = True
+
+    class Meta:
+        model = CompositeProduct
+        exclude = ("products", )
+
+
+class ProductSetForm(forms.ModelForm):
+    class Meta:
+        model = ProductSet
+        exclude = ("composite",)
+
+    def __init__(self, *args, **kwargs):
+        super(ProductSetForm, self).__init__(*args, **kwargs)
+
+        self.helper.layout = Layout(
+            Fieldset(
+                '',
+                'product',
+                'quantity',
+                css_class='formset'
+            )
+        )
+        self.helper.form_tag = False
+        self.helper.disable_csrf = True
+
+ProductSetFormSet = modelformset_factory(ProductSet, form=ProductSetForm, min_num=1, validate_min=True, extra=0)
