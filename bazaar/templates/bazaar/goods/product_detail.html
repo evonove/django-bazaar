@@ -56,54 +56,7 @@
     {% endblock %}
 
     {% block detail_row %}
-        <div class="row">
-            <div class="col-md-12">
-                <table class="table table-striped table-bordered">
-                    <thead>
-                    <tr>
-                        <th>
-                            {% trans "EAN" %}
-                        </th>
-                        <th>{% trans "Code" %}</th>
-                        <th>
-                            {% trans "Stock" %}
-                        </th>
-                        <th>
-                            {% trans "Cost" %}
-                        </th>
-                        <th>
-                            {% trans "Price" %}
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>
-                            {{ product.ean|default:'--' }}
-                        </td>
-                        <td>
-                            {{ product.code|default:'--' }}
-                        </td>
-                        {% if product.quantity != None %}
-                        <td>
-                            {{ product.quantity|floatformat }}
-                        </td>
-                        {% else %}
-                        <td>
-                            --
-                        </td>
-                        {% endif %}
-                        <td>
-                            {{ product.cost.amount|floatformat:2 }} &euro;
-                        </td>
-                        <td>
-                            {{ product.price.amount|floatformat:2 }} &euro;
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        {% include "bazaar/goods/product_detail_row.html" %}
     {% endblock %}
 
     {% block detail_listing_row %}

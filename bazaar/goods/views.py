@@ -49,7 +49,6 @@ class ProductListView(LoginRequiredMixin, BazaarPrefixMixin, FilterSortableListV
 
 class ProductDetailView(LoginRequiredMixin, BazaarPrefixMixin, generic.DetailView):
     model = Product
-    fields = ['photo', 'name', 'description', 'ean', 'quantity', 'price', 'cost']
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
