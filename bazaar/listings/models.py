@@ -167,7 +167,7 @@ class Publishing(models.Model):
     )
     external_id = models.CharField(max_length=128, db_index=True)
     title = models.CharField(max_length=100, blank=True, null=True)
-    picture_url = models.URLField(blank=True, null=True)
+    photo = models.ImageField(upload_to='product', null=True, blank=True)
     description = models.TextField(blank=True, null=True)
 
     # Effective purchase cost, with purchase currency
