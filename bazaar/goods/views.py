@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.core.urlresolvers import reverse_lazy
 from django.http.response import HttpResponseForbidden
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.datastructures import SortedDict
 from django.views import generic
@@ -13,7 +13,7 @@ from bazaar.listings.models import Publishing
 from bazaar.warehouse.locations import get_storage
 from .filters import ProductFilter
 from .forms import ProductForm, ProductSetFormSet, CompositeProductForm
-from .models import Product, ProductSet
+from .models import Product, ProductSet, CompositeProduct
 from ..mixins import BazaarPrefixMixin, FilterSortableListView
 
 
@@ -118,7 +118,7 @@ class ProductUpdateView(LoginRequiredMixin, BazaarPrefixMixin, generic.UpdateVie
 #         return reverse_lazy("bazaar:product-detail", kwargs={'pk': self.object.id})
 
 
-def CompositeProductView(request):
+def CompositeCreateView(request):
     if request.method == 'POST':
         form = CompositeProductForm(request.POST)
         formset = ProductSetFormSet(request.POST)
@@ -132,6 +132,47 @@ def CompositeProductView(request):
     else:
         form = CompositeProductForm()
         formset = ProductSetFormSet(queryset=ProductSet.objects.none())
+    return render_to_response('bazaar/goods/compositeproduct_form.html',
+                              {'form': form, 'formset': formset},
+                              context_instance=RequestContext(request))
+
+
+# class CompositeUpdateView(LoginRequiredMixin, BazaarPrefixMixin, generic.UpdateView):
+#     model = CompositeProduct
+#     form_class = CompositeProductForm
+#
+#     fields = ['name', 'description', 'photo', 'price']
+#     template_name = "goods/compositeproduct_form.html"
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(CompositeUpdateView, self).get_context_data(**kwargs)
+#         context['formset'] = ProductSetFormSet(queryset=ProductSet.objects.filter(composite=self.object))
+#         return context
+#
+#     def get_success_url(self):
+#         return reverse_lazy("bazaar:product-detail", kwargs={'pk': self.object.id})
+
+
+def CompositeUpdateView(request, pk):
+    object = get_object_or_404(CompositeProduct, pk=pk)
+    products = ProductSet.objects.filter(composite=object)
+    if request.method == 'POST':
+        form = CompositeProductForm(request.POST, instance=object)
+        formset = ProductSetFormSet(request.POST, queryset=products)
+        if form.is_valid() and formset.is_valid():
+            form.save()
+            instances = formset.save(commit=False)
+            for deleted in formset.deleted_objects:
+                deleted.delete()
+
+            for instance in instances:
+                if instance.composite != object:
+                    instance.composite = object
+                    instance.save()
+            formset.save_m2m()
+    else:
+        form = CompositeProductForm(instance=object)
+        formset = ProductSetFormSet(queryset=products)
     return render_to_response('bazaar/goods/compositeproduct_form.html',
                               {'form': form, 'formset': formset},
                               context_instance=RequestContext(request))

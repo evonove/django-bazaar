@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
+import autocomplete_light
 
 from crispy_forms.bootstrap import FormActions
 from crispy_forms.layout import Layout, Fieldset, Submit, HTML, Div
@@ -80,7 +81,8 @@ class CompositeProductForm(EanValidationMixin, FormHelperMixin, forms.ModelForm)
         exclude = ("products", )
 
 
-class ProductSetForm(FormHelperMixin, forms.ModelForm):
+class ProductSetForm(FormHelperMixin, autocomplete_light.ModelForm):
+
     class Meta:
         model = ProductSet
         exclude = ("composite",)
@@ -99,4 +101,5 @@ class ProductSetForm(FormHelperMixin, forms.ModelForm):
         self.helper.form_tag = False
         self.helper.disable_csrf = True
 
-ProductSetFormSet = modelformset_factory(ProductSet, form=ProductSetForm, min_num=1, validate_min=True, extra=0)
+ProductSetFormSet = modelformset_factory(ProductSet, form=ProductSetForm, min_num=1, validate_min=True, extra=0,
+                                         can_delete=True)

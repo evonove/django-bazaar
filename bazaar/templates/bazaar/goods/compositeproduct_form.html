@@ -12,10 +12,11 @@
             <form method="POST" action="." class="form-horizontal">
                 {% csrf_token %}
                 {% crispy form %}
-                {{ formset.management_form }}
                 {% for form in formset.forms %}
                     {% crispy form %}
+                    {{ form.id }}
                 {% endfor %}
+                {{ formset.management_form }}
                 <div class="form-group">
                     <div class="col-md-8 col-md-offset-3">
                         <a class="btn btn-default" href="/products/"><i class="glyphicon glyphicon-chevron-left"></i>&nbsp;Back</a>&nbsp;
@@ -29,10 +30,10 @@
 
 {% block javascript %}
     {{ block.super }}
+    {%  block select2 %} <!-- dont load select2 --> {% endblock %}
     <script src="{% static 'js/jquery.formset.js' %}" type="text/javascript"></script>
     <script type="text/javascript">
-        $(function() {
-            $('.formset').formset({});
-        })
+        $('.formset').formset({});
     </script>
+    {% include 'autocomplete_light/static.html' %}
 {% endblock javascript %}
