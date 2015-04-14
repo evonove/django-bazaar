@@ -33,9 +33,9 @@
     </div>
 
     <div class="row">
-        {% if listing.picture_url %}
+        {% if listing.product.photo %}
             <div class="col-md-2">
-                <img src='{{ listing.picture_url }}' class='img-thumbnail'>
+                <img src='{{ listing.product.photo.url }}' class='img-thumbnail'>
             </div>
         {% endif %}
         <div class="col-md-10">
