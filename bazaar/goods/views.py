@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.core.urlresolvers import reverse_lazy
 from django.http.response import HttpResponseForbidden
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.utils.datastructures import SortedDict
 from django.views import generic
@@ -97,6 +97,13 @@ class ProductDeleteView(LoginRequiredMixin, BazaarPrefixMixin, generic.DeleteVie
 class ProductUpdateView(LoginRequiredMixin, BazaarPrefixMixin, generic.UpdateView):
     model = Product
     form_class = ProductForm
+
+    def get(self, request, *args, **kwargs):
+        # if the product is composite, redirect to the composite update view
+        the_object = self.get_object()
+        if hasattr(the_object, 'compositeproduct'):
+            return redirect('bazaar:composite-update', the_object.pk)
+        return super(ProductUpdateView, self).get(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse_lazy("bazaar:product-detail", kwargs={'pk': self.object.id})
