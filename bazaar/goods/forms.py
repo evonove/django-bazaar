@@ -91,12 +91,9 @@ class ProductSetForm(FormHelperMixin, autocomplete_light.ModelForm):
         super(ProductSetForm, self).__init__(*args, **kwargs)
 
         self.helper.layout = Layout(
-            Fieldset(
-                '',
-                'product',
-                'quantity',
-                css_class='formset'
-            )
+            '',
+            'product',
+            'quantity'
         )
         self.helper.form_tag = False
         self.helper.disable_csrf = True

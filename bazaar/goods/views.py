@@ -162,25 +162,25 @@ def CompositeCreateView(request):
 
 
 def CompositeUpdateView(request, pk):
-    object = get_object_or_404(CompositeProduct, pk=pk)
-    products = ProductSet.objects.filter(composite=object)
+    the_object = get_object_or_404(CompositeProduct, pk=pk)
+    products = ProductSet.objects.filter(composite=the_object)
     if request.method == 'POST':
-        form = CompositeProductForm(request.POST, instance=object)
+        form = CompositeProductForm(request.POST, instance=the_object)
         formset = ProductSetFormSet(request.POST, queryset=products)
         if form.is_valid() and formset.is_valid():
-            form.save()
+            the_object = form.save()
             instances = formset.save(commit=False)
             for deleted in formset.deleted_objects:
                 deleted.delete()
 
             for instance in instances:
-                if instance.composite != object:
-                    instance.composite = object
-                    instance.save()
+                instance.composite = the_object
+                instance.save()
             formset.save_m2m()
+            return redirect('product-detail', the_object.pk)
     else:
-        form = CompositeProductForm(instance=object)
+        form = CompositeProductForm(instance=the_object)
         formset = ProductSetFormSet(queryset=products)
     return render_to_response('bazaar/goods/compositeproduct_form.html',
-                              {'form': form, 'formset': formset},
+                              {'form': form, 'formset': formset, 'product': the_object},
                               context_instance=RequestContext(request))
