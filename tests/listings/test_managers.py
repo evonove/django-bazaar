@@ -15,12 +15,12 @@ class TestListingManager(TestCase):
         self.output = f.OutputFactory()
 
         self.product_1 = f.ProductFactory()
-        self.listing_1 = f.ListingFactory(product=self.product_1)
-        self.publishing_1 = f.PublishingFactory(listing=self.listing_1, available_units=1)
+        self.listing_1 = self.product_1.listings.first()
+        self.publishing_1 = f.PublishingFactory(price=1, listing=self.listing_1, available_units=1)
 
         self.product_2 = f.ProductFactory()
-        self.listing_2 = f.ListingFactory(product=self.product_2)
-        self.publishing_2 = f.PublishingFactory(listing=self.listing_2, available_units=4)
+        self.listing_2 = self.product_2.listings.first()
+        self.publishing_2 = f.PublishingFactory(price=1, listing=self.listing_2, available_units=4)
 
     def test_high_availability(self):
         self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, quantity=4)
@@ -54,7 +54,7 @@ class TestListingManager(TestCase):
 
     def test_low_cost(self):
         self.product_1.move(from_location=self.lost_and_found, to_location=self.storage, price_multiplier=2)
-        self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, price_multiplier=0.1)
+        self.product_2.move(from_location=self.lost_and_found, to_location=self.storage, price_multiplier=0.2)
 
         filter = LowPriceListingFilter()
         listings = filter.filter(Listing.objects.all(), True)

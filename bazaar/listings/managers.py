@@ -43,16 +43,15 @@ class ListingManager(models.Manager):
 
     def low_price(self):
         """
-        Returns a list of ids of the listings for which the quantity of a product in stock
-        is less then the amount needed to satisfy it
+        Returns a list of ids of the listings for which the price of a product in stock
+        is less then the price of the publishing
         """
         from django.db.models import F
         from .models import Publishing
         from ..warehouse.models import Location
-        # FIXME: How this can work?
         listings = self.filter(publishings__status=Publishing.ACTIVE_PUBLISHING,
                                product__stocks__location__type=Location.LOCATION_STORAGE,
-                               product__stocks__unit_price__gt=F('publishings'))
+                               product__stocks__unit_price__gt=F('publishings__price'))
         return listings.values_list('id')
 
 
