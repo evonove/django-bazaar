@@ -136,6 +136,7 @@ def CompositeCreateView(request):
                 instance.composite = new_composite
                 instance.save()
             formset.save_m2m()
+            return redirect('product-detail', new_composite.pk)
     else:
         form = CompositeProductForm()
         formset = ProductSetFormSet(queryset=ProductSet.objects.none())
