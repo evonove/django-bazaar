@@ -7,7 +7,7 @@ from crispy_forms.layout import Layout, Fieldset, Submit, HTML, Div
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.forms import modelformset_factory
+from django.forms import inlineformset_factory
 from bazaar.goods.models import Product, ProductSet, CompositeProduct
 from bazaar.helpers import FormHelperMixin
 
@@ -98,5 +98,6 @@ class ProductSetForm(FormHelperMixin, autocomplete_light.ModelForm):
         self.helper.form_tag = False
         self.helper.disable_csrf = True
 
-ProductSetFormSet = modelformset_factory(ProductSet, form=ProductSetForm, min_num=1, validate_min=True, extra=0,
-                                         can_delete=True)
+
+ProductSetFormSet = inlineformset_factory(CompositeProduct, ProductSet, min_num=1, validate_min=True, extra=0,
+                                          form=ProductSetForm, fk_name='composite')

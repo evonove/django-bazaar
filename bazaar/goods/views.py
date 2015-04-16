@@ -128,15 +128,13 @@ class ProductUpdateView(LoginRequiredMixin, BazaarPrefixMixin, generic.UpdateVie
 def CompositeCreateView(request):
     if request.method == 'POST':
         form = CompositeProductForm(request.POST)
-        formset = ProductSetFormSet(request.POST)
-        if form.is_valid() and formset.is_valid():
-            new_composite = form.save()
-            instances = formset.save(commit=False)
-            for instance in instances:
-                instance.composite = new_composite
-                instance.save()
-            formset.save_m2m()
-            return redirect('product-detail', new_composite.pk)
+        if form.is_valid():
+            new_composite = form.save(commit=False)
+            formset = ProductSetFormSet(request.POST, instance=new_composite)
+            if formset.is_valid():
+                new_composite.save()
+                formset.save()
+                return redirect('product-detail', new_composite.pk)
     else:
         form = CompositeProductForm()
         formset = ProductSetFormSet(queryset=ProductSet.objects.none())
@@ -166,21 +164,14 @@ def CompositeUpdateView(request, pk):
     products = ProductSet.objects.filter(composite=the_object)
     if request.method == 'POST':
         form = CompositeProductForm(request.POST, instance=the_object)
-        formset = ProductSetFormSet(request.POST, queryset=products)
+        formset = ProductSetFormSet(request.POST, queryset=products, instance=the_object)
         if form.is_valid() and formset.is_valid():
             the_object = form.save()
-            instances = formset.save(commit=False)
-            for deleted in formset.deleted_objects:
-                deleted.delete()
-
-            for instance in instances:
-                instance.composite = the_object
-                instance.save()
-            formset.save_m2m()
+            formset.save()
             return redirect('product-detail', the_object.pk)
     else:
         form = CompositeProductForm(instance=the_object)
-        formset = ProductSetFormSet(queryset=products)
+        formset = ProductSetFormSet(queryset=products, instance=the_object)
     return render_to_response('bazaar/goods/compositeproduct_form.html',
                               {'form': form, 'formset': formset, 'product': the_object},
                               context_instance=RequestContext(request))
