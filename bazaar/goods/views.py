@@ -128,6 +128,7 @@ class ProductUpdateView(LoginRequiredMixin, BazaarPrefixMixin, generic.UpdateVie
 def CompositeCreateView(request):
     if request.method == 'POST':
         form = CompositeProductForm(request.POST)
+        formset = ProductSetFormSet(request.POST)
         if form.is_valid():
             new_composite = form.save(commit=False)
             formset = ProductSetFormSet(request.POST, instance=new_composite)
