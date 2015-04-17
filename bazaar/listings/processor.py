@@ -54,12 +54,13 @@ class OrderProcessor(object):
         try:
             model = self.get_publishing_model()
             # FIXME: Maye move this to publishing manager?
+            publishing = model.objects.get(external_id=getattr(order, self.get_publishing_lookup_id()))
             try:
-                publishing = model.objects.get(external_id=getattr(order, self.get_publishing_lookup_id()))
                 product = publishing.listing.product.__class__.objects.get_subclass(id=publishing.listing.product.id)
                 publishing.listing.product = product
             except AttributeError as e:
                 self._add_message(e)
+                return publishing
             return publishing
         except model.DoesNotExist:
             self._add_message("No publishing %s found for order %s" % (order.item_id, order))
