@@ -1,8 +1,9 @@
 from __future__ import unicode_literals
 
 from django.core.exceptions import ImproperlyConfigured
+from bazaar.goods.models import Product
 
-from .models import Order, Publishing
+from .models import Order, Publishing, Listing
 
 
 class OrderProcessor(object):
@@ -55,12 +56,9 @@ class OrderProcessor(object):
             model = self.get_publishing_model()
             # FIXME: Maye move this to publishing manager?
             publishing = model.objects.get(external_id=getattr(order, self.get_publishing_lookup_id()))
-            try:
+            if isinstance(publishing.listing, Listing) and isinstance(publishing.listing.product, Product):
                 product = publishing.listing.product.__class__.objects.get_subclass(id=publishing.listing.product.id)
                 publishing.listing.product = product
-            except AttributeError as e:
-                self._add_message(e)
-                return publishing
             return publishing
         except model.DoesNotExist:
             self._add_message("No publishing %s found for order %s" % (order.item_id, order))
