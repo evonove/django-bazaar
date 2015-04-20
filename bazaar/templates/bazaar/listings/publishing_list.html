@@ -50,7 +50,7 @@
 
                 {% for publishing in publishing_list %}
                     <tr>
-                        <td><a href="{% url 'bazaar:publishings-update' publishing.id %}">{{ publishing.id }}</a></td>
+                        <td><a href="{% url 'bazaar:publishing-update' publishing.id %}">{{ publishing.id }}</a></td>
                         <td>{{ publishing.external_id }}</td>
                         <td>{{ publishing.pub_date|date:"D d M Y, H:m"|default_if_none:_("No date") }}</td>
                         <td>{{ publishing.last_modified|date:"D d M Y, H:m"|default_if_none:_("No date") }}</td>
@@ -75,10 +75,10 @@
                             <form method="get">
                                 {% crispy publishing_filter.form %}
                                 <button type="submit" class="btn btn-primary">{% trans "Filter" %}</button>
-                                {% url "bazaar:publishings-list" as publishings %}
+                                {% url "bazaar:publishing-list" as publishings %}
                                 <a href="{{ publishings }}" class="btn{% if query_filter %} btn-primary{% else %} btn-default{% endif %}"
                                 {% if not query_filter %} disabled="disabled" {% endif %}>{% trans "Reset" %}</a>
-                                {% url "bazaar:publishings-create" as publishings_create %}
+                                {% url "bazaar:publishing-create" as publishings_create %}
                                 <a href="{{ publishings_create }}" class="btn{% if query_filter %} btn-primary{% else %} btn-success{% endif %}"
                                 >{% trans "Create" %}</a>
                             </form>

@@ -66,7 +66,7 @@ class ListingDetailView(LoginRequiredMixin, generic.DetailView):
 
 class ListingDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Listing
-    success_url = reverse_lazy("bazaar:listings-list")
+    success_url = reverse_lazy("bazaar:listing-list")
 
     def delete(self, request, *args, **kwargs):
 
@@ -83,7 +83,7 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
     template_name = "bazaar/listings/listing_form.html"
     listing_to_update = None
     error_response = None
-    success_url = reverse_lazy("bazaar:listings-list")
+    success_url = reverse_lazy("bazaar:listing-list")
 
     def get_context_data(self, **kwargs):
         context = super(ListingUpdateView, self).get_context_data(**kwargs)
@@ -110,7 +110,7 @@ class ListingUpdateView(LoginRequiredMixin, generic.FormView):
         return initial
 
     def get_success_url(self):
-        return reverse_lazy("bazaar:listings-detail", kwargs={'pk': self.object.id})
+        return reverse_lazy("bazaar:listing-detail", kwargs={'pk': self.object.id})
 
     def _retrieve_product(self, form):
         product_id = form.clean_product()
@@ -166,20 +166,20 @@ class PublishingListView(LoginRequiredMixin, PublishingTagsMixin, FilterSortable
 class PublishingCreateView(SuccessMessageMixin, LoginRequiredMixin, PublishingTagsMixin, generic.CreateView):
     model = Publishing
     form_class = PublishingForm
-    success_url = reverse_lazy("bazaar:publishings-list")
+    success_url = reverse_lazy("bazaar:publishing-list")
     template_name = 'bazaar/listings/publishing_form.html'
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.last_modified = timezone.now()
         self.object.save()
-        self.success_url = reverse_lazy("publishings-update", kwargs={'pk': self.object.id})
+        self.success_url = reverse_lazy("publishing-update", kwargs={'pk': self.object.id})
         return super(PublishingCreateView, self).form_valid(form)
 
 
 class PublishingDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Publishing
-    success_url = reverse_lazy("bazaar:publishings-list")
+    success_url = reverse_lazy("bazaar:publishing-list")
 
 
 class PublishingUpdateView(SuccessMessageMixin, LoginRequiredMixin, PublishingTagsMixin, generic.UpdateView):
@@ -188,7 +188,7 @@ class PublishingUpdateView(SuccessMessageMixin, LoginRequiredMixin, PublishingTa
     template_name = 'bazaar/listings/publishing_form.html'
 
     def get_success_url(self):
-        return reverse_lazy("bazaar:publishings-update", kwargs={'pk': self.object.id})
+        return reverse_lazy("bazaar:publishing-update", kwargs={'pk': self.object.id})
 
 
 class ListingViewSet(mixins.ListModelMixin, GenericViewSet):

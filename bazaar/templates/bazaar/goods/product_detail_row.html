@@ -66,7 +66,7 @@
                     {% for product_set in product.compositeproduct.product_sets.all %}
                         <tr>
                             <td>
-                                <a href="{% url 'product-update' product_set.product.id %}">{{ product_set.product.name }}</a>
+                                <a href="{% url 'product-detail' product_set.product.id %}">{{ product_set.product.name }}</a>
                             </td>
                             <td>
                                 {{ product_set.quantity }}

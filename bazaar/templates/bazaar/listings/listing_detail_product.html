@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load bazaar_list %}
 {%  if listing.product.compositeproduct %}
     <table class="table table-striped table-bordered">
         <thead>
@@ -17,7 +18,7 @@
         <tbody>
             <tr>
                 <td>
-                    <a href="{% url 'product-update' listing.product.id %}">{{ listing.product.name }}</a>
+                    <a href="{% url 'product-detail' listing.product.id %}">{{ listing.product.name }}</a>
                 </td>
                 <td>
                     {{ listing.available_units|floatformat:0 }}
@@ -49,7 +50,7 @@
                 {% for product_set in listing.product.compositeproduct.product_sets.all %}
                     <tr>
                         <td>
-                            <a href="{% url 'product-update' product_set.product.id %}">{{ product_set.product.name }}</a>
+                            <a href="{% url product_set|get_url:'product' product_set.product.id %}">{{ product_set.product.name }}</a>
                         </td>
                         <td>
                             {{ product_set.quantity }}{% trans "x" %}
@@ -82,7 +83,7 @@
         <tbody>
             <tr>
                 <td>
-                    <a href="{% url 'product-update' listing.product.id %}">{{ listing.product.name }}</a>
+                        <a href="{% url listing|get_url:'product' listing.product.id %}">{{ listing.product.name }}</a>
                 </td>
                 <td>
                     {{ listing.available_units|floatformat:0 }}

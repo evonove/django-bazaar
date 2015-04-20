@@ -15,16 +15,21 @@ bazaar_patterns = patterns(
 
     # messages
     url(r'^messages/$', MessagesView.as_view(), name="messages"),
-    url(r'^api/messages/', include("stored_messages.urls")),
-    url(r'^api/listings/', include(router.urls)),
 
     url(r'', include("bazaar.goods.urls")),
     url(r'', include("bazaar.listings.urls")),
     url(r'', include("bazaar.warehouse.urls")),
 )
 
+api_patterns = patterns(
+    '',
+    url(r'^api/messages/', include("stored_messages.urls")),
+    url(r'^api/listings/', include(router.urls)),
+)
+
 # uniform namespace for all urls
 urlpatterns = patterns(
     '',
     url(r'', include(bazaar_patterns, namespace="bazaar", app_name="bazaar")),
+    url(r'', include(api_patterns, namespace='api'))
 )

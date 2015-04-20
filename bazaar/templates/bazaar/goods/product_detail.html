@@ -73,7 +73,7 @@
                  {% for listing in product.listings.all %}
                      <tr>
                          <td>
-                            <a href="{% url "bazaar:listings-detail" listing.pk %}" class="ellipsify-content" title="{{ product.name }}">{{ product.name }}</a>
+                            <a href="{% url "bazaar:listing-detail" listing.pk %}" class="ellipsify-content" title="{{ product.name }}">{{ product.name }}</a>
                          </td>
                          <td>
                              <span class="ellipsify-content" title="{{ listing.sku }}">{{ listing.sku }}</span>

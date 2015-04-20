@@ -28,7 +28,7 @@ class TestListingsListView(TestBase):
         self.listing = self.product.listings.first()
 
         self.client.login(username=self.user.username, password='test')
-        response = self.client.get(reverse('bazaar:listings-list'))
+        response = self.client.get(reverse('bazaar:listing-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         listings = response.context_data['listing_list']
         self.assertEqual(listings.count(), 1)
@@ -38,7 +38,7 @@ class TestListingsListView(TestBase):
         """
         Test that trying to call the list view without being logged redirects to the login page
         """
-        response = self.client.get(reverse('bazaar:listings-list'))
+        response = self.client.get(reverse('bazaar:listing-list'))
         self.assertRedirects(response, '/accounts/login/?next=/listings/')
 
     def test_list_view_no_products(self):
@@ -46,7 +46,7 @@ class TestListingsListView(TestBase):
         Test that a void list view displays "no products"
         """
         self.client.login(username=self.user.username, password='test')
-        response = self.client.get(reverse('bazaar:listings-list'))
+        response = self.client.get(reverse('bazaar:listing-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         listings = response.context_data['listing_list']
@@ -60,8 +60,8 @@ class TestListingUpdateView(TestBase):
         """
         Test that the update view redirects to the login page if the user is not logged
         """
-        response = self.client.get(reverse('bazaar:listings-update', kwargs={'pk': 1}))
-        self.assertRedirects(response, '/accounts/login/?next=%s' % reverse('bazaar:listings-update', kwargs={'pk': 1}))
+        response = self.client.get(reverse('bazaar:listing-update', kwargs={'pk': 1}))
+        self.assertRedirects(response, '/accounts/login/?next=%s' % reverse('bazaar:listing-update', kwargs={'pk': 1}))
 
     def test_update_listing_does_not_change_sku(self):
         self.client.login(username=self.user.username, password='test')
@@ -71,7 +71,7 @@ class TestListingUpdateView(TestBase):
 
         self.client.login(username=self.user.username, password='test')
         data = {'product': product.pk}
-        response = self.client.post(reverse('bazaar:listings-update', kwargs={'pk': listing.pk}), data=data)
+        response = self.client.post(reverse('bazaar:listing-update', kwargs={'pk': listing.pk}), data=data)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         modified_listing = Listing.objects.get(pk=listing.pk)
         self.assertEqual(listing.sku, modified_listing.sku)
@@ -82,7 +82,7 @@ class TestListingUpdateView(TestBase):
         """
 
         self.client.login(username=self.user.username, password='test')
-        response = self.client.get(reverse('bazaar:listings-create'))
+        response = self.client.get(reverse('bazaar:listing-create'))
         content = response.content.decode('utf-8')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('href="/listings/"', content)
@@ -100,7 +100,7 @@ class TestListingCreateView(TestBase):
 
         self.client.login(username=self.user.username, password='test')
         data = {'product': self.product.id}
-        response = self.client.post(reverse('bazaar:listings-create'), data=data)
+        response = self.client.post(reverse('bazaar:listing-create'), data=data)
         new_listing = Listing.objects.exclude(sku=self.listing.sku).first()
         self.assertRedirects(response, '/listings/%s/' % new_listing.pk)
 
@@ -112,7 +112,7 @@ class TestListingCreateView(TestBase):
         self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
         self.listing = self.product.listings.first()
         data = {'product': self.product.id}
-        response = self.client.post(reverse('bazaar:listings-create'), data=data)
+        response = self.client.post(reverse('bazaar:listing-create'), data=data)
         self.assertRedirects(response, '/accounts/login/?next=/listings/new/')
 
 
@@ -121,7 +121,7 @@ class TestDeleteView(TestBase):
         """
         Test that the delete view redirects to the login page if the user is not logged
         """
-        response = self.client.get(reverse('bazaar:listings-delete', kwargs={'pk': 1}))
+        response = self.client.get(reverse('bazaar:listing-delete', kwargs={'pk': 1}))
         self.assertRedirects(response, '/accounts/login/?next=/listings/delete/%s/' % 1)
 
     def test_delete_view(self):
@@ -133,7 +133,7 @@ class TestDeleteView(TestBase):
         self.listing = self.product.listings.first()
 
         self.client.login(username=self.user.username, password='test')
-        response = self.client.post(reverse('bazaar:listings-delete', kwargs={'pk': self.listing.pk}))
+        response = self.client.post(reverse('bazaar:listing-delete', kwargs={'pk': self.listing.pk}))
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
         listing_exists = Listing.objects.filter(pk=self.listing.pk).exists()
@@ -149,12 +149,12 @@ class TestDeleteView(TestBase):
         publishing = PublishingFactory(listing=self.listing)
 
         self.client.login(username=self.user.username, password='test')
-        response = self.client.post(reverse('bazaar:listings-delete', kwargs={'pk': self.listing.pk}))
+        response = self.client.post(reverse('bazaar:listing-delete', kwargs={'pk': self.listing.pk}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         publishing.delete()
 
-        response = self.client.post(reverse('bazaar:listings-delete', kwargs={'pk': self.listing.pk}))
+        response = self.client.post(reverse('bazaar:listing-delete', kwargs={'pk': self.listing.pk}))
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
         listing_exists = Listing.objects.filter(pk=self.listing.pk).exists()

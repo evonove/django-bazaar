@@ -54,3 +54,13 @@ def sort_direction(context, sort_field):
         "is_sorted": sort_field["is_current"],
         "sort_ascending": context["current_sort_direction"] != "-",
     }
+
+
+@register.filter
+def get_url(obj, path, endpoint='detail'):
+    tokenized_paths = path.split('.')
+    for path in tokenized_paths:
+        if hasattr(obj, path):
+            obj = getattr(obj, path)
+    path = "{}-{}".format(obj.__class__.objects.get_subclass(id=obj.id).__class__.__name__.lower(), endpoint)
+    return path

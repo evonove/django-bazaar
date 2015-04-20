@@ -43,7 +43,7 @@
                                                                         </tr>
                                                                             <td><strong>{% trans "SKU:" %}</strong></td>
                                                                             <td>
-                                                                                <a href="{% url "bazaar:listings-detail" listing.pk %}">{{ listing.sku }}</a>
+                                                                                <a href="{% url "bazaar:listing-detail" listing.pk %}">{{ listing.sku }}</a>
                                                                             </td>
                                                                             <td align="right">
                                                                                 {% block listing-header-messages %}
