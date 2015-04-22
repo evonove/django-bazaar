@@ -1,5 +1,5 @@
 {% load i18n %}
-
+{% load bazaar_list %}
 {% for listing in listing_list %}
 
     {% block listing-item %}
@@ -36,7 +36,7 @@
                                                                             <td>
                                                                                 <strong>{% trans "Product:" %}</strong>
                                                                             </td>
-                                                                            <td><a href="{% url "bazaar:product-detail" listing.product.pk %}">{{ listing.product }}</a></td>
+                                                                            <td><a href="{% url listing|get_url:'product' listing.product.pk %}">{{ listing.product }}</a></td>
                                                                             <td align="right">
                                                                                 <button type="submit" name="shelve-btn" class="btn btn-sm btn-default">{% trans "Shelve" %}</button>
                                                                             </td>

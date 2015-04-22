@@ -62,5 +62,8 @@ def get_url(obj, path, endpoint='detail'):
     for path in tokenized_paths:
         if hasattr(obj, path):
             obj = getattr(obj, path)
-    path = "{}-{}".format(obj.__class__.objects.get_subclass(id=obj.id).__class__.__name__.lower(), endpoint)
+    url_product_path = obj.__class__.objects.get_subclass(id=obj.id).__class__.__name__.lower()
+    if url_product_path == 'compositeproduct':
+        url_product_path = 'product'
+    path = "{}-{}".format(url_product_path, endpoint)
     return path

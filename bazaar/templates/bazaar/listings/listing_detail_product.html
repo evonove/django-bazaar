@@ -83,7 +83,7 @@
         <tbody>
             <tr>
                 <td>
-                        <a href="{% url listing|get_url:'product' listing.product.id %}">{{ listing.product.name }}</a>
+                    <a href="{% url listing|get_url:'product' listing.product.id %}">{{ listing.product.name }}</a>
                 </td>
                 <td>
                     {{ listing.available_units|floatformat:0 }}
