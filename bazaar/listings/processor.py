@@ -40,28 +40,34 @@ class OrderProcessor(object):
 
         return self.publishing_lookup_id
 
+    def _get_product_subclass(self, product, id):
+        return product.__class__.objects.get_subclass(id=id)
+
     def get_order(self, incoming):
+        external_id = getattr(incoming, self.get_order_lookup_id())
+        model = self.get_order_model()
         try:
-            model = self.get_order_model()
-            external_id = getattr(incoming, self.get_order_lookup_id())
-            return model.objects.get(external_id=external_id)
+            order = model.objects.get(external_id=external_id)
+            product = order.publishing.listing.product
+            order.publishing.listing.product = self._get_product_subclass(product, product.id)
+            return order
         except model.DoesNotExist:
             return None
         except model.MultipleObjectsReturned:
             self._add_message("Multiple orders found for external_id %s" % external_id)
             raise model.MultipleObjectsReturned("Multiple orders found for external_id %s" % external_id)
 
-    def get_publishing(self, order):
+    def get_publishing(self, incoming_order):
         try:
             model = self.get_publishing_model()
             # FIXME: Maye move this to publishing manager?
-            publishing = model.objects.get(external_id=getattr(order, self.get_publishing_lookup_id()))
+            publishing = model.objects.get(external_id=getattr(incoming_order, self.get_publishing_lookup_id()))
             if isinstance(publishing.listing, Listing) and isinstance(publishing.listing.product, Product):
-                product = publishing.listing.product.__class__.objects.get_subclass(id=publishing.listing.product.id)
+                product = self._get_product_subclass(publishing.listing.product, publishing.listing.product.id)
                 publishing.listing.product = product
             return publishing
         except model.DoesNotExist:
-            self._add_message("No publishing %s found for order %s" % (order.item_id, order))
+            self._add_message("No publishing %s found for order %s" % (incoming_order.item_id, incoming_order))
             return None
 
     def get_messages(self):
