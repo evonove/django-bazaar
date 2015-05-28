@@ -13,6 +13,7 @@ from bazaar.listings.models import Publishing
 from bazaar.warehouse.locations import get_storage
 from .filters import ProductFilter
 from .forms import ProductForm, ProductSetFormSet, CompositeProductForm
+from market.models import ProductMarketPrice
 from .models import Product, ProductSet, CompositeProduct
 from ..mixins import BazaarPrefixMixin, FilterSortableListView
 
@@ -135,6 +136,11 @@ def CompositeCreateView(request):
             if formset.is_valid():
                 new_composite.save()
                 formset.save()
+
+                marketprice, created = ProductMarketPrice.objects.get_or_create(product=new_composite)
+                marketprice.price.amount = form.cleaned_data['market_price'].amount
+                marketprice.price.currency = form.cleaned_data['market_price'].currency
+                marketprice.save()
                 return redirect('product-detail', new_composite.pk)
     else:
         form = CompositeProductForm()
@@ -167,8 +173,13 @@ def CompositeUpdateView(request, pk):
         form = CompositeProductForm(request.POST, instance=the_object)
         formset = ProductSetFormSet(request.POST, queryset=products, instance=the_object)
         if form.is_valid() and formset.is_valid():
-            the_object = form.save()
+            composite = form.save()
             formset.save()
+
+            marketprice, created = ProductMarketPrice.objects.get_or_create(product=composite)
+            marketprice.price.amount = form.cleaned_data['market_price'].amount
+            marketprice.price.currency = form.cleaned_data['market_price'].currency
+            marketprice.save()
             return redirect('product-detail', the_object.pk)
     else:
         form = CompositeProductForm(instance=the_object)
