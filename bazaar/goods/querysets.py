@@ -139,7 +139,7 @@ class ProductsQuerySet(InheritanceQuerySetMixin, models.QuerySet):
             select={
                 "price_delta":
                     "goods_product.price - GREATEST({}, goods_product.price * {})  - goods_product.price * {} "
-                    "- goods_productmarketprice.price"
+                    "- market_productmarketprice.price"
                     .format(reference.lower_fixed_store_fee, reference.store_fee / 100, reference.vat / 100)
             })
 
@@ -150,6 +150,6 @@ class ProductsQuerySet(InheritanceQuerySetMixin, models.QuerySet):
             select={
                 "price_delta":
                     "goods_product.price - GREATEST({}, goods_product.price * {})  - goods_product.price * {} "
-                    "- goods_productmarketprice.price"
+                    "- market_productmarketprice.price"
                     .format(reference.lower_fixed_store_fee, reference.store_fee / 100, reference.vat / 100)
             })
