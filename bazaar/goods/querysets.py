@@ -60,10 +60,10 @@ class ProductsQuerySet(InheritanceQuerySetMixin, models.QuerySet):
     def with_sold(self, location_customer_id):
         return self.extra(
             select=SortedDict([(
-                                   "sold",
-                                   "SELECT COALESCE(SUM(quantity), %s) "
-                                   "FROM warehouse_stock WHERE warehouse_stock.product_id = goods_product.id "
-                                   "AND (warehouse_stock.location_id = %s)"),
+                "sold",
+                "SELECT COALESCE(SUM(quantity), %s) "
+                "FROM warehouse_stock WHERE warehouse_stock.product_id = goods_product.id "
+                "AND (warehouse_stock.location_id = %s)"),
             ]),
             select_params=(
                 FORCED_LOWER, location_customer_id
@@ -92,7 +92,7 @@ class ProductsQuerySet(InheritanceQuerySetMixin, models.QuerySet):
         qs = self.extra(
             select={
                 "net_price": "goods_product.price - GREATEST({}, goods_product.price * {}) - goods_product.price * {}"
-            .format(reference.lower_fixed_store_fee, reference.store_fee / 100, reference.vat / 100)
+                .format(reference.lower_fixed_store_fee, reference.store_fee / 100, reference.vat / 100)
             })
         return qs.extra(
             select=SortedDict([
@@ -133,15 +133,14 @@ class ProductsQuerySet(InheritanceQuerySetMixin, models.QuerySet):
                 .format(reference.lower_fixed_store_fee, reference.store_fee / 100, reference.vat / 100)
             })
 
-
     def with_price_delta(self, reference):
         qs = self.select_related('market_price')
         return qs.extra(
             select={
                 "price_delta":
                     "goods_product.price - GREATEST({}, goods_product.price * {})  - goods_product.price * {} "
-                    "- market_productmarketprice.price"
-                .format(reference.lower_fixed_store_fee, reference.store_fee / 100, reference.vat / 100)
+                    "- goods_productmarketprice.price"
+                    .format(reference.lower_fixed_store_fee, reference.store_fee / 100, reference.vat / 100)
             })
 
     def with_price_delta_in_composite(self, reference):
@@ -151,6 +150,6 @@ class ProductsQuerySet(InheritanceQuerySetMixin, models.QuerySet):
             select={
                 "price_delta":
                     "goods_product.price - GREATEST({}, goods_product.price * {})  - goods_product.price * {} "
-                    "- market_productmarketprice.price"
-                .format(reference.lower_fixed_store_fee, reference.store_fee / 100, reference.vat / 100)
+                    "- goods_productmarketprice.price"
+                    .format(reference.lower_fixed_store_fee, reference.store_fee / 100, reference.vat / 100)
             })

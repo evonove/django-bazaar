@@ -8,12 +8,12 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-from bazaar.warehouse import api
+
 from .mixins import MovableProductMixin, MovableCompositeProductMixin
 from .querysets import ProductsQuerySet
-from bazaar.settings import bazaar_settings
-
 from ..fields import MoneyField
+from ..settings import bazaar_settings
+from ..warehouse import api
 
 
 @python_2_unicode_compatible
@@ -90,3 +90,11 @@ def create_stock_and_set_price(sender, instance, *args, **kwargs):
         if min(quantities) != api.get_storage_quantity(composite):
             stock.quantity = min(quantities)
         stock.save()
+
+
+class ProductMarketPrice(models.Model):
+    """
+    This model is made for products, to save a general "market" price for the product.
+    """
+    product = models.OneToOneField(Product, related_name='market_price')
+    price = MoneyField(help_text=_("Base buying price for product"), validators=[MinValueValidator(limit_value=0)])

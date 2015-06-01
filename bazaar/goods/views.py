@@ -13,7 +13,7 @@ from bazaar.listings.models import Publishing
 from bazaar.warehouse.locations import get_storage
 from .filters import ProductFilter
 from .forms import ProductForm, ProductSetFormSet, CompositeProductForm
-from market.models import ProductMarketPrice
+from bazaar.goods.models import ProductMarketPrice
 from .models import Product, ProductSet, CompositeProduct
 from ..mixins import BazaarPrefixMixin, FilterSortableListView
 

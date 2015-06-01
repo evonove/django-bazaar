@@ -1,20 +1,21 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
+
 import autocomplete_light
 import moneyed
 
-from bazaar.goods.models import Product, ProductSet, CompositeProduct
-from bazaar.helpers import FormHelperMixin
-from bazaar.settings import bazaar_settings
-
 from crispy_forms.bootstrap import FormActions
 from crispy_forms.layout import Layout, Fieldset, Div, HTML, Submit
-
 from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from djmoney.forms.fields import MoneyField
+
+from ..goods.models import Product, ProductSet, CompositeProduct
+from ..helpers import FormHelperMixin
+from ..settings import bazaar_settings
+
 
 class EanValidationMixin(forms.ModelForm):
     ean = forms.CharField(max_length=20, required=False)
@@ -62,11 +63,10 @@ class ProductForm(EanValidationMixin, FormHelperMixin, forms.ModelForm):
 
     class Meta:
         model = Product
-        exclude = ("price_lists", )
+        exclude = ("price_lists",)
 
 
 class CompositeProductForm(FormHelperMixin, forms.ModelForm):
-
     market_price = MoneyField(label=_('Cost'), initial=moneyed.Money(0.0, bazaar_settings.DEFAULT_CURRENCY),
                               currency_choices=bazaar_settings.CURRENCIES, required=False,
                               help_text=_("Base buying price for product"))
@@ -92,7 +92,6 @@ class CompositeProductForm(FormHelperMixin, forms.ModelForm):
 
 
 class ProductSetForm(FormHelperMixin, autocomplete_light.ModelForm):
-
     class Meta:
         model = ProductSet
         exclude = ("composite",)
