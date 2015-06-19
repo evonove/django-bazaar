@@ -48,8 +48,10 @@ class OrderProcessor(object):
         model = self.get_order_model()
         try:
             order = model.objects.get(external_id=external_id)
-            product = order.publishing.listing.product
-            order.publishing.listing.product = self._get_product_subclass(product, product.id)
+            if order.publishing is not None and order.publishing.listing is not None \
+                    and order.publishing.listing.product is not None:
+                product = order.publishing.listing.product
+                order.publishing.listing.product = self._get_product_subclass(product, product.id)
             return order
         except model.DoesNotExist:
             return None
