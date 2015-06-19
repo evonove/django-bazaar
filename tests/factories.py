@@ -133,3 +133,11 @@ class PublishingFactory(factory.django.DjangoModelFactory):
     external_id = fuzzy.FuzzyText(length=10)
     status = Publishing.ACTIVE_PUBLISHING
     store = factory.SubFactory(StoreFactory)
+
+
+class OrderFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = 'listings.Order'
+
+    external_id = fuzzy.FuzzyText(length=10)
+    store = factory.SubFactory(StoreFactory)
