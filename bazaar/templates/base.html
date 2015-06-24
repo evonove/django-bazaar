@@ -6,7 +6,7 @@
 <head>
     <title>{% block title %}Bazaar{% endblock %}</title>
     {% block headjavascript %}
-        <script src="//code.jquery.com/jquery.js"></script>
+        <script type="text/javascript" src="//code.jquery.com/jquery.js"></script>
     {% endblock %}
     {% block stylesheets %}
         <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
@@ -44,9 +44,9 @@
 
 
 {% block javascript %}
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 
-    <script>
+    <script type="text/javascript" >
         // Django csrf through XHR
         function getCookie(name) {
             var cookieValue = null;

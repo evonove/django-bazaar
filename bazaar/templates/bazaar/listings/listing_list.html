@@ -65,13 +65,16 @@
 
 {% block javascript %}
     {{ block.super }}
+    <script type="text/javascript" src="{% static "js/echo.min.js" %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            echo.init();
+        });
+    </script>
 
-    <script src="{% static "js/echo.min.js" %}"></script>
-    <script>
+    <script type="text/javascript">
         $(document).ready(function() {
             $("[data-toggle=popover]").popover();
-
-            echo.init();
         });
     </script>
 {% endblock %}
