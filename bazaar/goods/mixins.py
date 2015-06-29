@@ -29,30 +29,46 @@ class MovableProductMixin(MovableMixin):
         price = self.price * price_multiplier
         agent = kwargs.get('agent', 'bazaar')
         note = kwargs.get('note', '')
+
         api.move(from_location, to_location, self, quantity, price, agent=agent, note=note)
-        # FIXME: unit price should be unit_cost
-        unit_price = 0
 
         for ps in self.sets.all():
-            quantities = []
+            to_location_quantities = []
+            from_location_quantities = []
+
+            to_location_unit_cost = 0
+            from_location_unit_cost = 0
+
             composite = ps.composite
+
             for cps in composite.product_sets.all():
-                quantity = api.get_storage_quantity(cps.product)
-                product_price = api.get_storage_price(cps.product)
-                quantities.append(quantity // cps.quantity)
-                unit_price = unit_price + (product_price.amount * cps.quantity)
+                to_location_product_quantity = api.get_stock_quantity(cps.product, location_type=to_location.type)
+                to_location_product_price = api.get_stock_price(cps.product, location_type=to_location.type)
+                to_location_quantities.append(to_location_product_quantity // cps.quantity)
+                # FIXME: The price right? shouldn't i consider the price multiplier?
+                to_location_unit_cost = to_location_unit_cost + (to_location_product_price.amount * cps.quantity)
+
+                from_location_product_quantity = api.get_stock_quantity(cps.product, location_type=from_location.type)
+                from_location_product_price = api.get_stock_price(cps.product, location_type=from_location.type)
+                from_location_quantities.append(from_location_product_quantity // cps.quantity)
+                from_location_unit_cost = from_location_unit_cost + (from_location_product_price.amount * cps.quantity)
             from ..warehouse.models import Stock
 
             stock_outgoing, created = Stock.objects.get_or_create(product=composite, location=to_location)
             stock_incoming, created = Stock.objects.get_or_create(product=composite, location=from_location)
 
-            movement_quantity = abs(stock_incoming.quantity - min(quantities))
+            stock_incoming.unit_price = from_location_unit_cost
+            stock_outgoing.unit_price = to_location_unit_cost
+            # Update from_location quantity and price
 
-            stock_incoming.quantity -= movement_quantity
+            new_incoming_quantity = min(from_location_quantities)
+            stock_incoming.quantity = 0 if new_incoming_quantity < 0 else new_incoming_quantity
             stock_incoming.save()
 
-            stock_outgoing.unit_price = unit_price
-            stock_outgoing.quantity += movement_quantity
+            # Update to_location quantity and price
+
+            new_outgoing_quantity = min(to_location_quantities)
+            stock_outgoing.quantity = 0 if new_outgoing_quantity < 0 else new_outgoing_quantity
             stock_outgoing.save()
 
 
@@ -67,19 +83,14 @@ class MovableCompositeProductMixin(MovableMixin):
         locations to output locations.
         """
         from ..warehouse.models import Location
-        LOCATION_PIPELINE = {
+        location_pipeline = {
             Location.LOCATION_STORAGE: (Location.LOCATION_CUSTOMER, Location.LOCATION_OUTPUT),
             Location.LOCATION_OUTPUT: (Location.LOCATION_CUSTOMER, Location.LOCATION_STORAGE),
         }
 
-        price = self.price * price_multiplier
-        agent = kwargs.get('agent', 'composite')
-        note = kwargs.get('note', '')
+        allowed_locations = location_pipeline.get(from_location.type)
 
-        if to_location.type in LOCATION_PIPELINE.get(from_location.type):
-
-            # If the composite is going out of the storage, we actually move it
-            api.move(from_location, to_location, self, quantity, price, agent=agent, note=note)
+        if allowed_locations and to_location.type in allowed_locations:
 
             for product_set in self.compositeproduct.product_sets.all():
                 product = product_set.product
