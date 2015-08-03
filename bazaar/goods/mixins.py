@@ -45,13 +45,12 @@ class MovableProductMixin(MovableMixin):
                 to_location_product_quantity = api.get_stock_quantity(cps.product, location_type=to_location.type)
                 to_location_product_price = api.get_stock_price(cps.product, location_type=to_location.type)
                 to_location_quantities.append(to_location_product_quantity // cps.quantity)
-                # FIXME: The price right? shouldn't i consider the price multiplier?
-                to_location_unit_cost = to_location_unit_cost + (to_location_product_price.amount * cps.quantity)
+                to_location_unit_cost += (to_location_product_price.amount * cps.quantity)
 
                 from_location_product_quantity = api.get_stock_quantity(cps.product, location_type=from_location.type)
                 from_location_product_price = api.get_stock_price(cps.product, location_type=from_location.type)
                 from_location_quantities.append(from_location_product_quantity // cps.quantity)
-                from_location_unit_cost = from_location_unit_cost + (from_location_product_price.amount * cps.quantity)
+                from_location_unit_cost += (from_location_product_price.amount * cps.quantity)
             from ..warehouse.models import Stock
 
             stock_outgoing, created = Stock.objects.get_or_create(product=composite, location=to_location)

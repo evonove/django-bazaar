@@ -63,6 +63,12 @@ class ProductSet(models.Model):
 def create_stock_and_set_price(sender, instance, *args, **kwargs):
     composite = instance.composite
 
+    composite_price = 0
+    for cps in composite.product_sets.all():
+        composite_price += (cps.product.price.amount * cps.quantity)
+    composite.price = composite_price
+    composite.save()
+
     from bazaar.warehouse.locations import get_storage
     from bazaar.warehouse.models import Stock
 
