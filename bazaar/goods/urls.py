@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 from django.conf.urls import patterns, url
 
 from .views import ProductListView, ProductCreateView, ProductDetailView, ProductUpdateView, ProductDeleteView, \
-    CompositeCreateView, CompositeUpdateView
+    CompositeCreateView, CompositeUpdateView, ProductBrandListView, ProductBrandCreateView, \
+    ProductBrandDeleteView, ProductBrandUpdateView
 
 
 urlpatterns = patterns(
@@ -17,4 +18,9 @@ urlpatterns = patterns(
 
     url(r'^composites/new/$', CompositeCreateView, name="composite-create"),
     url(r'^composites/(?P<pk>\d+)/update/$', CompositeUpdateView, name="composite-update"),
+
+    url(r'^brands/$', ProductBrandListView.as_view(), name="productbrand-list"),
+    url(r'^brands/new/$', ProductBrandCreateView.as_view(), name="productbrand-create"),
+    url(r'^brands/(?P<pk>\d+)/delete/$', ProductBrandDeleteView.as_view(), name="productbrand-delete"),
+    url(r'^brands/(?P<pk>\d+)/update/$', ProductBrandUpdateView.as_view(), name="productbrand-update"),
 )

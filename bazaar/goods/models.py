@@ -16,6 +16,14 @@ from ..warehouse import api
 
 
 @python_2_unicode_compatible
+class ProductBrand(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+@python_2_unicode_compatible
 class Product(MovableProductMixin, models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -23,6 +31,7 @@ class Product(MovableProductMixin, models.Model):
     code = models.CharField(max_length=20, db_index=True, blank=True)
     photo = models.ImageField(upload_to='products', null=True, blank=True)
     price = MoneyField(help_text=_("Base default price for product"), validators=[MinValueValidator(limit_value=0)])
+    brand = models.ForeignKey(ProductBrand, related_name='products', blank=True, null=True, on_delete=models.SET_NULL)
 
     product_type = models.IntegerField(choices=bazaar_settings.PRODUCT_TYPE_CHOICES, null=True, blank=True)
 
@@ -34,11 +43,13 @@ class Product(MovableProductMixin, models.Model):
         Defines the cost of the good
         """
         from ..warehouse.api import get_storage_price
+
         return get_storage_price(self)
 
     @property
     def quantity(self):
         from ..warehouse.api import get_storage_quantity
+
         return get_storage_quantity(self)
 
     def __str__(self):

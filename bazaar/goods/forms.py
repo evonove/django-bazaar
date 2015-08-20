@@ -12,9 +12,10 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from djmoney.forms.fields import MoneyField
 
-from ..goods.models import Product, ProductSet, CompositeProduct
+from ..goods.models import Product, ProductSet, CompositeProduct, ProductBrand
 from ..helpers import FormHelperMixin
 from ..settings import bazaar_settings
+from ..helpers import FormModelHelperMixin
 
 
 class EanValidationMixin(forms.ModelForm):
@@ -109,3 +110,14 @@ class ProductSetForm(FormHelperMixin, autocomplete_light.ModelForm):
 
 ProductSetFormSet = inlineformset_factory(CompositeProduct, ProductSet, min_num=1, validate_min=True, extra=0,
                                           form=ProductSetForm, fk_name='composite')
+
+
+class ProductBrandForm(FormModelHelperMixin, forms.ModelForm):
+
+    class Meta:
+        model = ProductBrand
+        fields = ('name', )
+
+    class MetaHelper:
+        name_list_url = 'productbrand-list'
+        name_delete_url = 'productbrand-delete'

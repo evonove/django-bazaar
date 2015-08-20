@@ -6,15 +6,16 @@ from django.http.response import HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.utils.datastructures import SortedDict
+from django.contrib.messages.views import SuccessMessageMixin
 from django.views import generic
+from django.utils.translation import ugettext as _
 
 from braces.views import LoginRequiredMixin
 from bazaar.listings.models import Publishing
 from bazaar.warehouse.locations import get_storage
-from .filters import ProductFilter
-from .forms import ProductForm, ProductSetFormSet, CompositeProductForm
-from bazaar.goods.models import ProductMarketPrice
-from .models import Product, ProductSet, CompositeProduct
+from .filters import ProductFilter, ProductBrandFormFilter
+from .forms import ProductForm, ProductSetFormSet, CompositeProductForm, ProductBrandForm
+from .models import Product, ProductSet, CompositeProduct, ProductBrand, ProductMarketPrice
 from ..mixins import BazaarPrefixMixin, FilterSortableListView
 
 
@@ -111,7 +112,7 @@ class ProductUpdateView(LoginRequiredMixin, BazaarPrefixMixin, generic.UpdateVie
 
 
 # class CompositeProductCreateView(LoginRequiredMixin, BazaarPrefixMixin, generic.CreateView):
-#     model = CompositeProduct
+# model = CompositeProduct
 #     form_class = CompositeProductForm
 #
 #     fields = ['name', 'description', 'photo', 'price']
@@ -187,3 +188,36 @@ def CompositeUpdateView(request, pk):
     return render_to_response('bazaar/goods/compositeproduct_form.html',
                               {'form': form, 'formset': formset, 'product': the_object},
                               context_instance=RequestContext(request))
+
+
+class ProductBrandListView(LoginRequiredMixin, FilterSortableListView):
+    model = ProductBrand
+    paginate_by = 100
+    template_name = 'bazaar/goods/productbrand_list.html'
+    filter_class = ProductBrandFormFilter
+
+    sort_fields = (
+        'id', 'name',
+    )
+
+
+class ProductBrandCreateView(SuccessMessageMixin, LoginRequiredMixin, generic.CreateView):
+    model = ProductBrand
+    form_class = ProductBrandForm
+    template_name = 'bazaar/goods/productbrand_form.html'
+    success_url = reverse_lazy("productbrand-list")
+    success_message = '{} {}'.format(_('productbrand').title(), _('is created successfully'))
+
+
+class ProductBrandDeleteView(SuccessMessageMixin, LoginRequiredMixin, generic.DeleteView):
+    model = ProductBrand
+    success_url = reverse_lazy("productbrand-list")
+    success_message = '{} {}'.format(_('productbrand').title(), _('is deleted'))
+
+
+class ProductBrandUpdateView(SuccessMessageMixin, LoginRequiredMixin, generic.UpdateView):
+    model = ProductBrand
+    form_class = ProductBrandForm
+    success_url = reverse_lazy("productbrand-list")
+    template_name = 'bazaar/goods/productbrand_form.html'
+    success_message = '{} {}'.format(_('productbrand').title(), _('is updated'))

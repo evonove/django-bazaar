@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+{% load bazaar_list %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8 col-sm-8">
+            <table class="table table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th><a href="?{{ query_filter.urlencode }}&{{ sort_fields.id.query }}">{% trans "Id" %} {% sort_direction sort_fields.id %}</a></th>
+                    <th><a href="?{{ query_filter.urlencode }}&{{ sort_fields.name.query }}">{% trans "Name" %} {% sort_direction sort_fields.name %}</a></th>
+                </tr>
+                </thead>
+                <tbody>
+
+                {% for productbrand in productbrand_list %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'productbrand-update' productbrand.id %}">{{ productbrand.id }}</a>
+                        </td>
+
+                        <td>{{ productbrand.name }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <p>{% blocktrans with productbrand_count=paginator.count %}There are {{ productbrand_count }} sets{% endblocktrans %}</p>
+
+            {% include "bazaar/paginator.html" %}
+        </div>
+        <div class="col-md-4 col-sm-4">
+            <div class="margin-bottom-15">
+                <div class="col-md-12">
+                    <a href="{% url "productbrand-create" %}" class="btn btn-lg btn-primary">{% trans "Create" %}</a>
+                </div>
+                <div class="col-md-12">
+                    <h4>{% trans "Filters" %}</h4>
+                    <form method="get">
+                        {% crispy productbrand_filter.form %}
+                        <button type="submit" class="btn btn-primary">{% trans "Filter" %}</button>
+                        <a href="{% url 'productbrand-list' %}" class="btn{% if query_filter %} btn-primary{% else %} btn-default{% endif %}"
+                                {% if not query_filter %} disabled="disabled" {% endif %}>{% trans "Reset" %}</a>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
