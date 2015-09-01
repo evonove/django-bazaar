@@ -59,7 +59,10 @@ class FormModelHelperMixin(FormHelperMixin):
         submit_disabled = 'disabled="disabled"' if is_modelform and self.disable_save() else ''
         delete_disabled = 'disabled="disabled"' if is_modelform and (self.disable_delete() or not has_instance) else ''
 
-        has_back_button = getattr(self.MetaHelper, 'has_back_button', FormModelHelperMixin.MetaHelper.has_back_button)
+        has_back_button = getattr(self.MetaHelper, 'has_back_button',
+                                  FormModelHelperMixin.MetaHelper.has_back_button)
+        has_button_toolbar = getattr(self.MetaHelper, 'has_button_toolbar',
+                                     FormModelHelperMixin.MetaHelper.has_button_toolbar)
 
         save_html = '<input type="submit" name="save" value="{}" class="btn btn-primary" ' \
                     'id="submit-id-save" {}>'.format(_("submit").title(), submit_disabled)
@@ -79,19 +82,20 @@ class FormModelHelperMixin(FormHelperMixin):
                         extended_fields)
                 )
             )
-        helper.layout.append(
-            Div(
+        if has_button_toolbar:
+            helper.layout.append(
                 Div(
-                    ButtonHolder(
-                        HTML(back_html),
-                        HTML(save_html),
-                        HTML(delete_html)
+                    Div(
+                        ButtonHolder(
+                            HTML(back_html),
+                            HTML(save_html),
+                            HTML(delete_html)
+                        ),
+                        css_class="col-md-offset-3 col-md-8",
                     ),
-                    css_class="col-md-offset-3 col-md-8",
+                    css_class="form-group"
                 ),
-                css_class="form-group"
-            ),
-        )
+            )
         return helper
 
     class MetaHelper:
@@ -109,6 +113,7 @@ class FormModelHelperMixin(FormHelperMixin):
         extended_fields = []
         readonly_fields_if_not_empty = []
         has_back_button = True
+        has_button_toolbar = True
 
 
 class FormHelperMixinNoTag(FormHelperMixin):
