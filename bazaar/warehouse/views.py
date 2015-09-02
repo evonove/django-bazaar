@@ -40,7 +40,9 @@ class MovementFormView(MovementMixin, FormView):
         unit_price = form.cleaned_data["unit_price"]
         note = form.cleaned_data["note"]
 
-        api.move(from_location, to_location, product, quantity, unit_price,
-                 agent=self.request.user, note=note)
+        price_multiplier = unit_price / product.price
+
+        product.move(from_location, to_location, quantity=quantity, price_multiplier=price_multiplier,
+                     agent=self.request.user, note=note)
 
         return super(MovementFormView, self).form_valid(form)
