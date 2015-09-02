@@ -70,6 +70,10 @@ class MovableProductMixin(MovableMixin):
             stock_outgoing.quantity = 0 if new_outgoing_quantity < 0 else new_outgoing_quantity
             stock_outgoing.save()
 
+            from bazaar.warehouse.stocks import _send_changed_location
+            _send_changed_location(stock_incoming)
+            _send_changed_location(stock_outgoing)
+
 
 class MovableCompositeProductMixin(MovableMixin):
 
