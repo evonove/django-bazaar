@@ -45,6 +45,32 @@ class FormModelHelperMixin(FormHelperMixin):
         return False
 
     def get_form_helper(self):
+        attrs = (
+            'form',
+            'form_class',
+            'layout',
+            'form_tag',
+            'form_error_title',
+            'formset_error_title',
+            'form_show_errors',
+            'render_unmentioned_fields',
+            'render_hidden_fields',
+            'render_required_fields',
+
+            'html5_required',
+            'form_show_labels',
+            'template',
+            'field_template',
+            'disable_csrf',
+            'label_class',
+            'label_size',
+            'field_class',)
+
+        metahelper_dict = self.MetaHelper.__dict__
+        for name in list(set(metahelper_dict.keys()) & set(attrs)):
+            if hasattr(FormHelper, name):
+                setattr(FormHelper, name, metahelper_dict[name])
+
         helper = FormHelper(self)
         helper.form_class = "form-horizontal"
         helper.label_class = "col-md-3"
