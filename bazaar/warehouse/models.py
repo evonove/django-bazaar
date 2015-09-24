@@ -48,7 +48,7 @@ class Movement(models.Model):
     unit_price = MoneyField(help_text=_("Unit price"))
 
     agent = models.CharField(max_length=100, help_text=_("The batch/user that made the movement"))
-    note = models.TextField(null=True, blank=True)
+    note = models.TextField(blank=True)
 
     class Meta:
         get_latest_by = "date"
