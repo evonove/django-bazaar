@@ -166,7 +166,7 @@ class Publishing(models.Model):
         (COMPLETED_PUBLISHING, _("Completed")),
     )
     external_id = models.CharField(max_length=128, db_index=True)
-    title = models.CharField(max_length=100, blank=True, null=True)
+    title = models.CharField(max_length=256, blank=True, null=True)
 
     # TODO: Here we keep both picture_url and photo for compatibility, but picture_url will have to be removed
     picture_url = models.URLField(null=True, blank=True)
