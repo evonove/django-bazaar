@@ -15,7 +15,8 @@ class FormsTest(TestCase):
             'name': 'test product',
             'ean': "123456789",
             'price_0': self.product.price.amount,
-            'price_1': self.product.price.currency
+            'price_1': self.product.price.currency,
+            'condition': 'NEW'
         }
         form = ProductForm(data=form_data)
         self.assertEqual(form.is_valid(), False)
@@ -25,7 +26,8 @@ class FormsTest(TestCase):
             'name': 'test product',
             'ean': "324234432",
             'price_0': self.product.price.amount,
-            'price_1': self.product.price.currency
+            'price_1': self.product.price.currency,
+            'condition': 'NEW'
         }
         form = ProductForm(data=form_data)
         self.assertEqual(form.is_valid(), True, form.errors)
@@ -36,6 +38,7 @@ class FormsTest(TestCase):
              'ean': self.product2.ean,
              'price_0': self.product.price.amount,
              'price_1': self.product.price.currency
+            'condition': 'NEW',
         }
         form = ProductForm(instance=self.product, data=form_data)
         self.assertEqual(form.is_valid(), False)
@@ -45,7 +48,8 @@ class FormsTest(TestCase):
              'name': self.product.name,
              'ean': '23892839932',
              'price_0': self.product.price.amount,
-             'price_1': self.product.price.currency
+             'price_1': self.product.price.currency,
+            'condition': 'NEW'
         }
         form = ProductForm(instance=self.product, data=form_data)
         self.assertEqual(form.is_valid(), True)
@@ -55,7 +59,8 @@ class FormsTest(TestCase):
             'name': self.product.name,
             'ean': self.product.ean,
             'price_0': self.product.price.amount,
-            'price_1': self.product.price.currency
+            'price_1': self.product.price.currency,
+            'condition': 'NEW'
         }
         form = ProductForm(instance=self.product, data=form_data)
         self.assertEqual(form.is_valid(), True)
@@ -65,7 +70,8 @@ class FormsTest(TestCase):
             'name': self.product.name,
             'ean': '',
             'price_0': self.product.price.amount,
-            'price_1': self.product.price.currency
+            'price_1': self.product.price.currency,
+            'condition': 'NEW'
         }
         form = ProductForm(instance=self.product, data=form_data)
         self.assertEqual(form.is_valid(), True)
@@ -75,7 +81,8 @@ class FormsTest(TestCase):
             'name': self.product.name,
             'ean': '',
             'price_0': self.product.price.amount,
-            'price_1': self.product.price.currency
+            'price_1': self.product.price.currency,
+            'condition': 'NEW'
         }
         form = ProductForm(data=form_data)
         self.assertEqual(form.is_valid(), True)

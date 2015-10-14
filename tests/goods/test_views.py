@@ -164,6 +164,7 @@ class TestProductUpdateView(TestBase):
             'description': self.product.description,
             'ean': self.product.ean,
             'photo': self.product.photo.name,
+            'condition': 'NEW'
         }
         response = self.client.post(reverse('bazaar:product-update', kwargs={'pk': self.product.pk}), data=data)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
@@ -182,6 +183,7 @@ class TestProductUpdateView(TestBase):
             'description': self.product.description,
             'ean': self.product.ean,
             'photo': self.product.photo.name,
+            'condition': 'NEW'
         }
         response = self.client.post(reverse('bazaar:product-update', kwargs={'pk': self.product.pk}), data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -202,6 +204,7 @@ class TestProductCreateView(TestBase):
             'description': 'mydescription',
             'ean': None,
             'photo': '',
+            'condition': 'NEW'
         }
         response = self.client.post(reverse('bazaar:product-create'), data=data)
         product = Product.objects.get(name='ModifiedName')
@@ -218,6 +221,7 @@ class TestProductCreateView(TestBase):
             'description': 'mydescription',
             'ean': None,
             'photo': '',
+            'condition': 'NEW'
         }
         response = self.client.post(reverse('bazaar:product-create'), data=data)
         self.assertRedirects(response, '/accounts/login/?next=/products/new/')
@@ -234,6 +238,7 @@ class TestProductCreateView(TestBase):
             'description': 'mydescription',
             'ean': None,
             'photo': '',
+            'condition': 'NEW'
         }
         response = self.client.post(reverse('bazaar:product-create'), data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
