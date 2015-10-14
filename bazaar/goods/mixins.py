@@ -26,7 +26,7 @@ class MovableProductMixin(MovableMixin):
         from a location to another, with the possibility to specify quantity,
         a price_multiplier (of the product's price), the agent who moved the product and additional notes.
         """
-        price = self.price * price_multiplier
+        price = kwargs.get('price', None) or self.price * price_multiplier
         agent = kwargs.get('agent', 'bazaar')
         note = kwargs.get('note', '')
 
