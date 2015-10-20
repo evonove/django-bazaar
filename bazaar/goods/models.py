@@ -25,9 +25,6 @@ class ProductBrand(models.Model):
 
 @python_2_unicode_compatible
 class Product(MovableProductMixin, models.Model):
-    CONDITION_CHOICES = (
-        ('NEW', _('New')),
-    )
     name = models.CharField(max_length=256)
     description = models.TextField(blank=True)
     ean = models.CharField(max_length=20, db_index=True)
@@ -35,7 +32,8 @@ class Product(MovableProductMixin, models.Model):
     photo = models.ImageField(upload_to='products', null=True, blank=True)
     price = MoneyField(help_text=_("Base default price for product"), validators=[MinValueValidator(limit_value=0)])
     brand = models.ForeignKey(ProductBrand, related_name='products', blank=True, null=True, on_delete=models.SET_NULL)
-    condition = models.CharField(max_length=100, choices=CONDITION_CHOICES, default='NEW', null=True)
+    condition = models.CharField(max_length=100, choices=bazaar_settings.CONDITION_CHOICES,
+                                 default=bazaar_settings.CONDITION_CHOICES[0][0], null=True)
 
     product_type = models.IntegerField(choices=bazaar_settings.PRODUCT_TYPE_CHOICES, null=True, blank=True)
 

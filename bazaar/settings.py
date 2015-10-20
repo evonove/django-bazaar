@@ -18,6 +18,7 @@ back to the defaults.
 
 from django.conf import settings
 from django.utils import importlib, six
+from django.utils.translation import ugettext_lazy as _
 
 import moneyed
 
@@ -36,6 +37,7 @@ DEFAULTS = {
     'LISTING_FILTER': 'bazaar.listings.filters.ListingFilter',
     'PT_GENERIC': 0,
     'PRODUCT_TYPE_CHOICES': ((0, 'Generic'), ),
+    'CONDITION_CHOICES': (('NEW', _('New')), ),
     'STORAGE': 'storage',
     'OUTPUT': 'output',
     'SUPPLIER': 'supplier',
