@@ -64,6 +64,7 @@ class ProductForm(EanValidationMixin, FormHelperMixin, forms.ModelForm):
 
     class Meta:
         model = Product
+        fields = ['name', 'description', 'ean', 'photo', 'price']
         exclude = ("price_lists",)
 
 

@@ -31,3 +31,4 @@ class PublishingForm(forms.ModelForm):
 
     class Meta:
         model = Publishing
+        exclude = ()

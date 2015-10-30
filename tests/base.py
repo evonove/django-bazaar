@@ -8,3 +8,4 @@ class BaseTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
         call_command("update_rates")
+        super().setUpClass()

@@ -70,8 +70,6 @@ class ProductCreateView(LoginRequiredMixin, BazaarPrefixMixin, generic.CreateVie
     model = Product
     form_class = ProductForm
 
-    fields = ['name', 'description', 'ean', 'photo', 'price']
-
     def get_success_url(self):
         return reverse_lazy("bazaar:product-detail", kwargs={'pk': self.object.id})
 
