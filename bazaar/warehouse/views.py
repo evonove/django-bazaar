@@ -6,7 +6,6 @@ from django.views.generic import FormView
 from braces.views import LoginRequiredMixin
 
 from ..mixins import BazaarPrefixMixin
-from . import api
 from .forms import MovementForm
 
 
