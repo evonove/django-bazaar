@@ -2,6 +2,8 @@ from __future__ import unicode_literals
 
 from django.db import models
 import collections
+from django.db.models import F
+from django.db.models import Func
 
 from django.utils.datastructures import SortedDict
 
@@ -127,29 +129,29 @@ class ProductsQuerySet(InheritanceQuerySetMixin, models.QuerySet):
         )
 
     def with_net_price(self, reference):
-        return self.extra(
-            select={
-                "net_price": "goods_product.price - GREATEST({}, goods_product.price * {}) - goods_product.price * {}"
-                .format(reference.lower_fixed_store_fee, reference.store_fee / 100, reference.vat / 100)
-            })
+        return self.annotate(
+            net_price=
+            F('price') -
+            Func(reference.lower_fixed_store_fee, F('price') * reference.store_fee / 100, function='GREATEST')
+        )
 
     def with_price_delta(self, reference):
         qs = self.select_related('market_price')
-        return qs.extra(
-            select={
-                "price_delta":
-                    "goods_product.price - GREATEST({}, goods_product.price * {})  - goods_product.price * {} "
-                    "- market_productmarketprice.price"
-                    .format(reference.lower_fixed_store_fee, reference.store_fee / 100, reference.vat / 100)
-            })
+        return qs.annotate(
+            price_delta=
+            F('price') -
+            Func(reference.lower_fixed_store_fee, F('price') * reference.store_fee / 100, function='GREATEST') -
+            F('price') * reference.vat / 100 -
+            F('market_price__price')
+        )
 
     def with_price_delta_in_composite(self, reference):
         qs = self.select_related('market_price')
         qs = qs.prefetch_related('composites')
-        return qs.extra(
-            select={
-                "price_delta":
-                    "goods_product.price - GREATEST({}, goods_product.price * {})  - goods_product.price * {} "
-                    "- market_productmarketprice.price"
-                    .format(reference.lower_fixed_store_fee, reference.store_fee / 100, reference.vat / 100)
-            })
+        return qs.annotate(
+            price_delta=
+            F('price') -
+            Func(reference.lower_fixed_store_fee, F('price') * reference.store_fee / 100, function='GREATEST') -
+            F('price') * reference.vat / 100 -
+            F('market_price__price')
+        )
