@@ -130,16 +130,14 @@ class ProductsQuerySet(InheritanceQuerySetMixin, models.QuerySet):
 
     def with_net_price(self, reference):
         return self.annotate(
-            net_price=
-            F('price') -
+            net_price=F('price') -
             Func(reference.lower_fixed_store_fee, F('price') * reference.store_fee / 100, function='GREATEST')
         )
 
     def with_price_delta(self, reference):
         qs = self.select_related('market_price')
         return qs.annotate(
-            price_delta=
-            F('price') -
+            price_delta=F('price') -
             Func(reference.lower_fixed_store_fee, F('price') * reference.store_fee / 100, function='GREATEST') -
             F('price') * reference.vat / 100 -
             F('market_price__price')
@@ -149,8 +147,7 @@ class ProductsQuerySet(InheritanceQuerySetMixin, models.QuerySet):
         qs = self.select_related('market_price')
         qs = qs.prefetch_related('composites')
         return qs.annotate(
-            price_delta=
-            F('price') -
+            price_delta=F('price') -
             Func(reference.lower_fixed_store_fee, F('price') * reference.store_fee / 100, function='GREATEST') -
             F('price') * reference.vat / 100 -
             F('market_price__price')

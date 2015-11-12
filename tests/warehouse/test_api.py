@@ -244,7 +244,7 @@ class TestStock(TestCase):
         output_stock = Stock.objects.get(location=self.output, product=self.product)
 
         self.assertEqual(supplier_stock.unit_price, Money(0, "EUR"))
-        self.assertEqual(storage_stock.unit_price, Money(0.575, "EUR"))
+        self.assertEqual(storage_stock.unit_price, Money(0.58, "EUR"))
         self.assertEqual(output_stock.unit_price, Money(1.75, "EUR"))
 
 #
