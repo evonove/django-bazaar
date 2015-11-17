@@ -27,7 +27,7 @@ def paginator_slice(page_obj, adjacent_pages=3):
     min_page = max(1, current_page - adjacent_pages)
     max_page = min(end_page + 1, current_page + adjacent_pages + 1)
 
-    page_numbers = range(min_page, max_page)
+    page_numbers = list(range(min_page, max_page))
 
     # add first page to list whether it's missing
     if min_page > 1:
