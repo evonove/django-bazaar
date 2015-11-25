@@ -198,3 +198,4 @@ class ListingViewSet(mixins.ListModelMixin, GenericViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     filter_backends = (SearchFilter,)
     search_fields = ('product__name', )
+    queryset = Listing.objects.all()

@@ -86,11 +86,9 @@ class FormModelHelperMixin(FormHelperMixin):
             helper.layout.append(
                 Div(
                     Div(
-                        ButtonHolder(
-                            HTML(back_html),
-                            HTML(save_html),
-                            HTML(delete_html)
-                        ),
+                        HTML(back_html),
+                        HTML(save_html),
+                        HTML(delete_html),
                         css_class="col-md-offset-3 col-md-8",
                     ),
                     css_class="form-group"
