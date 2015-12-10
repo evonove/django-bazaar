@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext as _
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Div, ButtonHolder, HTML, Layout
+from crispy_forms.layout import Div, HTML, Layout
 from crispy_forms.bootstrap import TabHolder, Tab, StrictButton
 
 

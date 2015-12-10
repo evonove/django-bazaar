@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from bazaar.goods.models import Product
@@ -16,6 +17,11 @@ from tests.factories import PublishingFactory, ListingFactory, ProductFactory
 
 
 class TestBase(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        call_command('update_rates')
+        super(TestBase, cls).setUpClass()
+
     def setUp(self):
         self.user = get_user_model().objects.create_user(username='test', email='test@test.it', password='test')
         self.product = f.ProductFactory(name='product1', price=2, description='the best you can have!')
