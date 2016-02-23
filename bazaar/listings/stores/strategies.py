@@ -33,7 +33,7 @@ class DefaultStoreStrategy(object):
     def get_publishing_create_url(self):
         return None
 
-    def get_model(self):
+    def get_publishing_model(self):
         return Publishing
 
     def get_publishing_form(self):
