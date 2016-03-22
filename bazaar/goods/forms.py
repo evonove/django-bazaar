@@ -81,6 +81,7 @@ class CompositeProductForm(FormHelperMixin, forms.ModelForm):
                 'name',
                 'description',
                 'code',
+                'condition',
                 'photo',
                 'market_price',
             ),
