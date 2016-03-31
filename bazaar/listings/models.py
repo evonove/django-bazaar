@@ -7,7 +7,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-from model_utils.managers import InheritanceManager
 
 from bazaar.listings.managers import PublishingsManager
 from bazaar.listings.querysets import PublishingsQuerySet
@@ -17,7 +16,7 @@ from ..fields import MoneyField, SKUField, create_sku
 from ..goods.models import Product
 from ..settings import bazaar_settings
 
-from .managers import ListingManager
+from .managers import ListingManager, OrderManager
 
 
 @python_2_unicode_compatible
@@ -229,7 +228,7 @@ class Order(models.Model):
 
     status = models.IntegerField(max_length=50, choices=ORDER_STATUS_CHOICES, default=ORDER_PENDING)
 
-    objects = InheritanceManager()
+    objects = OrderManager()
 
     def __str__(self):
         return "Order %s from %s" % (self.external_id, self.store)

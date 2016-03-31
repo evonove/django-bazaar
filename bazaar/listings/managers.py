@@ -2,6 +2,9 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+from model_utils.managers import InheritanceManagerMixin
+
+
 FORCED_LOWER = -999999
 
 
@@ -91,3 +94,21 @@ class PublishingsManager(models.Manager):
             qs = qs.filter(listing=listing)
 
         return qs | self.active(listing)
+
+
+class OrderManager(InheritanceManagerMixin, models.Manager):
+    """
+    Custom OrderManager that behaves as an ``InheritanceManager`` but adds
+    more functionalities to simplify Order queries
+    """
+    def last_modified(self):
+        """
+        Returns a QuerySet with the latest modified object. Because it
+        uses the current QuerySet, you can chain this method with other
+        filters, but remember that this call should be the last because the
+        QuerySet will always contain only one item.
+
+        If the QuerySet includes items without the modified field properly set,
+        simply return an empty QuerySet.
+        """
+        return self.get_queryset().exclude(modified=None).order_by('-modified')[:1]
