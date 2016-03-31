@@ -10,7 +10,7 @@ import pytz
 
 from bazaar.listings.models import Store, Listing, Publishing
 from moneyed import Money
-from ..factories import (ProductFactory, StockFactory, ListingFactory, PublishingFactory)
+from ..factories import (ProductFactory, StockFactory, ListingFactory, PublishingFactory, OrderFactory)
 
 
 class TestPublishingModelManager(TestCase):
@@ -117,3 +117,18 @@ class TestListingModel(TestCase):
     def test_is_low_cost(self):
         PublishingFactory(listing=self.listing, available_units=25, price=1)
         self.assertTrue(self.listing.is_low_cost())
+
+
+class TestOrderModel(TestCase):
+    def test_dates_are_not_mandatory(self):
+        """
+        Ensures that the Order model includes date fields that are available
+        but not mandatory. These fields can be used within custom managers.
+        """
+        # test case
+        order = OrderFactory()
+        # the factory creates empty dates so they should be None
+        # and the database should accept these 'null' values
+        self.assertEqual(order.paid_time, None)
+        self.assertEqual(order.modified, None)
+        self.assertEqual(order.shipped_time, None)

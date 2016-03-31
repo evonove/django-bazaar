@@ -213,6 +213,11 @@ class Order(models.Model):
         (ORDER_PENDING, _("Pending")),
         (ORDER_COMPLETED, _("Completed")),
     )
+
+    paid_time = models.DateTimeField(null=True, blank=True)
+    modified = models.DateTimeField(null=True, blank=True)
+    shipped_time = models.DateTimeField(null=True, blank=True)
+
     external_id = models.CharField(max_length=256)
     store = models.ForeignKey(Store)
     publishing = models.ForeignKey(Publishing, null=True, blank=True)
